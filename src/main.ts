@@ -1,8 +1,26 @@
 import { NestFactory } from "@nestjs/core";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Swagger
+  const config = new DocumentBuilder()
+    .setTitle("Cantaritos El Güero API")
+    .setDescription("API para sistema de ventas con códigos QR")
+    .setVersion("1.0")
+    .addTag("Users", "Gestión de usuarios")
+    .addTag("Stands", "Gestión de puestos")
+    .addTag("Products", "Gestión de productos, tamaños y modificadores")
+    .addTag("Combos", "Gestión de combos")
+    .addTag("Orders", "Gestión de órdenes y entregas")
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("api/docs", app, document);
+
   await app.listen(process.env.PORT ?? 3000);
 }
 
