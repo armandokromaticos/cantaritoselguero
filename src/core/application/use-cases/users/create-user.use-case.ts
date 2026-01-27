@@ -29,10 +29,10 @@ export class CreateUserUseCase {
     const { data, error } = await supabase.auth.admin.createUser({
       email: dto.email,
       password: dto.password,
+      phone: dto.phone,
       email_confirm: true,
       user_metadata: {
         name: dto.name,
-        phone: dto.phone,
       },
     });
 

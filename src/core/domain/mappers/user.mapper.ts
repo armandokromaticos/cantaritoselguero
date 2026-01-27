@@ -11,6 +11,9 @@ export class UserMapper {
     entity.email = prismaUser.email;
     entity.name = prismaUser.name;
     entity.phone = prismaUser.phone;
+    if (!Object.values(Role).includes(prismaUser.role as Role)) {
+      throw new Error(`Invalid role value: ${prismaUser.role}`);
+    }
     entity.role = prismaUser.role as Role;
     entity.standId = prismaUser.standId;
     entity.isActive = prismaUser.isActive;
