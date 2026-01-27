@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import type { IUserRepository } from "../../../domain/repositories/user.repository.interface";
 import { USER_REPOSITORY } from "../../../domain/repositories/user.repository.interface";
 import { CreateUserDto } from "../../dto/users/create-user.dto";
@@ -33,13 +38,20 @@ export class CreateUserUseCase {
 
     const authId = data.user.id;
 
-    const user = await this.userRepository.create({
-      authId,
-      email: dto.email,
-      name: dto.name,
-      phone: dto.phone ?? null,
-    });
+    try {
+      const user = await this.userRepository.create({
+        authId,
+        email: dto.email,
+        name: dto.name,
+        phone: dto.phone ?? null,
+      });
 
-    return UserMapper.toDomain(user);
+      return UserMapper.toDomain(user);
+    } catch (dbError) {
+      await supabase.auth.admin.deleteUser(authId);
+      throw new InternalServerErrorException(
+        "Error al crear el usuario en la base de datos. Se revirtió el registro en Auth.",
+      );
+    }
   }
 }
