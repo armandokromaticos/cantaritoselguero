@@ -14,6 +14,7 @@ async function bootstrap() {
     .setTitle("Cantaritos El Güero API")
     .setDescription("API para sistema de ventas con códigos QR")
     .setVersion("1.0")
+    .addTag("Auth", "Autenticación")
     .addTag("Users", "Gestión de usuarios")
     .addTag("Stands", "Gestión de puestos")
     .addTag("Products", "Gestión de productos, tamaños y modificadores")
