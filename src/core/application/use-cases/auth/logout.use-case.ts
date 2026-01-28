@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { SupabaseService } from "../../../infrastructure/supabase/supabase.service";
 
 @Injectable()
@@ -15,6 +15,7 @@ export class LogoutUseCase {
 
     if (error) {
       this.logger.warn(`Logout fallido: ${error.message}`);
+      throw new UnauthorizedException("Error al cerrar sesión");
     }
 
     this.logger.log("Logout completado");

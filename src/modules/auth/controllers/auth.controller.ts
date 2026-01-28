@@ -26,12 +26,14 @@ export class AuthController {
   ) {}
 
   @Post("login")
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Iniciar sesión" })
   async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
     return this.loginUseCase.execute(dto);
   }
 
   @Post("refresh")
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Refrescar tokens" })
   async refresh(@Body() dto: RefreshTokenDto): Promise<AuthResponseDto> {
     return this.refreshTokenUseCase.execute(dto);
