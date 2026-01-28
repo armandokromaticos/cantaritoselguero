@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Request } from "express";
@@ -34,7 +35,7 @@ export class RolesGuard implements CanActivate {
     const authUser = request["user"] as { authId: string; email: string };
 
     if (!authUser?.authId) {
-      throw new ForbiddenException("Usuario no autenticado");
+      throw new UnauthorizedException("Usuario no autenticado");
     }
 
     const user = await this.userRepository.findByAuthId(authUser.authId);
@@ -47,7 +48,7 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException("Usuario desactivado");
     }
 
-    const hasRole = requiredRoles.some((role) => user.role === role);
+    const hasRole = requiredRoles.some((role) => (user.role as Role) === role);
 
     if (!hasRole) {
       throw new ForbiddenException("No tienes permisos para esta acción");
