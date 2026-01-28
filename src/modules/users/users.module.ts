@@ -6,8 +6,10 @@ import { GetUserUseCase } from "../../core/application/use-cases/users/get-user.
 import { GetUsersUseCase } from "../../core/application/use-cases/users/get-users.use-case";
 import { UpdateUserUseCase } from "../../core/application/use-cases/users/update-user.use-case";
 import { UsersController } from "./controllers/users.controller";
+import { AuthModule } from "../auth/auth.module";
 
 @Module({
+  imports: [AuthModule],
   controllers: [UsersController],
   providers: [
     {
