@@ -22,7 +22,7 @@ export class LoginUseCase {
   ) {}
 
   async execute(dto: LoginDto): Promise<AuthResponseDto> {
-    this.logger.log(`Intento de login: ${dto.email}`);
+    this.logger.log("Intento de login");
     const supabase = this.supabaseService.getAdmin();
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -31,7 +31,7 @@ export class LoginUseCase {
     });
 
     if (error) {
-      this.logger.warn(`Login fallido para ${dto.email}: ${error.message}`);
+      this.logger.warn(`Login fallido: ${error.message}`);
       throw new UnauthorizedException("Credenciales inválidas");
     }
 
@@ -44,12 +44,20 @@ export class LoginUseCase {
     }
 
     const entity = UserMapper.toDomain(user);
+
+    if (!data.session) {
+      this.logger.warn(
+        `Login exitoso pero sin sesión para authId: ${data.user.id}`,
+      );
+      throw new UnauthorizedException("Sesión no disponible");
+    }
+
     const response = new AuthResponseDto();
     response.accessToken = data.session.access_token;
     response.refreshToken = data.session.refresh_token;
     response.user = UserMapper.toResponse(entity);
 
-    this.logger.log(`Login exitoso: ${dto.email}`);
+    this.logger.log(`Login exitoso para userId: ${entity.id}`);
     return response;
   }
 }
