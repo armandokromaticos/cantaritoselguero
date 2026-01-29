@@ -19,7 +19,6 @@ export class CreateProductModifierUseCase {
     groupId: string,
     dto: CreateProductModifierDto,
   ): Promise<ProductModifierEntity> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const group = await this.groupRepository.findById(groupId);
     if (!group) {
       throw new NotFoundException(

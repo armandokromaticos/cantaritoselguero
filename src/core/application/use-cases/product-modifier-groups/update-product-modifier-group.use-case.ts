@@ -24,10 +24,18 @@ export class UpdateProductModifierGroupUseCase {
     if (!hasUpdates) {
       throw new BadRequestException("No fields provided for update");
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const existing = await this.repository.findById(id);
+    const existing = (await this.repository.findById(
+      id,
+    )) as ProductModifierGroupEntity | null;
     if (!existing) {
       throw new NotFoundException(`Modifier group with id "${id}" not found`);
+    }
+    const minSelect = dto.minSelect ?? existing.minSelect;
+    const maxSelect = dto.maxSelect ?? existing.maxSelect;
+    if (minSelect > maxSelect) {
+      throw new BadRequestException(
+        "minSelect must be less than or equal to maxSelect",
+      );
     }
     return this.repository.update(
       id,
