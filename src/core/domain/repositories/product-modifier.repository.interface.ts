@@ -6,6 +6,7 @@ export const PRODUCT_MODIFIER_REPOSITORY = Symbol(
 
 export interface IProductModifierRepository {
   create(entity: ProductModifierEntity): Promise<ProductModifierEntity>;
+  findById(id: string): Promise<ProductModifierEntity | null>;
   findByGroupId(groupId: string): Promise<ProductModifierEntity[]>;
   update(
     id: string,

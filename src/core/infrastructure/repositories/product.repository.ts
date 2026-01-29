@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../database/prisma/prisma.service";
 import { IProductRepository } from "../../domain/repositories/product.repository.interface";
 import { ProductEntity } from "../../domain/entities/product.entity";
@@ -33,7 +34,6 @@ export class ProductRepository implements IProductRepository {
     if (entity.name !== undefined) data.name = entity.name;
     if (entity.description !== undefined) data.description = entity.description;
     if (entity.basePrice !== undefined) {
-      const { Prisma } = await import("@prisma/client");
       data.basePrice = new Prisma.Decimal(entity.basePrice);
     }
     if (entity.image !== undefined) data.image = entity.image;

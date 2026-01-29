@@ -19,9 +19,12 @@ export class CreateProductModifierUseCase {
     groupId: string,
     dto: CreateProductModifierDto,
   ): Promise<ProductModifierEntity> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const group = await this.groupRepository.findById(groupId);
     if (!group) {
-      throw new NotFoundException(`Modifier group with id "${groupId}" not found`);
+      throw new NotFoundException(
+        `Modifier group with id "${groupId}" not found`,
+      );
     }
     const entity = ProductModifierEntity.fromCreateDto(groupId, dto);
     return this.repository.create(entity);

@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../database/prisma/prisma.service";
 import { IProductModifierRepository } from "../../domain/repositories/product-modifier.repository.interface";
 import { ProductModifierEntity } from "../../domain/entities/product-modifier.entity";
@@ -9,13 +10,26 @@ export class ProductModifierRepository implements IProductModifierRepository {
 
   async create(entity: ProductModifierEntity): Promise<ProductModifierEntity> {
     const data = entity.toPrismaCreate();
-    const modifier = await this.prisma.productModifier.create({ data: data as never });
+    const modifier = await this.prisma.productModifier.create({
+      data: data as never,
+    });
     return ProductModifierEntity.fromPrisma(modifier);
   }
 
+  async findById(id: string): Promise<ProductModifierEntity | null> {
+    const modifier = await this.prisma.productModifier.findUnique({
+      where: { id },
+    });
+    return modifier ? ProductModifierEntity.fromPrisma(modifier) : null;
+  }
+
   async findByGroupId(groupId: string): Promise<ProductModifierEntity[]> {
-    const modifiers = await this.prisma.productModifier.findMany({ where: { groupId } });
-    return modifiers.map((modifier) => ProductModifierEntity.fromPrisma(modifier));
+    const modifiers = await this.prisma.productModifier.findMany({
+      where: { groupId },
+    });
+    return modifiers.map((modifier) =>
+      ProductModifierEntity.fromPrisma(modifier),
+    );
   }
 
   async update(
@@ -25,7 +39,6 @@ export class ProductModifierRepository implements IProductModifierRepository {
     const data: Record<string, unknown> = {};
     if (entity.name !== undefined) data.name = entity.name;
     if (entity.priceAdjustment !== undefined) {
-      const { Prisma } = await import("@prisma/client");
       data.priceAdjustment = new Prisma.Decimal(entity.priceAdjustment);
     }
     if (entity.isDefault !== undefined) data.isDefault = entity.isDefault;

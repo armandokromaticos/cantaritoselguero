@@ -10,7 +10,7 @@ export class ProductModifierGroupResponseDto {
   @ApiProperty()
   name: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, type: String })
   description: string | null;
 
   @ApiProperty()

@@ -1,4 +1,9 @@
-import { Inject, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import type { IProductSizeRepository } from "../../../domain/repositories/product-size.repository.interface";
 import { PRODUCT_SIZE_REPOSITORY } from "../../../domain/repositories/product-size.repository.interface";
 import { UpdateProductSizeDto } from "../../dto/product-sizes/update-product-size.dto";
@@ -15,6 +20,14 @@ export class UpdateProductSizeUseCase {
     id: string,
     dto: UpdateProductSizeDto,
   ): Promise<ProductSizeEntity> {
+    const hasUpdates = Object.values(dto).some((value) => value !== undefined);
+    if (!hasUpdates) {
+      throw new BadRequestException("No fields provided for update");
+    }
+    const existing = await this.productSizeRepository.findById(id);
+    if (!existing) {
+      throw new NotFoundException(`Product size with id "${id}" not found`);
+    }
     return this.productSizeRepository.update(
       id,
       dto as Partial<ProductSizeEntity>,

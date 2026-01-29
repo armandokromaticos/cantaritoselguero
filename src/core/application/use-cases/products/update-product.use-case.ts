@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import type { IProductRepository } from "../../../domain/repositories/product.repository.interface";
 import { PRODUCT_REPOSITORY } from "../../../domain/repositories/product.repository.interface";
 import { UpdateProductDto } from "../../dto/products/update-product.dto";
@@ -12,6 +17,10 @@ export class UpdateProductUseCase {
   ) {}
 
   async execute(id: string, dto: UpdateProductDto): Promise<ProductEntity> {
+    const hasUpdates = Object.values(dto).some((value) => value !== undefined);
+    if (!hasUpdates) {
+      throw new BadRequestException("No fields provided for update");
+    }
     const existing = await this.productRepository.findById(id);
     if (!existing) {
       throw new NotFoundException(`Product with id ${id} not found`);

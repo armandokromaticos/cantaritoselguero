@@ -5,7 +5,7 @@ export class UserResponseDto {
   @ApiProperty()
   id: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, type: String })
   authId: string | null;
 
   @ApiProperty()
@@ -14,13 +14,13 @@ export class UserResponseDto {
   @ApiProperty()
   name: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, type: String })
   phone: string | null;
 
   @ApiProperty({ enum: Role })
   role: Role;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, type: String })
   standId: string | null;
 
   @ApiProperty()

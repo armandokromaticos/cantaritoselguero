@@ -7,22 +7,22 @@ export class ProductResponseDto {
   @ApiProperty()
   name: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, type: String })
   description: string | null;
 
   @ApiProperty()
   basePrice: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, type: String })
   image: string | null;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, type: Number })
   stock: number | null;
 
   @ApiProperty()
   isActive: boolean;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, type: String })
   standId: string | null;
 
   @ApiProperty()

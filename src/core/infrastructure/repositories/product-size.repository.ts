@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../database/prisma/prisma.service";
 import { IProductSizeRepository } from "../../domain/repositories/product-size.repository.interface";
 import { ProductSizeEntity } from "../../domain/entities/product-size.entity";
@@ -13,8 +14,17 @@ export class ProductSizeRepository implements IProductSizeRepository {
     return ProductSizeEntity.fromPrisma(size);
   }
 
+  async findById(id: string): Promise<ProductSizeEntity | null> {
+    const size = await this.prisma.productSize.findUnique({
+      where: { id },
+    });
+    return size ? ProductSizeEntity.fromPrisma(size) : null;
+  }
+
   async findByProductId(productId: string): Promise<ProductSizeEntity[]> {
-    const sizes = await this.prisma.productSize.findMany({ where: { productId } });
+    const sizes = await this.prisma.productSize.findMany({
+      where: { productId },
+    });
     return sizes.map((size) => ProductSizeEntity.fromPrisma(size));
   }
 
@@ -25,7 +35,6 @@ export class ProductSizeRepository implements IProductSizeRepository {
     const data: Record<string, unknown> = {};
     if (entity.name !== undefined) data.name = entity.name;
     if (entity.price !== undefined) {
-      const { Prisma } = await import("@prisma/client");
       data.price = new Prisma.Decimal(entity.price);
     }
     if (entity.sortOrder !== undefined) data.sortOrder = entity.sortOrder;
