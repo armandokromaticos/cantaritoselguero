@@ -1,30 +1,29 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Role } from "../../../domain/enums/role.enum";
 
-export class UserResponseDto {
+export class ProductResponseDto {
   @ApiProperty()
   id: string;
-
-  @ApiPropertyOptional({ nullable: true, type: String })
-  authId: string | null;
-
-  @ApiProperty()
-  email: string;
 
   @ApiProperty()
   name: string;
 
   @ApiPropertyOptional({ nullable: true, type: String })
-  phone: string | null;
+  description: string | null;
 
-  @ApiProperty({ enum: Role })
-  role: Role;
+  @ApiProperty()
+  basePrice: number;
 
   @ApiPropertyOptional({ nullable: true, type: String })
-  standId: string | null;
+  image: string | null;
+
+  @ApiPropertyOptional({ nullable: true, type: Number })
+  stock: number | null;
 
   @ApiProperty()
   isActive: boolean;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  standId: string | null;
 
   @ApiProperty()
   createdAt: Date;
