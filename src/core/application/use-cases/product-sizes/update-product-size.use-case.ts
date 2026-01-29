@@ -15,6 +15,9 @@ export class UpdateProductSizeUseCase {
     id: string,
     dto: UpdateProductSizeDto,
   ): Promise<ProductSizeEntity> {
-    return this.productSizeRepository.update(id, dto);
+    return this.productSizeRepository.update(
+      id,
+      dto as Partial<ProductSizeEntity>,
+    );
   }
 }

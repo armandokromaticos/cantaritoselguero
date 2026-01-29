@@ -16,6 +16,6 @@ export class UpdateProductUseCase {
     if (!existing) {
       throw new NotFoundException(`Product with id ${id} not found`);
     }
-    return this.productRepository.update(id, dto);
+    return this.productRepository.update(id, dto as Partial<ProductEntity>);
   }
 }

@@ -15,6 +15,9 @@ export class UpdateProductModifierGroupUseCase {
     id: string,
     dto: UpdateProductModifierGroupDto,
   ): Promise<ProductModifierGroupEntity> {
-    return this.repository.update(id, dto);
+    return this.repository.update(
+      id,
+      dto as Partial<ProductModifierGroupEntity>,
+    );
   }
 }

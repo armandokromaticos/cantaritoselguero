@@ -11,14 +11,24 @@ export class ProductModifierGroupRepository implements IProductModifierGroupRepo
     entity: ProductModifierGroupEntity,
   ): Promise<ProductModifierGroupEntity> {
     const data = entity.toPrismaCreate();
-    const group = await this.prisma.productModifierGroup.create({ data: data as never });
+    const group = await this.prisma.productModifierGroup.create({
+      data: data as never,
+    });
     return ProductModifierGroupEntity.fromPrisma(group);
   }
 
-  async findByProductId(productId: string): Promise<ProductModifierGroupEntity[]> {
+  async findById(id: string): Promise<ProductModifierGroupEntity | null> {
+    const group = await this.prisma.productModifierGroup.findUnique({
+      where: { id },
+    });
+    return group ? ProductModifierGroupEntity.fromPrisma(group) : null;
+  }
+
+  async findByProductId(
+    productId: string,
+  ): Promise<ProductModifierGroupEntity[]> {
     const groups = await this.prisma.productModifierGroup.findMany({
       where: { productId },
-      include: { modifiers: true },
     });
     return groups.map((group) => ProductModifierGroupEntity.fromPrisma(group));
   }
@@ -33,7 +43,6 @@ export class ProductModifierGroupRepository implements IProductModifierGroupRepo
     if (entity.minSelect !== undefined) data.minSelect = entity.minSelect;
     if (entity.maxSelect !== undefined) data.maxSelect = entity.maxSelect;
     if (entity.sortOrder !== undefined) data.sortOrder = entity.sortOrder;
-    if (entity.isRequired !== undefined) data.isRequired = entity.isRequired;
     if (entity.productId !== undefined) {
       data.product = { connect: { id: entity.productId } };
     }

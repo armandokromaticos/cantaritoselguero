@@ -15,6 +15,6 @@ export class UpdateProductModifierUseCase {
     id: string,
     dto: UpdateProductModifierDto,
   ): Promise<ProductModifierEntity> {
-    return this.repository.update(id, dto);
+    return this.repository.update(id, dto as Partial<ProductModifierEntity>);
   }
 }

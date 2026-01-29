@@ -22,6 +22,6 @@ export class ProductModifierGroupResponseDto {
   @ApiProperty()
   sortOrder: number;
 
-  @ApiProperty()
+  @ApiProperty({ description: "Derived from minSelect > 0" })
   isRequired: boolean;
 }

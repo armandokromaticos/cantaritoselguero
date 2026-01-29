@@ -16,10 +16,6 @@ export class ProductRepository implements IProductRepository {
   async findById(id: string): Promise<ProductEntity | null> {
     const product = await this.prisma.product.findUnique({
       where: { id },
-      include: {
-        sizes: true,
-        modifierGroups: { include: { modifiers: true } },
-      },
     });
     return product ? ProductEntity.fromPrisma(product) : null;
   }
@@ -29,7 +25,10 @@ export class ProductRepository implements IProductRepository {
     return products.map((product) => ProductEntity.fromPrisma(product));
   }
 
-  async update(id: string, entity: Partial<ProductEntity>): Promise<ProductEntity> {
+  async update(
+    id: string,
+    entity: Partial<ProductEntity>,
+  ): Promise<ProductEntity> {
     const data: Record<string, unknown> = {};
     if (entity.name !== undefined) data.name = entity.name;
     if (entity.description !== undefined) data.description = entity.description;
@@ -45,7 +44,10 @@ export class ProductRepository implements IProductRepository {
         ? { connect: { id: entity.standId } }
         : { disconnect: true };
     }
-    const product = await this.prisma.product.update({ where: { id }, data: data as never });
+    const product = await this.prisma.product.update({
+      where: { id },
+      data: data as never,
+    });
     return ProductEntity.fromPrisma(product);
   }
 }

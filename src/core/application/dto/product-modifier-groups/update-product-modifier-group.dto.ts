@@ -1,12 +1,28 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import {
-  IsBoolean,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   Min,
+  Validate,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  ValidationArguments,
 } from "class-validator";
+
+@ValidatorConstraint({ name: "minLessOrEqualMax", async: false })
+class MinLessOrEqualMaxConstraint implements ValidatorConstraintInterface {
+  validate(_: unknown, args: ValidationArguments) {
+    const obj = args.object as UpdateProductModifierGroupDto;
+    if (obj.minSelect === undefined || obj.maxSelect === undefined) return true;
+    return obj.minSelect <= obj.maxSelect;
+  }
+
+  defaultMessage() {
+    return "minSelect must be less than or equal to maxSelect";
+  }
+}
 
 export class UpdateProductModifierGroupDto {
   @ApiPropertyOptional({ example: "Tipo de chile" })
@@ -24,6 +40,7 @@ export class UpdateProductModifierGroupDto {
   @IsOptional()
   @IsInt()
   @Min(0)
+  @Validate(MinLessOrEqualMaxConstraint)
   minSelect?: number;
 
   @ApiPropertyOptional({ example: 1 })
@@ -37,9 +54,4 @@ export class UpdateProductModifierGroupDto {
   @IsInt()
   @Min(0)
   sortOrder?: number;
-
-  @ApiPropertyOptional({ example: false })
-  @IsOptional()
-  @IsBoolean()
-  isRequired?: boolean;
 }
