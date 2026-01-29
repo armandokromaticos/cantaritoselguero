@@ -59,3 +59,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Plan de desarrollo
 PLAN.md
+plan4.md
+producto.md
+
+# Claude Code
+.claude/
