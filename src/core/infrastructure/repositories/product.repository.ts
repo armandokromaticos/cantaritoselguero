@@ -57,6 +57,7 @@ export class ProductRepository implements IProductRepository {
     const product = await this.prisma.product.update({
       where: { id },
       data: data as never,
+      include: ProductRepository.PRODUCT_INCLUDE,
     });
     return ProductEntity.fromPrisma(product);
   }
