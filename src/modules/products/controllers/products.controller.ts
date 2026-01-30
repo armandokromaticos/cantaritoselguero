@@ -5,9 +5,21 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { FileInterceptor } from "@nestjs/platform-express";
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+  ApiOperation,
+  ApiTags,
+} from "@nestjs/swagger";
 import { Role } from "../../../core/domain/enums/role.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
@@ -38,6 +50,10 @@ import { CreateProductUseCase } from "../../../core/application/use-cases/produc
 import { GetProductUseCase } from "../../../core/application/use-cases/products/get-product.use-case";
 import { GetProductsUseCase } from "../../../core/application/use-cases/products/get-products.use-case";
 import { UpdateProductUseCase } from "../../../core/application/use-cases/products/update-product.use-case";
+import {
+  UploadProductImageUseCase,
+  UploadFileInput,
+} from "../../../core/application/use-cases/products/upload-product-image.use-case";
 
 // Use Cases - Sizes
 import { CreateProductSizeUseCase } from "../../../core/application/use-cases/product-sizes/create-product-size.use-case";
@@ -65,6 +81,7 @@ export class ProductsController {
     private readonly getProductUseCase: GetProductUseCase,
     private readonly getProductsUseCase: GetProductsUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
+    private readonly uploadProductImageUseCase: UploadProductImageUseCase,
     private readonly createProductSizeUseCase: CreateProductSizeUseCase,
     private readonly getProductSizesUseCase: GetProductSizesUseCase,
     private readonly updateProductSizeUseCase: UpdateProductSizeUseCase,
@@ -108,6 +125,38 @@ export class ProductsController {
     @Body() dto: UpdateProductDto,
   ): Promise<ProductResponseDto> {
     const entity = await this.updateProductUseCase.execute(id, dto);
+    return entity.toResponseDto();
+  }
+
+  @Post(":id/image")
+  @ApiOperation({ summary: "Subir imagen de producto" })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        file: { type: "string", format: "binary" },
+      },
+      required: ["file"],
+    },
+  })
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadImage(
+    @Param("id") id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<ProductResponseDto> {
+    const entity = await this.uploadProductImageUseCase.execute(
+      id,
+      file as UploadFileInput,
+    );
     return entity.toResponseDto();
   }
 
