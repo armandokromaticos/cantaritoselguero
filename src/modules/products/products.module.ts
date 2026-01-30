@@ -19,6 +19,7 @@ import { CreateProductUseCase } from "../../core/application/use-cases/products/
 import { GetProductUseCase } from "../../core/application/use-cases/products/get-product.use-case";
 import { GetProductsUseCase } from "../../core/application/use-cases/products/get-products.use-case";
 import { UpdateProductUseCase } from "../../core/application/use-cases/products/update-product.use-case";
+import { UploadProductImageUseCase } from "../../core/application/use-cases/products/upload-product-image.use-case";
 
 // Use Cases - Sizes
 import { CreateProductSizeUseCase } from "../../core/application/use-cases/product-sizes/create-product-size.use-case";
@@ -53,6 +54,7 @@ import { UpdateProductModifierUseCase } from "../../core/application/use-cases/p
     GetProductUseCase,
     GetProductsUseCase,
     UpdateProductUseCase,
+    UploadProductImageUseCase,
     CreateProductSizeUseCase,
     GetProductSizesUseCase,
     UpdateProductSizeUseCase,
