@@ -140,7 +140,9 @@ export class ProductsController {
       required: ["file"],
     },
   })
-  @UseInterceptors(FileInterceptor("file"))
+  @UseInterceptors(
+    FileInterceptor("file", { limits: { fileSize: 5 * 1024 * 1024 } }),
+  )
   async uploadImage(
     @Param("id") id: string,
     @UploadedFile(
