@@ -155,9 +155,14 @@ export class ProductsController {
     )
     file: Express.Multer.File,
   ): Promise<ProductResponseDto> {
+    const uploadInput: UploadFileInput = {
+      buffer: file.buffer,
+      mimetype: file.mimetype,
+      originalname: file.originalname,
+    };
     const entity = await this.uploadProductImageUseCase.execute(
       id,
-      file as UploadFileInput,
+      uploadInput,
     );
     return entity.toResponseDto();
   }
