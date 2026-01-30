@@ -1,6 +1,22 @@
-import { Product as PrismaProduct, Prisma } from "@prisma/client";
+import {
+  Product as PrismaProduct,
+  ProductSize as PrismaProductSize,
+  ProductModifierGroup as PrismaProductModifierGroup,
+  ProductModifier as PrismaProductModifier,
+  Prisma,
+} from "@prisma/client";
 import { CreateProductDto } from "../../application/dto/products/create-product.dto";
 import { ProductResponseDto } from "../../application/dto/products/product-response.dto";
+import { ProductSizeEntity } from "./product-size.entity";
+import { ProductModifierGroupEntity } from "./product-modifier-group.entity";
+import { ProductModifierEntity } from "./product-modifier.entity";
+
+type PrismaProductWithRelations = PrismaProduct & {
+  sizes?: PrismaProductSize[];
+  modifierGroups?: (PrismaProductModifierGroup & {
+    modifiers: PrismaProductModifier[];
+  })[];
+};
 
 interface ProductProps {
   id: string;
@@ -13,6 +29,11 @@ interface ProductProps {
   standId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  sizes?: ProductSizeEntity[];
+  modifierGroups?: {
+    group: ProductModifierGroupEntity;
+    modifiers: ProductModifierEntity[];
+  }[];
 }
 
 export class ProductEntity {
@@ -53,8 +74,8 @@ export class ProductEntity {
     return this.props.updatedAt;
   }
 
-  static fromPrisma(prisma: PrismaProduct): ProductEntity {
-    return new ProductEntity({
+  static fromPrisma(prisma: PrismaProductWithRelations): ProductEntity {
+    const props: ProductProps = {
       id: prisma.id,
       name: prisma.name,
       description: prisma.description,
@@ -65,7 +86,24 @@ export class ProductEntity {
       standId: prisma.standId,
       createdAt: prisma.createdAt,
       updatedAt: prisma.updatedAt,
-    });
+    };
+
+    if (prisma.sizes) {
+      props.sizes = prisma.sizes.map((size) =>
+        ProductSizeEntity.fromPrisma(size),
+      );
+    }
+
+    if (prisma.modifierGroups) {
+      props.modifierGroups = prisma.modifierGroups.map((modifierGroup) => ({
+        group: ProductModifierGroupEntity.fromPrisma(modifierGroup),
+        modifiers: modifierGroup.modifiers.map((modifier) =>
+          ProductModifierEntity.fromPrisma(modifier),
+        ),
+      }));
+    }
+
+    return new ProductEntity(props);
   }
 
   static fromCreateDto(dto: CreateProductDto): ProductEntity {
@@ -109,6 +147,23 @@ export class ProductEntity {
     dto.standId = this.props.standId;
     dto.createdAt = this.props.createdAt;
     dto.updatedAt = this.props.updatedAt;
+
+    if (this.props.sizes) {
+      dto.sizes = this.props.sizes.map((size) => size.toResponseDto());
+    }
+
+    if (this.props.modifierGroups) {
+      dto.modifierGroups = this.props.modifierGroups.map(
+        ({ group, modifiers }) => {
+          const groupDto = group.toResponseDto();
+          groupDto.modifiers = modifiers.map((modifier) =>
+            modifier.toResponseDto(),
+          );
+          return groupDto;
+        },
+      );
+    }
+
     return dto;
   }
 }
