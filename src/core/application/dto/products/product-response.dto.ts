@@ -1,4 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ProductSizeResponseDto } from "../product-sizes/product-size-response.dto";
+import { ProductModifierGroupResponseDto } from "../product-modifier-groups/product-modifier-group-response.dto";
 
 export class ProductResponseDto {
   @ApiProperty()
@@ -30,4 +32,10 @@ export class ProductResponseDto {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiPropertyOptional({ type: () => [ProductSizeResponseDto] })
+  sizes?: ProductSizeResponseDto[];
+
+  @ApiPropertyOptional({ type: () => [ProductModifierGroupResponseDto] })
+  modifierGroups?: ProductModifierGroupResponseDto[];
 }

@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ProductModifierResponseDto } from "../product-modifiers/product-modifier-response.dto";
 
 export class ProductModifierGroupResponseDto {
   @ApiProperty()
@@ -24,4 +25,7 @@ export class ProductModifierGroupResponseDto {
 
   @ApiProperty({ description: "Derived from minSelect > 0" })
   isRequired: boolean;
+
+  @ApiPropertyOptional({ type: () => [ProductModifierResponseDto] })
+  modifiers?: ProductModifierResponseDto[];
 }

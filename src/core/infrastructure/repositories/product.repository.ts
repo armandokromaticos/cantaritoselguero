@@ -14,15 +14,25 @@ export class ProductRepository implements IProductRepository {
     return ProductEntity.fromPrisma(product);
   }
 
+  private static readonly PRODUCT_INCLUDE = {
+    sizes: true,
+    modifierGroups: {
+      include: { modifiers: true },
+    },
+  };
+
   async findById(id: string): Promise<ProductEntity | null> {
     const product = await this.prisma.product.findUnique({
       where: { id },
+      include: ProductRepository.PRODUCT_INCLUDE,
     });
     return product ? ProductEntity.fromPrisma(product) : null;
   }
 
   async findAll(): Promise<ProductEntity[]> {
-    const products = await this.prisma.product.findMany();
+    const products = await this.prisma.product.findMany({
+      include: ProductRepository.PRODUCT_INCLUDE,
+    });
     return products.map((product) => ProductEntity.fromPrisma(product));
   }
 
