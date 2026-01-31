@@ -40,9 +40,11 @@ export class UploadProductImageUseCase {
         : file.mimetype === "image/webp"
           ? "webp"
           : "jpg";
-    const ext = ["jpg", "jpeg", "png", "webp"].includes(extFromName)
-      ? extFromName
-      : extFromMime;
+    const nameAllowed = ["jpg", "jpeg", "png", "webp"].includes(extFromName);
+    const mimeAligned =
+      extFromName === extFromMime ||
+      (extFromMime === "jpg" && extFromName === "jpeg");
+    const ext = nameAllowed && mimeAligned ? extFromName : extFromMime;
     const filePath = `${productId}/${randomUUID()}.${ext}`;
 
     const publicUrl = await this.supabaseService.uploadFile(
