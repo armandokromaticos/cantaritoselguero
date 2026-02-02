@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { randomUUID } from "crypto";
+import { extname } from "node:path";
 import type { IProductRepository } from "../../../domain/repositories/product.repository.interface";
 import { PRODUCT_REPOSITORY } from "../../../domain/repositories/product.repository.interface";
 import { SupabaseService } from "../../../infrastructure/supabase/supabase.service";
@@ -30,7 +31,20 @@ export class UploadProductImageUseCase {
       throw new NotFoundException(`Product with id ${productId} not found`);
     }
 
-    const ext = file.originalname.split(".").pop() ?? "jpg";
+    const extFromName = extname(file.originalname || "")
+      .replace(".", "")
+      .toLowerCase();
+    const extFromMime =
+      file.mimetype === "image/png"
+        ? "png"
+        : file.mimetype === "image/webp"
+          ? "webp"
+          : "jpg";
+    const nameAllowed = ["jpg", "jpeg", "png", "webp"].includes(extFromName);
+    const mimeAligned =
+      extFromName === extFromMime ||
+      (extFromMime === "jpg" && extFromName === "jpeg");
+    const ext = nameAllowed && mimeAligned ? extFromName : extFromMime;
     const filePath = `${productId}/${randomUUID()}.${ext}`;
 
     const publicUrl = await this.supabaseService.uploadFile(

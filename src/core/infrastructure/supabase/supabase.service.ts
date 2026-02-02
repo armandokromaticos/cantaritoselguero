@@ -35,7 +35,9 @@ export class SupabaseService {
       .upload(path, file, { contentType, upsert: true });
 
     if (error) {
-      throw new Error(`Failed to upload file: ${error.message}`);
+      throw new Error(
+        `Failed to upload file to ${bucket}/${path}: ${error.message}`,
+      );
     }
 
     return this.getPublicUrl(bucket, path);
@@ -49,7 +51,9 @@ export class SupabaseService {
   async deleteFile(bucket: string, path: string): Promise<void> {
     const { error } = await this.client.storage.from(bucket).remove([path]);
     if (error) {
-      throw new Error(`Failed to delete file: ${error.message}`);
+      throw new Error(
+        `Failed to delete file from ${bucket}/${path}: ${error.message}`,
+      );
     }
   }
 }
