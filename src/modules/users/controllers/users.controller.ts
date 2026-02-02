@@ -49,7 +49,8 @@ export class UsersController {
 
   @Get(":id")
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Obtener usuario por ID" })
   async findOne(@Param("id") id: string): Promise<UserResponseDto> {
     const user = await this.getUserUseCase.execute(id);
