@@ -2,4 +2,5 @@ export enum Role {
   USER = "USER",
   ADMIN = "ADMIN",
   STAND_OPERATOR = "STAND_OPERATOR",
+  CATALOG_MANAGER = "CATALOG_MANAGER",
 }

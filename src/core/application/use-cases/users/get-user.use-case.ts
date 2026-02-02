@@ -1,7 +1,6 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { IUserRepository } from "../../../domain/repositories/user.repository.interface";
 import { USER_REPOSITORY } from "../../../domain/repositories/user.repository.interface";
-import { UserMapper } from "../../../domain/mappers/user.mapper";
 import { UserEntity } from "../../../domain/entities/user.entity";
 
 @Injectable()
@@ -16,6 +15,6 @@ export class GetUserUseCase {
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    return UserMapper.toDomain(user);
+    return UserEntity.fromPrisma(user);
   }
 }

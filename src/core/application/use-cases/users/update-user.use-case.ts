@@ -2,7 +2,6 @@ import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { IUserRepository } from "../../../domain/repositories/user.repository.interface";
 import { USER_REPOSITORY } from "../../../domain/repositories/user.repository.interface";
 import { UpdateUserDto } from "../../dto/users/update-user.dto";
-import { UserMapper } from "../../../domain/mappers/user.mapper";
 import { UserEntity } from "../../../domain/entities/user.entity";
 
 @Injectable()
@@ -19,6 +18,6 @@ export class UpdateUserUseCase {
     }
 
     const user = await this.userRepository.update(id, dto);
-    return UserMapper.toDomain(user);
+    return UserEntity.fromPrisma(user);
   }
 }
