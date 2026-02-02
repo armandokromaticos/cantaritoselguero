@@ -8,7 +8,6 @@ import {
 import type { IUserRepository } from "../../../domain/repositories/user.repository.interface";
 import { USER_REPOSITORY } from "../../../domain/repositories/user.repository.interface";
 import { CreateUserDto } from "../../dto/users/create-user.dto";
-import { UserMapper } from "../../../domain/mappers/user.mapper";
 import { UserEntity } from "../../../domain/entities/user.entity";
 import { SupabaseService } from "../../../infrastructure/supabase/supabase.service";
 
@@ -57,7 +56,7 @@ export class CreateUserUseCase {
       this.logger.log(
         `Usuario sincronizado en DB con rol ${user.role}: ${authId}`,
       );
-      return UserMapper.toDomain(user);
+      return UserEntity.fromPrisma(user);
     } catch {
       this.logger.error(
         `Error al sincronizar en DB, revirtiendo Auth: ${authId}`,

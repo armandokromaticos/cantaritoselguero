@@ -58,7 +58,6 @@ export class RolesGuard implements CanActivate {
       ...authUser,
       id: user.id,
       role: user.role,
-      standId: user.standId,
       isActive: user.isActive,
     };
 

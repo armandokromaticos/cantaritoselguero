@@ -20,9 +20,6 @@ export class UserResponseDto {
   @ApiProperty({ enum: Role })
   role: Role;
 
-  @ApiPropertyOptional({ nullable: true, type: String })
-  standId: string | null;
-
   @ApiProperty()
   isActive: boolean;
 

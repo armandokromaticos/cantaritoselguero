@@ -8,7 +8,7 @@ import type { IUserRepository } from "../../../domain/repositories/user.reposito
 import { USER_REPOSITORY } from "../../../domain/repositories/user.repository.interface";
 import { LoginDto } from "../../dto/auth/login.dto";
 import { AuthResponseDto } from "../../dto/auth/auth-response.dto";
-import { UserMapper } from "../../../domain/mappers/user.mapper";
+import { UserEntity } from "../../../domain/entities/user.entity";
 import { SupabaseService } from "../../../infrastructure/supabase/supabase.service";
 
 @Injectable()
@@ -43,7 +43,7 @@ export class LoginUseCase {
       throw new UnauthorizedException("Usuario no encontrado");
     }
 
-    const entity = UserMapper.toDomain(user);
+    const entity = UserEntity.fromPrisma(user);
 
     if (!data.session) {
       this.logger.warn(
@@ -55,7 +55,7 @@ export class LoginUseCase {
     const response = new AuthResponseDto();
     response.accessToken = data.session.access_token;
     response.refreshToken = data.session.refresh_token;
-    response.user = UserMapper.toResponse(entity);
+    response.user = entity.toResponse();
 
     this.logger.log(`Login exitoso para userId: ${entity.id}`);
     return response;
