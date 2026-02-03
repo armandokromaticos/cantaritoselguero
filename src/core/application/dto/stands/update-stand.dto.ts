@@ -1,9 +1,15 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from "class-validator";
 
 export class UpdateStandDto {
   @ApiPropertyOptional({ example: "Stand Central" })
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsString()
   @IsNotEmpty()
   name?: string;
@@ -24,7 +30,7 @@ export class UpdateStandDto {
   location?: string;
 
   @ApiPropertyOptional({ example: true })
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsBoolean()
   isActive?: boolean;
 }

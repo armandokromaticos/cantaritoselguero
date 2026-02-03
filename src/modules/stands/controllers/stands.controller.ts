@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -54,7 +55,9 @@ export class StandsController {
 
   @Get(":id")
   @ApiOperation({ summary: "Obtener stand por ID" })
-  async findOneStand(@Param("id") id: string): Promise<StandResponseDto> {
+  async findOneStand(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<StandResponseDto> {
     const entity = await this.getStandUseCase.execute(id);
     return entity.toResponseDto();
   }
@@ -62,7 +65,7 @@ export class StandsController {
   @Patch(":id")
   @ApiOperation({ summary: "Actualizar stand" })
   async updateStand(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: UpdateStandDto,
   ): Promise<StandResponseDto> {
     const entity = await this.updateStandUseCase.execute(id, dto);
@@ -72,8 +75,8 @@ export class StandsController {
   @Post(":id/operators/:userId")
   @ApiOperation({ summary: "Asignar operador a stand" })
   async addOperator(
-    @Param("id") id: string,
-    @Param("userId") userId: string,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Param("userId", ParseUUIDPipe) userId: string,
   ): Promise<StandResponseDto> {
     const entity = await this.addOperatorUseCase.execute(id, userId);
     return entity.toResponseDto();
@@ -82,8 +85,8 @@ export class StandsController {
   @Delete(":id/operators/:userId")
   @ApiOperation({ summary: "Desasignar operador de stand" })
   async removeOperator(
-    @Param("id") id: string,
-    @Param("userId") userId: string,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Param("userId", ParseUUIDPipe) userId: string,
   ): Promise<StandResponseDto> {
     const entity = await this.removeOperatorUseCase.execute(id, userId);
     return entity.toResponseDto();

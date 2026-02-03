@@ -63,6 +63,13 @@ export class StandEntity {
     return this.props.updatedAt;
   }
 
+  hasOperator(userId: string): boolean {
+    return (
+      this.props.operators?.some((operator) => operator.userId === userId) ??
+      false
+    );
+  }
+
   static fromPrisma(prisma: PrismaStandWithRelations): StandEntity {
     const props: StandProps = {
       id: prisma.id,

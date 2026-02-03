@@ -54,13 +54,23 @@ export class StandRepository implements IStandRepository {
     await this.prisma.standOperator.create({
       data: { standId, userId },
     });
-    return this.findById(standId) as Promise<StandEntity>;
+    const stand = await this.findById(standId);
+    if (!stand) {
+      throw new Error(`Stand with id ${standId} not found after addOperator`);
+    }
+    return stand;
   }
 
   async removeOperator(standId: string, userId: string): Promise<StandEntity> {
     await this.prisma.standOperator.delete({
       where: { standId_userId: { standId, userId } },
     });
-    return this.findById(standId) as Promise<StandEntity>;
+    const stand = await this.findById(standId);
+    if (!stand) {
+      throw new Error(
+        `Stand with id ${standId} not found after removeOperator`,
+      );
+    }
+    return stand;
   }
 }

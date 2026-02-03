@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -34,6 +35,12 @@ export class AddOperatorUseCase {
     if (String(user.role) !== String(Role.STAND_OPERATOR)) {
       throw new BadRequestException(
         `User must have role STAND_OPERATOR to be assigned as operator`,
+      );
+    }
+
+    if (stand.hasOperator(userId)) {
+      throw new ConflictException(
+        `User ${userId} is already an operator of stand ${standId}`,
       );
     }
 
