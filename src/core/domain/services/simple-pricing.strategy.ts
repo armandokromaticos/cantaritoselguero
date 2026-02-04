@@ -30,6 +30,6 @@ export class SimplePricingStrategy implements PricingStrategy {
       throw new EntityNotFoundException("Product", productId);
     }
 
-    return Money.create(product.basePrice, "MXN");
+    return Money.create(product.basePrice);
   }
 }

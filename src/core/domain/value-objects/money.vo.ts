@@ -3,17 +3,27 @@ export class Money {
     private readonly _amount: number,
     private readonly _currency: string,
   ) {
-    if (_amount < 0) {
-      throw new Error("Money amount cannot be negative");
+    if (!Number.isFinite(_amount) || _amount < 0) {
+      throw new Error("Money amount must be a finite non-negative number");
     }
   }
 
   static create(amount: number, currency: string = "MXN"): Money {
-    return new Money(amount, currency);
+    const normalized = Money.normalizeCurrency(currency);
+    return new Money(amount, normalized);
   }
 
   static zero(currency: string = "MXN"): Money {
-    return new Money(0, currency);
+    const normalized = Money.normalizeCurrency(currency);
+    return new Money(0, normalized);
+  }
+
+  private static normalizeCurrency(currency: string): string {
+    const normalized = currency.toUpperCase().trim();
+    if (!/^[A-Z]{3}$/.test(normalized)) {
+      throw new Error("Currency must be a valid 3-letter ISO-4217 code");
+    }
+    return normalized;
   }
 
   get amount(): number {
@@ -39,8 +49,8 @@ export class Money {
   }
 
   multiply(factor: number): Money {
-    if (factor < 0) {
-      throw new Error("Cannot multiply money by negative factor");
+    if (!Number.isFinite(factor) || factor < 0) {
+      throw new Error("Factor must be a finite non-negative number");
     }
     return new Money(this._amount * factor, this._currency);
   }
