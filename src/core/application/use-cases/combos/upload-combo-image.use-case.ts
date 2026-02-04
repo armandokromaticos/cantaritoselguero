@@ -1,0 +1,58 @@
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { randomUUID } from "crypto";
+import { extname } from "node:path";
+import type { IComboRepository } from "../../../domain/repositories/combo.repository.interface";
+import { COMBO_REPOSITORY } from "../../../domain/repositories/combo.repository.interface";
+import { SupabaseService } from "../../../infrastructure/supabase/supabase.service";
+import { ComboEntity } from "../../../domain/entities/combo.entity";
+
+const BUCKET = "combo-images";
+
+export interface UploadFileInput {
+  buffer: Buffer;
+  mimetype: string;
+  originalname: string;
+}
+
+@Injectable()
+export class UploadComboImageUseCase {
+  constructor(
+    @Inject(COMBO_REPOSITORY)
+    private readonly comboRepository: IComboRepository,
+    private readonly supabaseService: SupabaseService,
+  ) {}
+
+  async execute(comboId: string, file: UploadFileInput): Promise<ComboEntity> {
+    const existing = await this.comboRepository.findById(comboId);
+    if (!existing) {
+      throw new NotFoundException(`Combo with id ${comboId} not found`);
+    }
+
+    const extFromName = extname(file.originalname || "")
+      .replace(".", "")
+      .toLowerCase();
+    const extFromMime =
+      file.mimetype === "image/png"
+        ? "png"
+        : file.mimetype === "image/webp"
+          ? "webp"
+          : "jpg";
+    const nameAllowed = ["jpg", "jpeg", "png", "webp"].includes(extFromName);
+    const mimeAligned =
+      extFromName === extFromMime ||
+      (extFromMime === "jpg" && extFromName === "jpeg");
+    const ext = nameAllowed && mimeAligned ? extFromName : extFromMime;
+    const filePath = `${comboId}/${randomUUID()}.${ext}`;
+
+    const publicUrl = await this.supabaseService.uploadFile(
+      BUCKET,
+      filePath,
+      file.buffer,
+      file.mimetype,
+    );
+
+    return this.comboRepository.update(comboId, {
+      image: publicUrl,
+    } as Partial<ComboEntity>);
+  }
+}

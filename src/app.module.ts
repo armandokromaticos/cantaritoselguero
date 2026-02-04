@@ -8,6 +8,7 @@ import { UsersModule } from "./modules/users/users.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { ProductsModule } from "./modules/products/products.module";
 import { StandsModule } from "./modules/stands/stands.module";
+import { CombosModule } from "./modules/combos/combos.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { StandsModule } from "./modules/stands/stands.module";
     AuthModule,
     ProductsModule,
     StandsModule,
+    CombosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
