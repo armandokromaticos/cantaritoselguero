@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { randomUUID } from "crypto";
@@ -21,6 +22,8 @@ export interface UploadFileInput {
 
 @Injectable()
 export class UploadComboImageUseCase {
+  private readonly logger = new Logger(UploadComboImageUseCase.name);
+
   constructor(
     @Inject(COMBO_REPOSITORY)
     private readonly comboRepository: IComboRepository,
@@ -63,8 +66,10 @@ export class UploadComboImageUseCase {
         // URL format: https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>
         const pathFromUrl = existing.image.split("/").slice(-2).join("/");
         await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
-      } catch {
-        // Log but don't fail the upload if cleanup fails
+      } catch (error) {
+        this.logger.warn(
+          `Failed to delete old image for combo ${comboId}: ${error}`,
+        );
       }
     }
 
