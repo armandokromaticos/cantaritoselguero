@@ -56,6 +56,18 @@ export class UploadComboImageUseCase {
     const ext = nameAllowed && mimeAligned ? extFromName : extFromMime;
     const filePath = `${comboId}/${randomUUID()}.${ext}`;
 
+    // Delete old image if exists to prevent storage bloat
+    if (existing.image) {
+      try {
+        // Extract relative path from full Supabase public URL
+        // URL format: https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>
+        const pathFromUrl = existing.image.split("/").slice(-2).join("/");
+        await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
+      } catch {
+        // Log but don't fail the upload if cleanup fails
+      }
+    }
+
     const publicUrl = await this.supabaseService.uploadFile(
       BUCKET,
       filePath,
