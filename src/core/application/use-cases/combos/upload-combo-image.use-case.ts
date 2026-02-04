@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { randomUUID } from "crypto";
 import { extname } from "node:path";
 import type { IComboRepository } from "../../../domain/repositories/combo.repository.interface";
@@ -26,6 +31,13 @@ export class UploadComboImageUseCase {
     const existing = await this.comboRepository.findById(comboId);
     if (!existing) {
       throw new NotFoundException(`Combo with id ${comboId} not found`);
+    }
+
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        `Invalid file type: ${file.mimetype}. Allowed: ${allowedMimeTypes.join(", ")}`,
+      );
     }
 
     const extFromName = extname(file.originalname || "")

@@ -161,7 +161,7 @@ model ComboItem {
   sortOrder Int    @default(0) @map("sort_order")
 
   combo   Combo   @relation(fields: [comboId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@map("combo_items")
 }

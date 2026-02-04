@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../database/prisma/prisma.service";
 import { IComboRepository } from "../../domain/repositories/combo.repository.interface";
@@ -67,18 +67,27 @@ export class ComboRepository implements IComboRepository {
     });
     const combo = await this.findById(comboId);
     if (!combo) {
-      throw new Error(`Combo with id ${comboId} not found after addItem`);
+      throw new NotFoundException(
+        `Combo with id ${comboId} not found after addItem`,
+      );
     }
     return combo;
   }
 
   async removeItem(comboId: string, itemId: string): Promise<ComboEntity> {
-    await this.prisma.comboItem.delete({
-      where: { id: itemId },
+    const result = await this.prisma.comboItem.deleteMany({
+      where: { id: itemId, comboId },
     });
+    if (result.count === 0) {
+      throw new NotFoundException(
+        `Item with id ${itemId} not found in combo ${comboId}`,
+      );
+    }
     const combo = await this.findById(comboId);
     if (!combo) {
-      throw new Error(`Combo with id ${comboId} not found after removeItem`);
+      throw new NotFoundException(
+        `Combo with id ${comboId} not found after removeItem`,
+      );
     }
     return combo;
   }

@@ -24,7 +24,7 @@ interface ComboItemInfo {
 }
 
 interface ComboProps {
-  id: string;
+  id: string | undefined;
   name: string;
   description: string | null;
   price: number;
@@ -42,7 +42,7 @@ export class ComboEntity {
     this.props = props;
   }
 
-  get id(): string {
+  get id(): string | undefined {
     return this.props.id;
   }
   get name(): string {
@@ -98,7 +98,7 @@ export class ComboEntity {
 
   static fromCreateDto(dto: CreateComboDto): ComboEntity {
     return new ComboEntity({
-      id: "",
+      id: undefined,
       name: dto.name,
       description: dto.description ?? null,
       price: dto.price,
@@ -120,6 +120,9 @@ export class ComboEntity {
   }
 
   toResponseDto(): ComboResponseDto {
+    if (!this.props.id) {
+      throw new Error("Cannot convert unpersisted entity to response DTO");
+    }
     const dto = new ComboResponseDto();
     dto.id = this.props.id;
     dto.name = this.props.name;
