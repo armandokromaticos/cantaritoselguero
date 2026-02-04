@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import type { IComboRepository } from "../../../domain/repositories/combo.repository.interface";
 import { COMBO_REPOSITORY } from "../../../domain/repositories/combo.repository.interface";
 import type { IProductRepository } from "../../../domain/repositories/product.repository.interface";
@@ -24,6 +29,15 @@ export class AddComboItemUseCase {
     const product = await this.productRepository.findById(dto.productId);
     if (!product) {
       throw new NotFoundException(`Product with id ${dto.productId} not found`);
+    }
+
+    const alreadyExists = combo.items?.some(
+      (item) => item.productId === dto.productId,
+    );
+    if (alreadyExists) {
+      throw new ConflictException(
+        `Product ${dto.productId} already exists in combo ${comboId}`,
+      );
     }
 
     return this.comboRepository.addItem(
