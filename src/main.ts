@@ -8,6 +8,12 @@ async function bootstrap() {
     logger: ["log", "error", "warn", "debug", "verbose"],
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.setGlobalPrefix("api");
+  app.enableCors(
+    process.env.NODE_ENV === "production"
+      ? { origin: process.env.CORS_ORIGIN, credentials: true }
+      : undefined,
+  );
 
   // Swagger
   const config = new DocumentBuilder()
