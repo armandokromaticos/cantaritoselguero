@@ -13,6 +13,9 @@ export class ProductSizeResponseDto {
   @ApiProperty()
   price: number;
 
+  @ApiProperty({ nullable: true, type: Number })
+  stock: number | null;
+
   @ApiProperty()
   sortOrder: number;
 

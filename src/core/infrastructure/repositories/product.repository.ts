@@ -61,4 +61,11 @@ export class ProductRepository implements IProductRepository {
     });
     return ProductEntity.fromPrisma(product);
   }
+
+  async updateStock(id: string, stock: number | null): Promise<void> {
+    await this.prisma.product.update({
+      where: { id },
+      data: { stock },
+    });
+  }
 }

@@ -24,6 +24,24 @@ export class CreateProductSizeUseCase {
       throw new NotFoundException(`Product with id "${productId}" not found`);
     }
     const entity = ProductSizeEntity.fromCreateDto(productId, dto);
-    return this.productSizeRepository.create(entity);
+    const created = await this.productSizeRepository.create(entity);
+
+    await this.recalculateProductStock(productId);
+
+    return created;
+  }
+
+  private async recalculateProductStock(productId: string): Promise<void> {
+    const sizes = await this.productSizeRepository.findByProductId(productId);
+    const activeSizesWithStock = sizes.filter(
+      (size) => size.isActive && size.stock !== null,
+    );
+    if (activeSizesWithStock.length > 0) {
+      const totalStock = activeSizesWithStock.reduce(
+        (sum, size) => sum + size.stock!,
+        0,
+      );
+      await this.productRepository.updateStock(productId, totalStock);
+    }
   }
 }

@@ -96,6 +96,7 @@ model ProductSize {
   productId String  @map("product_id")
   name      String
   price     Decimal @db.Decimal(10, 2)
+  stock     Int?
   sortOrder Int     @default(0) @map("sort_order")
   isDefault Boolean @default(false) @map("is_default")
   isActive  Boolean @default(true) @map("is_active")
