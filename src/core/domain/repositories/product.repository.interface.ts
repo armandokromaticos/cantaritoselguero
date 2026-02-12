@@ -8,4 +8,5 @@ export interface IProductRepository {
   findAll(): Promise<ProductEntity[]>;
   update(id: string, entity: Partial<ProductEntity>): Promise<ProductEntity>;
   updateStock(id: string, stock: number | null): Promise<void>;
+  delete(id: string): Promise<void>;
 }

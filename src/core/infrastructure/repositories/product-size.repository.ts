@@ -50,4 +50,8 @@ export class ProductSizeRepository implements IProductSizeRepository {
     });
     return ProductSizeEntity.fromPrisma(size);
   }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.productSize.delete({ where: { id } });
+  }
 }

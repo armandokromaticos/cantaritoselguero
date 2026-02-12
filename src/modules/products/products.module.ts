@@ -19,12 +19,14 @@ import { CreateProductUseCase } from "../../core/application/use-cases/products/
 import { GetProductUseCase } from "../../core/application/use-cases/products/get-product.use-case";
 import { GetProductsUseCase } from "../../core/application/use-cases/products/get-products.use-case";
 import { UpdateProductUseCase } from "../../core/application/use-cases/products/update-product.use-case";
+import { DeleteProductUseCase } from "../../core/application/use-cases/products/delete-product.use-case";
 import { UploadProductImageUseCase } from "../../core/application/use-cases/products/upload-product-image.use-case";
 
 // Use Cases - Sizes
 import { CreateProductSizeUseCase } from "../../core/application/use-cases/product-sizes/create-product-size.use-case";
 import { GetProductSizesUseCase } from "../../core/application/use-cases/product-sizes/get-product-sizes.use-case";
 import { UpdateProductSizeUseCase } from "../../core/application/use-cases/product-sizes/update-product-size.use-case";
+import { DeleteProductSizeUseCase } from "../../core/application/use-cases/product-sizes/delete-product-size.use-case";
 
 // Use Cases - Modifier Groups
 import { CreateProductModifierGroupUseCase } from "../../core/application/use-cases/product-modifier-groups/create-product-modifier-group.use-case";
@@ -54,10 +56,12 @@ import { UpdateProductModifierUseCase } from "../../core/application/use-cases/p
     GetProductUseCase,
     GetProductsUseCase,
     UpdateProductUseCase,
+    DeleteProductUseCase,
     UploadProductImageUseCase,
     CreateProductSizeUseCase,
     GetProductSizesUseCase,
     UpdateProductSizeUseCase,
+    DeleteProductSizeUseCase,
     CreateProductModifierGroupUseCase,
     GetProductModifierGroupsUseCase,
     UpdateProductModifierGroupUseCase,

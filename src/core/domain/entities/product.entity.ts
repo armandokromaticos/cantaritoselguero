@@ -61,6 +61,17 @@ export class ProductEntity {
   get stock(): number | null {
     return this.props.stock;
   }
+  get computedStock(): number | null {
+    if (this.props.sizes) {
+      const activeSizesWithStock = this.props.sizes.filter(
+        (size) => size.isActive && size.stock !== null,
+      );
+      if (activeSizesWithStock.length > 0) {
+        return activeSizesWithStock.reduce((sum, size) => sum + size.stock!, 0);
+      }
+    }
+    return this.props.stock;
+  }
   get isActive(): boolean {
     return this.props.isActive;
   }
@@ -142,7 +153,7 @@ export class ProductEntity {
     dto.description = this.props.description;
     dto.basePrice = this.props.basePrice;
     dto.image = this.props.image;
-    dto.stock = this.props.stock;
+    dto.stock = this.computedStock;
     dto.isActive = this.props.isActive;
     dto.standId = this.props.standId;
     dto.createdAt = this.props.createdAt;

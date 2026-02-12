@@ -10,4 +10,5 @@ export interface IProductSizeRepository {
     id: string,
     entity: Partial<ProductSizeEntity>,
   ): Promise<ProductSizeEntity>;
+  delete(id: string): Promise<void>;
 }
