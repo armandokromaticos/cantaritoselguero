@@ -49,12 +49,14 @@ export class UpdateProductSizeUseCase {
     const activeSizesWithStock = sizes.filter(
       (size) => size.isActive && size.stock !== null,
     );
-    if (activeSizesWithStock.length > 0) {
-      const totalStock = activeSizesWithStock.reduce(
-        (sum, size) => sum + size.stock!,
-        0,
-      );
-      await this.productRepository.updateStock(productId, totalStock);
+    if (activeSizesWithStock.length === 0) {
+      await this.productRepository.updateStock(productId, null);
+      return;
     }
+    const totalStock = activeSizesWithStock.reduce(
+      (sum, size) => sum + size.stock!,
+      0,
+    );
+    await this.productRepository.updateStock(productId, totalStock);
   }
 }
