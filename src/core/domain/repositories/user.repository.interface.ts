@@ -8,4 +8,5 @@ export interface IUserRepository {
   findByAuthId(authId: string): Promise<User | null>;
   findAll(): Promise<User[]>;
   update(id: string, data: Prisma.UserUpdateInput): Promise<User>;
+  delete(id: string): Promise<void>;
 }
