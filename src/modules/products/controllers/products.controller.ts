@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -50,6 +52,7 @@ import { CreateProductUseCase } from "../../../core/application/use-cases/produc
 import { GetProductUseCase } from "../../../core/application/use-cases/products/get-product.use-case";
 import { GetProductsUseCase } from "../../../core/application/use-cases/products/get-products.use-case";
 import { UpdateProductUseCase } from "../../../core/application/use-cases/products/update-product.use-case";
+import { DeleteProductUseCase } from "../../../core/application/use-cases/products/delete-product.use-case";
 import {
   UploadProductImageUseCase,
   UploadFileInput,
@@ -59,6 +62,7 @@ import {
 import { CreateProductSizeUseCase } from "../../../core/application/use-cases/product-sizes/create-product-size.use-case";
 import { GetProductSizesUseCase } from "../../../core/application/use-cases/product-sizes/get-product-sizes.use-case";
 import { UpdateProductSizeUseCase } from "../../../core/application/use-cases/product-sizes/update-product-size.use-case";
+import { DeleteProductSizeUseCase } from "../../../core/application/use-cases/product-sizes/delete-product-size.use-case";
 
 // Use Cases - Modifier Groups
 import { CreateProductModifierGroupUseCase } from "../../../core/application/use-cases/product-modifier-groups/create-product-modifier-group.use-case";
@@ -81,10 +85,12 @@ export class ProductsController {
     private readonly getProductUseCase: GetProductUseCase,
     private readonly getProductsUseCase: GetProductsUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
+    private readonly deleteProductUseCase: DeleteProductUseCase,
     private readonly uploadProductImageUseCase: UploadProductImageUseCase,
     private readonly createProductSizeUseCase: CreateProductSizeUseCase,
     private readonly getProductSizesUseCase: GetProductSizesUseCase,
     private readonly updateProductSizeUseCase: UpdateProductSizeUseCase,
+    private readonly deleteProductSizeUseCase: DeleteProductSizeUseCase,
     private readonly createProductModifierGroupUseCase: CreateProductModifierGroupUseCase,
     private readonly getProductModifierGroupsUseCase: GetProductModifierGroupsUseCase,
     private readonly updateProductModifierGroupUseCase: UpdateProductModifierGroupUseCase,
@@ -126,6 +132,13 @@ export class ProductsController {
   ): Promise<ProductResponseDto> {
     const entity = await this.updateProductUseCase.execute(id, dto);
     return entity.toResponseDto();
+  }
+
+  @Delete(":id")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Eliminar producto" })
+  async deleteProduct(@Param("id") id: string): Promise<void> {
+    await this.deleteProductUseCase.execute(id);
   }
 
   @Post(":id/image")
@@ -196,6 +209,13 @@ export class ProductsController {
   ): Promise<ProductSizeResponseDto> {
     const entity = await this.updateProductSizeUseCase.execute(id, dto);
     return entity.toResponseDto();
+  }
+
+  @Delete(":productId/sizes/:id")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Eliminar tamaño de producto" })
+  async deleteSize(@Param("id") id: string): Promise<void> {
+    await this.deleteProductSizeUseCase.execute(id);
   }
 
   // ── Product Modifier Groups ──

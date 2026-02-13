@@ -3,11 +3,9 @@ import type { IProductSizeRepository } from "../../../domain/repositories/produc
 import { PRODUCT_SIZE_REPOSITORY } from "../../../domain/repositories/product-size.repository.interface";
 import type { IProductRepository } from "../../../domain/repositories/product.repository.interface";
 import { PRODUCT_REPOSITORY } from "../../../domain/repositories/product.repository.interface";
-import { CreateProductSizeDto } from "../../dto/product-sizes/create-product-size.dto";
-import { ProductSizeEntity } from "../../../domain/entities/product-size.entity";
 
 @Injectable()
-export class CreateProductSizeUseCase {
+export class DeleteProductSizeUseCase {
   constructor(
     @Inject(PRODUCT_SIZE_REPOSITORY)
     private readonly productSizeRepository: IProductSizeRepository,
@@ -15,20 +13,14 @@ export class CreateProductSizeUseCase {
     private readonly productRepository: IProductRepository,
   ) {}
 
-  async execute(
-    productId: string,
-    dto: CreateProductSizeDto,
-  ): Promise<ProductSizeEntity> {
-    const product = await this.productRepository.findById(productId);
-    if (!product) {
-      throw new NotFoundException(`Product with id "${productId}" not found`);
+  async execute(id: string): Promise<void> {
+    const existing = await this.productSizeRepository.findById(id);
+    if (!existing) {
+      throw new NotFoundException(`Product size with id "${id}" not found`);
     }
-    const entity = ProductSizeEntity.fromCreateDto(productId, dto);
-    const created = await this.productSizeRepository.create(entity);
 
-    await this.recalculateProductStock(productId);
-
-    return created;
+    await this.productSizeRepository.delete(id);
+    await this.recalculateProductStock(existing.productId);
   }
 
   private async recalculateProductStock(productId: string): Promise<void> {

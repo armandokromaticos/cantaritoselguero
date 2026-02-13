@@ -22,6 +22,12 @@ export class UpdateProductSizeDto {
   @Min(0)
   price?: number;
 
+  @ApiPropertyOptional({ example: 50 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  stock?: number;
+
   @ApiPropertyOptional({ example: 0 })
   @IsOptional()
   @IsInt()

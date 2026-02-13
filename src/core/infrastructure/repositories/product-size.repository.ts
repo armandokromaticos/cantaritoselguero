@@ -37,6 +37,7 @@ export class ProductSizeRepository implements IProductSizeRepository {
     if (entity.price !== undefined) {
       data.price = new Prisma.Decimal(entity.price);
     }
+    if (entity.stock !== undefined) data.stock = entity.stock;
     if (entity.sortOrder !== undefined) data.sortOrder = entity.sortOrder;
     if (entity.isDefault !== undefined) data.isDefault = entity.isDefault;
     if (entity.isActive !== undefined) data.isActive = entity.isActive;
@@ -48,5 +49,9 @@ export class ProductSizeRepository implements IProductSizeRepository {
       data: data as never,
     });
     return ProductSizeEntity.fromPrisma(size);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.productSize.delete({ where: { id } });
   }
 }

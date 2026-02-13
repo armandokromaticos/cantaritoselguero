@@ -7,6 +7,7 @@ interface ProductSizeProps {
   productId: string;
   name: string;
   price: number;
+  stock: number | null;
   sortOrder: number;
   isDefault: boolean;
   isActive: boolean;
@@ -31,6 +32,9 @@ export class ProductSizeEntity {
   get price(): number {
     return this.props.price;
   }
+  get stock(): number | null {
+    return this.props.stock;
+  }
   get sortOrder(): number {
     return this.props.sortOrder;
   }
@@ -47,6 +51,7 @@ export class ProductSizeEntity {
       productId: prisma.productId,
       name: prisma.name,
       price: Number(prisma.price),
+      stock: prisma.stock,
       sortOrder: prisma.sortOrder,
       isDefault: prisma.isDefault,
       isActive: prisma.isActive,
@@ -62,6 +67,7 @@ export class ProductSizeEntity {
       productId,
       name: dto.name,
       price: dto.price,
+      stock: dto.stock ?? null,
       sortOrder: dto.sortOrder ?? 0,
       isDefault: dto.isDefault ?? false,
       isActive: dto.isActive ?? true,
@@ -72,6 +78,7 @@ export class ProductSizeEntity {
     const data: Record<string, unknown> = {};
     data.name = this.props.name;
     data.price = new Prisma.Decimal(this.props.price);
+    data.stock = this.props.stock;
     data.sortOrder = this.props.sortOrder;
     data.isDefault = this.props.isDefault;
     data.isActive = this.props.isActive;
@@ -85,6 +92,7 @@ export class ProductSizeEntity {
     dto.productId = this.props.productId;
     dto.name = this.props.name;
     dto.price = this.props.price;
+    dto.stock = this.props.stock;
     dto.sortOrder = this.props.sortOrder;
     dto.isDefault = this.props.isDefault;
     dto.isActive = this.props.isActive;
