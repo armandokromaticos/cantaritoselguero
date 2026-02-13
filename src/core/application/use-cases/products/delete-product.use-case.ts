@@ -1,4 +1,10 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import type { IProductRepository } from "../../../domain/repositories/product.repository.interface";
 import { PRODUCT_REPOSITORY } from "../../../domain/repositories/product.repository.interface";
 
@@ -15,6 +21,18 @@ export class DeleteProductUseCase {
       throw new NotFoundException(`Product with id "${id}" not found`);
     }
 
-    await this.productRepository.delete(id);
+    try {
+      await this.productRepository.delete(id);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2003"
+      ) {
+        throw new ConflictException(
+          `Product "${existing.name}" cannot be deleted because it is used in one or more combos`,
+        );
+      }
+      throw error;
+    }
   }
 }
