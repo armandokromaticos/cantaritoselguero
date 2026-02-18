@@ -32,11 +32,18 @@ export class DeleteUserUseCase {
         const supabase = this.supabaseService.getAdmin();
         const { error } = await supabase.auth.admin.deleteUser(authId);
         if (error) {
-          throw new InternalServerErrorException(
-            `No se pudo eliminar de Supabase Auth (authId=${authId}): ${error.message}`,
-          );
+          if (error.code === "user_not_found") {
+            this.logger.warn(
+              `Usuario ya no existe en Supabase Auth (authId=${authId}), continuando con eliminacion de DB`,
+            );
+          } else {
+            throw new InternalServerErrorException(
+              `No se pudo eliminar de Supabase Auth (authId=${authId}): ${error.message}`,
+            );
+          }
+        } else {
+          this.logger.log(`Usuario eliminado de Supabase Auth: ${authId}`);
         }
-        this.logger.log(`Usuario eliminado de Supabase Auth: ${authId}`);
       } catch (err) {
         if (err instanceof InternalServerErrorException) throw err;
         throw new InternalServerErrorException(
