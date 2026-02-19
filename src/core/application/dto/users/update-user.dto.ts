@@ -1,5 +1,12 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from "class-validator";
+import { Role } from "../../../domain/enums/role.enum";
 
 export class UpdateUserDto {
   @ApiPropertyOptional({ example: "user@example.com" })
@@ -17,4 +24,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @ApiPropertyOptional({ enum: Role, example: Role.STAND_OPERATOR })
+  @IsOptional()
+  @IsEnum(Role)
+  role?: Role;
 }
