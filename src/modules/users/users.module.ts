@@ -5,6 +5,7 @@ import { CreateUserUseCase } from "../../core/application/use-cases/users/create
 import { GetUserUseCase } from "../../core/application/use-cases/users/get-user.use-case";
 import { GetUsersUseCase } from "../../core/application/use-cases/users/get-users.use-case";
 import { UpdateUserUseCase } from "../../core/application/use-cases/users/update-user.use-case";
+import { DeleteUserUseCase } from "../../core/application/use-cases/users/delete-user.use-case";
 import { UsersController } from "./controllers/users.controller";
 import { AuthModule } from "../auth/auth.module";
 
@@ -20,6 +21,7 @@ import { AuthModule } from "../auth/auth.module";
     GetUserUseCase,
     GetUsersUseCase,
     UpdateUserUseCase,
+    DeleteUserUseCase,
   ],
 })
 export class UsersModule {}

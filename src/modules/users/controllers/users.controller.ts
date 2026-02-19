@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -15,6 +17,7 @@ import { CreateUserUseCase } from "../../../core/application/use-cases/users/cre
 import { GetUserUseCase } from "../../../core/application/use-cases/users/get-user.use-case";
 import { GetUsersUseCase } from "../../../core/application/use-cases/users/get-users.use-case";
 import { UpdateUserUseCase } from "../../../core/application/use-cases/users/update-user.use-case";
+import { DeleteUserUseCase } from "../../../core/application/use-cases/users/delete-user.use-case";
 import { Role } from "../../../core/domain/enums/role.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
@@ -28,6 +31,7 @@ export class UsersController {
     private readonly getUserUseCase: GetUserUseCase,
     private readonly getUsersUseCase: GetUsersUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
+    private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
 
   @Post()
@@ -68,5 +72,15 @@ export class UsersController {
   ): Promise<UserResponseDto> {
     const user = await this.updateUserUseCase.execute(id, dto);
     return user.toResponse();
+  }
+
+  @Delete(":id")
+  @HttpCode(204)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: "Eliminar usuario" })
+  async remove(@Param("id") id: string): Promise<void> {
+    await this.deleteUserUseCase.execute(id);
   }
 }
