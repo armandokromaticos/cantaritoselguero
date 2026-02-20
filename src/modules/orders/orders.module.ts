@@ -1,0 +1,37 @@
+import { Module } from "@nestjs/common";
+import { AuthModule } from "../auth/auth.module";
+import { OrdersController } from "./controllers/orders.controller";
+import { ORDER_REPOSITORY } from "../../core/domain/repositories/order.repository.interface";
+import { OrderRepository } from "../../core/infrastructure/repositories/order.repository";
+import { PRODUCT_REPOSITORY } from "../../core/domain/repositories/product.repository.interface";
+import { ProductRepository } from "../../core/infrastructure/repositories/product.repository";
+import { PRODUCT_SIZE_REPOSITORY } from "../../core/domain/repositories/product-size.repository.interface";
+import { ProductSizeRepository } from "../../core/infrastructure/repositories/product-size.repository";
+import { PRODUCT_MODIFIER_REPOSITORY } from "../../core/domain/repositories/product-modifier.repository.interface";
+import { ProductModifierRepository } from "../../core/infrastructure/repositories/product-modifier.repository";
+import { COMBO_REPOSITORY } from "../../core/domain/repositories/combo.repository.interface";
+import { ComboRepository } from "../../core/infrastructure/repositories/combo.repository";
+import { CreateOrderUseCase } from "../../core/application/use-cases/orders/create-order.use-case";
+import { GetOrderUseCase } from "../../core/application/use-cases/orders/get-order.use-case";
+import { GetOrdersUseCase } from "../../core/application/use-cases/orders/get-orders.use-case";
+import { CancelOrderUseCase } from "../../core/application/use-cases/orders/cancel-order.use-case";
+
+@Module({
+  imports: [AuthModule],
+  controllers: [OrdersController],
+  providers: [
+    { provide: ORDER_REPOSITORY, useClass: OrderRepository },
+    { provide: PRODUCT_REPOSITORY, useClass: ProductRepository },
+    { provide: PRODUCT_SIZE_REPOSITORY, useClass: ProductSizeRepository },
+    {
+      provide: PRODUCT_MODIFIER_REPOSITORY,
+      useClass: ProductModifierRepository,
+    },
+    { provide: COMBO_REPOSITORY, useClass: ComboRepository },
+    CreateOrderUseCase,
+    GetOrderUseCase,
+    GetOrdersUseCase,
+    CancelOrderUseCase,
+  ],
+})
+export class OrdersModule {}
