@@ -32,7 +32,7 @@ export class CancelOrderUseCase {
       throw new ForbiddenException("You can only cancel your own orders");
     }
 
-    if (order.status !== OrderStatus.PENDING) {
+    if (!order.canTransitionTo(OrderStatus.CANCELLED)) {
       throw new BadRequestException("Only PENDING orders can be cancelled");
     }
 

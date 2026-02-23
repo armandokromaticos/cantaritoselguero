@@ -9,6 +9,9 @@ import {
   OrderItemResponseDto,
   OrderItemModifierResponseDto,
 } from "../../application/dto/orders/order-response.dto";
+import { OrderStateMachine } from "../services/order-state-machine";
+import { Money } from "../value-objects/money.vo";
+import type { PricingStrategy, PricingContext } from "../interfaces";
 
 type PrismaOrderWithRelations = PrismaOrder & {
   items?: (PrismaOrderItem & {
@@ -17,13 +20,13 @@ type PrismaOrderWithRelations = PrismaOrder & {
 };
 
 interface OrderItemModifierInfo {
-  id: string;
+  id: string | undefined;
   modifierId: string;
   priceAdjustment: number;
 }
 
 interface OrderItemInfo {
-  id: string;
+  id: string | undefined;
   productId: string;
   productSizeId: string | null;
   comboId: string | null;
@@ -34,7 +37,7 @@ interface OrderItemInfo {
 }
 
 interface OrderProps {
-  id: string;
+  id: string | undefined;
   userId: string;
   standId: string | null;
   status: OrderStatus;
@@ -46,14 +49,39 @@ interface OrderProps {
   items?: OrderItemInfo[];
 }
 
+export interface CreateOrderItemModifierParams {
+  modifierId: string;
+  priceAdjustment: number;
+}
+
+export interface CreateOrderItemParams {
+  productId: string;
+  productSizeId?: string;
+  comboId?: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+  modifiers: CreateOrderItemModifierParams[];
+}
+
+export interface CreateOrderParams {
+  userId: string;
+  standId?: string;
+  qrCode: string;
+  shortCode: string;
+  total: number;
+  items: CreateOrderItemParams[];
+}
+
 export class OrderEntity {
+  private static readonly stateMachine = new OrderStateMachine();
   private props: OrderProps;
 
   constructor(props: OrderProps) {
     this.props = props;
   }
 
-  get id(): string {
+  get id(): string | undefined {
     return this.props.id;
   }
   get userId(): string {
@@ -84,6 +112,93 @@ export class OrderEntity {
     return this.props.items;
   }
 
+  canTransitionTo(status: OrderStatus): boolean {
+    return OrderEntity.stateMachine.canTransition(this.props.status, status);
+  }
+
+  async calculateTotal(
+    pricingStrategy: PricingStrategy,
+    context: PricingContext = {},
+  ): Promise<Money> {
+    if (!this.props.items || this.props.items.length === 0) {
+      return Money.zero();
+    }
+
+    let total = Money.zero();
+    for (const item of this.props.items) {
+      const basePrice = await pricingStrategy.getProductPrice(
+        item.productId,
+        context,
+      );
+      const modifiersAdjustment = Money.create(
+        item.modifiers.reduce(
+          (sum, modifier) => sum + modifier.priceAdjustment,
+          0,
+        ),
+      );
+      const itemTotal = basePrice
+        .add(modifiersAdjustment)
+        .multiply(item.quantity);
+      total = total.add(itemTotal);
+    }
+
+    return total;
+  }
+
+  static fromCreateDto(params: CreateOrderParams): OrderEntity {
+    return new OrderEntity({
+      id: undefined,
+      userId: params.userId,
+      standId: params.standId ?? null,
+      status: OrderStatus.PENDING,
+      qrCode: params.qrCode,
+      shortCode: params.shortCode,
+      total: params.total,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      items: params.items.map((item) => ({
+        id: undefined,
+        productId: item.productId,
+        productSizeId: item.productSizeId ?? null,
+        comboId: item.comboId ?? null,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        subtotal: item.subtotal,
+        modifiers: item.modifiers.map((modifier) => ({
+          id: undefined,
+          modifierId: modifier.modifierId,
+          priceAdjustment: modifier.priceAdjustment,
+        })),
+      })),
+    });
+  }
+
+  toPrismaCreate(): Record<string, unknown> {
+    return {
+      userId: this.props.userId,
+      standId: this.props.standId,
+      qrCode: this.props.qrCode,
+      shortCode: this.props.shortCode,
+      total: this.props.total,
+      items: {
+        create: (this.props.items ?? []).map((item) => ({
+          productId: item.productId,
+          productSizeId: item.productSizeId,
+          comboId: item.comboId,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          subtotal: item.subtotal,
+          modifiers: {
+            create: item.modifiers.map((modifier) => ({
+              modifierId: modifier.modifierId,
+              priceAdjustment: modifier.priceAdjustment,
+            })),
+          },
+        })),
+      },
+    };
+  }
+
   static fromPrisma(prisma: PrismaOrderWithRelations): OrderEntity {
     const props: OrderProps = {
       id: prisma.id,
@@ -106,10 +221,10 @@ export class OrderEntity {
         quantity: item.quantity,
         unitPrice: Number(item.unitPrice),
         subtotal: Number(item.subtotal),
-        modifiers: (item.modifiers ?? []).map((mod) => ({
-          id: mod.id,
-          modifierId: mod.modifierId,
-          priceAdjustment: Number(mod.priceAdjustment),
+        modifiers: (item.modifiers ?? []).map((modifier) => ({
+          id: modifier.id,
+          modifierId: modifier.modifierId,
+          priceAdjustment: Number(modifier.priceAdjustment),
         })),
       }));
     }
@@ -118,6 +233,9 @@ export class OrderEntity {
   }
 
   toResponseDto(): OrderResponseDto {
+    if (!this.props.id) {
+      throw new Error("Cannot convert unpersisted entity to response DTO");
+    }
     const dto = new OrderResponseDto();
     dto.id = this.props.id;
     dto.userId = this.props.userId;
@@ -132,18 +250,18 @@ export class OrderEntity {
     if (this.props.items) {
       dto.items = this.props.items.map((item) => {
         const itemDto = new OrderItemResponseDto();
-        itemDto.id = item.id;
+        itemDto.id = item.id!;
         itemDto.productId = item.productId;
         itemDto.productSizeId = item.productSizeId;
         itemDto.comboId = item.comboId;
         itemDto.quantity = item.quantity;
         itemDto.unitPrice = item.unitPrice;
         itemDto.subtotal = item.subtotal;
-        itemDto.modifiers = item.modifiers.map((mod) => {
+        itemDto.modifiers = item.modifiers.map((modifier) => {
           const modDto = new OrderItemModifierResponseDto();
-          modDto.id = mod.id;
-          modDto.modifierId = mod.modifierId;
-          modDto.priceAdjustment = mod.priceAdjustment;
+          modDto.id = modifier.id!;
+          modDto.modifierId = modifier.modifierId;
+          modDto.priceAdjustment = modifier.priceAdjustment;
           return modDto;
         });
         return itemDto;

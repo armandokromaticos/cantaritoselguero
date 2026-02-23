@@ -7,12 +7,7 @@ import {
 import { randomUUID, randomInt } from "crypto";
 import { Prisma } from "@prisma/client";
 import type { IOrderRepository } from "../../../domain/repositories/order.repository.interface";
-import {
-  ORDER_REPOSITORY,
-  CreateOrderData,
-  CreateOrderItemData,
-  CreateOrderItemModifierData,
-} from "../../../domain/repositories/order.repository.interface";
+import { ORDER_REPOSITORY } from "../../../domain/repositories/order.repository.interface";
 import type { IProductRepository } from "../../../domain/repositories/product.repository.interface";
 import { PRODUCT_REPOSITORY } from "../../../domain/repositories/product.repository.interface";
 import type { IProductSizeRepository } from "../../../domain/repositories/product-size.repository.interface";
@@ -22,7 +17,11 @@ import { PRODUCT_MODIFIER_REPOSITORY } from "../../../domain/repositories/produc
 import type { IComboRepository } from "../../../domain/repositories/combo.repository.interface";
 import { COMBO_REPOSITORY } from "../../../domain/repositories/combo.repository.interface";
 import { CreateOrderDto } from "../../dto/orders/create-order.dto";
-import { OrderEntity } from "../../../domain/entities/order.entity";
+import {
+  OrderEntity,
+  CreateOrderItemParams,
+  CreateOrderItemModifierParams,
+} from "../../../domain/entities/order.entity";
 
 function generateShortCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -49,7 +48,7 @@ export class CreateOrderUseCase {
   ) {}
 
   async execute(userId: string, dto: CreateOrderDto): Promise<OrderEntity> {
-    const items: CreateOrderItemData[] = [];
+    const items: CreateOrderItemParams[] = [];
 
     for (const itemDto of dto.items) {
       const product = await this.productRepository.findById(itemDto.productId);
@@ -83,7 +82,7 @@ export class CreateOrderUseCase {
         unitPrice = product.basePrice;
       }
 
-      const modifiers: CreateOrderItemModifierData[] = [];
+      const modifiers: CreateOrderItemModifierParams[] = [];
       let modifierTotal = 0;
 
       if (itemDto.modifiers && itemDto.modifiers.length > 0) {
@@ -129,15 +128,15 @@ export class CreateOrderUseCase {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         const shortCode = generateShortCode();
-        const data: CreateOrderData = {
+        const entity = OrderEntity.fromCreateDto({
           userId,
           standId: dto.standId,
           qrCode,
           shortCode,
           total,
           items,
-        };
-        return await this.orderRepository.create(data);
+        });
+        return await this.orderRepository.create(entity);
       } catch (error: unknown) {
         const isUniqueViolation =
           error instanceof Prisma.PrismaClientKnownRequestError &&
