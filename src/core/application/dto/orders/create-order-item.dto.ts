@@ -6,9 +6,24 @@ import {
   IsOptional,
   ValidateNested,
   IsArray,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  Validate,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { CreateOrderItemModifierDto } from "./create-order-item-modifier.dto";
+
+@ValidatorConstraint({ name: "MutuallyExclusiveIds", async: false })
+class MutuallyExclusiveIdsConstraint implements ValidatorConstraintInterface {
+  validate(_value: unknown, args: any) {
+    const obj = args.object as CreateOrderItemDto;
+    return !(obj.comboId && obj.productSizeId);
+  }
+
+  defaultMessage() {
+    return "comboId and productSizeId cannot both be provided";
+  }
+}
 
 export class CreateOrderItemDto {
   @ApiProperty({ example: "uuid-of-product" })
@@ -23,6 +38,7 @@ export class CreateOrderItemDto {
   @ApiPropertyOptional({ example: "uuid-of-combo" })
   @IsOptional()
   @IsUUID()
+  @Validate(MutuallyExclusiveIdsConstraint)
   comboId?: string;
 
   @ApiProperty({ example: 2 })

@@ -34,7 +34,7 @@ export class OrderItemResponseDto {
   subtotal: number;
 
   @ApiPropertyOptional({ type: () => [OrderItemModifierResponseDto] })
-  modifiers: OrderItemModifierResponseDto[];
+  modifiers?: OrderItemModifierResponseDto[];
 }
 
 export class OrderResponseDto {

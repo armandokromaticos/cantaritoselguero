@@ -202,6 +202,7 @@ model Order {
   stand Stand? @relation(fields: [standId], references: [id])
   items OrderItem[]
 
+  @@index([userId])
   @@map("orders")
 }
 

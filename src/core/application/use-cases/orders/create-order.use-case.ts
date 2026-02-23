@@ -4,7 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { randomUUID } from "crypto";
+import { randomUUID, randomInt } from "crypto";
+import { Prisma } from "@prisma/client";
 import type { IOrderRepository } from "../../../domain/repositories/order.repository.interface";
 import {
   ORDER_REPOSITORY,
@@ -27,7 +28,7 @@ function generateShortCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let code = "";
   for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+    code += chars.charAt(randomInt(chars.length));
   }
   return code;
 }
@@ -51,6 +52,13 @@ export class CreateOrderUseCase {
     const items: CreateOrderItemData[] = [];
 
     for (const itemDto of dto.items) {
+      const product = await this.productRepository.findById(itemDto.productId);
+      if (!product) {
+        throw new NotFoundException(
+          `Product with id ${itemDto.productId} not found`,
+        );
+      }
+
       let unitPrice: number;
 
       if (itemDto.comboId) {
@@ -72,14 +80,6 @@ export class CreateOrderUseCase {
         }
         unitPrice = size.price;
       } else {
-        const product = await this.productRepository.findById(
-          itemDto.productId,
-        );
-        if (!product) {
-          throw new NotFoundException(
-            `Product with id ${itemDto.productId} not found`,
-          );
-        }
         unitPrice = product.basePrice;
       }
 
@@ -140,8 +140,8 @@ export class CreateOrderUseCase {
         return await this.orderRepository.create(data);
       } catch (error: unknown) {
         const isUniqueViolation =
-          error instanceof Error &&
-          error.message.includes("Unique constraint failed");
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002";
         if (isUniqueViolation && attempt < maxRetries - 1) {
           continue;
         }
