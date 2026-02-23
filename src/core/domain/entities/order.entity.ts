@@ -242,8 +242,13 @@ export class OrderEntity {
 
     if (this.props.items) {
       dto.items = this.props.items.map((item) => {
+        if (!item.id) {
+          throw new Error(
+            "Cannot convert unpersisted order item to response DTO",
+          );
+        }
         const itemDto = new OrderItemResponseDto();
-        itemDto.id = item.id!;
+        itemDto.id = item.id;
         itemDto.productId = item.productId;
         itemDto.productSizeId = item.productSizeId;
         itemDto.comboId = item.comboId;
@@ -251,8 +256,13 @@ export class OrderEntity {
         itemDto.unitPrice = item.unitPrice;
         itemDto.subtotal = item.subtotal;
         itemDto.modifiers = item.modifiers.map((modifier) => {
+          if (!modifier.id) {
+            throw new Error(
+              "Cannot convert unpersisted order item modifier to response DTO",
+            );
+          }
           const modDto = new OrderItemModifierResponseDto();
-          modDto.id = modifier.id!;
+          modDto.id = modifier.id;
           modDto.modifierId = modifier.modifierId;
           modDto.priceAdjustment = modifier.priceAdjustment;
           return modDto;
