@@ -141,10 +141,9 @@ export class CreateOrderUseCase {
         const isUniqueViolation =
           error instanceof Prisma.PrismaClientKnownRequestError &&
           error.code === "P2002";
-        if (isUniqueViolation && attempt < maxRetries - 1) {
-          continue;
+        if (!isUniqueViolation) {
+          throw error;
         }
-        throw error;
       }
     }
 

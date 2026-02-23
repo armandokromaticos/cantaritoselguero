@@ -11,7 +11,6 @@ import {
 } from "../../application/dto/orders/order-response.dto";
 import { OrderStateMachine } from "../services/order-state-machine";
 import { Money } from "../value-objects/money.vo";
-import type { PricingStrategy, PricingContext } from "../interfaces";
 
 type PrismaOrderWithRelations = PrismaOrder & {
   items?: (PrismaOrderItem & {
@@ -116,27 +115,21 @@ export class OrderEntity {
     return OrderEntity.stateMachine.canTransition(this.props.status, status);
   }
 
-  async calculateTotal(
-    pricingStrategy: PricingStrategy,
-    context: PricingContext = {},
-  ): Promise<Money> {
+  calculateTotal(): Money {
     if (!this.props.items || this.props.items.length === 0) {
       return Money.zero();
     }
 
     let total = Money.zero();
     for (const item of this.props.items) {
-      const basePrice = await pricingStrategy.getProductPrice(
-        item.productId,
-        context,
-      );
+      const unitPrice = Money.create(item.unitPrice);
       const modifiersAdjustment = Money.create(
         item.modifiers.reduce(
           (sum, modifier) => sum + modifier.priceAdjustment,
           0,
         ),
       );
-      const itemTotal = basePrice
+      const itemTotal = unitPrice
         .add(modifiersAdjustment)
         .multiply(item.quantity);
       total = total.add(itemTotal);
