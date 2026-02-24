@@ -15,6 +15,8 @@ import { CreateOrderUseCase } from "../../core/application/use-cases/orders/crea
 import { GetOrderUseCase } from "../../core/application/use-cases/orders/get-order.use-case";
 import { GetOrdersUseCase } from "../../core/application/use-cases/orders/get-orders.use-case";
 import { CancelOrderUseCase } from "../../core/application/use-cases/orders/cancel-order.use-case";
+import { GetOrderByQrUseCase } from "../../core/application/use-cases/orders/get-order-by-qr.use-case";
+import { GetOrderByCodeUseCase } from "../../core/application/use-cases/orders/get-order-by-code.use-case";
 
 @Module({
   imports: [AuthModule],
@@ -32,6 +34,8 @@ import { CancelOrderUseCase } from "../../core/application/use-cases/orders/canc
     GetOrderUseCase,
     GetOrdersUseCase,
     CancelOrderUseCase,
+    GetOrderByQrUseCase,
+    GetOrderByCodeUseCase,
   ],
 })
 export class OrdersModule {}

@@ -19,6 +19,8 @@ import { CreateOrderUseCase } from "../../../core/application/use-cases/orders/c
 import { GetOrderUseCase } from "../../../core/application/use-cases/orders/get-order.use-case";
 import { GetOrdersUseCase } from "../../../core/application/use-cases/orders/get-orders.use-case";
 import { CancelOrderUseCase } from "../../../core/application/use-cases/orders/cancel-order.use-case";
+import { GetOrderByQrUseCase } from "../../../core/application/use-cases/orders/get-order-by-qr.use-case";
+import { GetOrderByCodeUseCase } from "../../../core/application/use-cases/orders/get-order-by-code.use-case";
 
 @ApiTags("Orders")
 @ApiBearerAuth()
@@ -31,6 +33,8 @@ export class OrdersController {
     private readonly getOrderUseCase: GetOrderUseCase,
     private readonly getOrdersUseCase: GetOrdersUseCase,
     private readonly cancelOrderUseCase: CancelOrderUseCase,
+    private readonly getOrderByQrUseCase: GetOrderByQrUseCase,
+    private readonly getOrderByCodeUseCase: GetOrderByCodeUseCase,
   ) {}
 
   @Post()
@@ -50,6 +54,24 @@ export class OrdersController {
   ): Promise<OrderResponseDto[]> {
     const entities = await this.getOrdersUseCase.execute(user.id, user.role);
     return entities.map((order) => order.toResponseDto());
+  }
+
+  @Get("qr/:qrCode")
+  @ApiOperation({ summary: "Buscar orden por QR code" })
+  async findByQrCode(
+    @Param("qrCode", ParseUUIDPipe) qrCode: string,
+  ): Promise<OrderResponseDto> {
+    const entity = await this.getOrderByQrUseCase.execute(qrCode);
+    return entity.toResponseDto();
+  }
+
+  @Get("code/:shortCode")
+  @ApiOperation({ summary: "Buscar orden por codigo corto" })
+  async findByShortCode(
+    @Param("shortCode") shortCode: string,
+  ): Promise<OrderResponseDto> {
+    const entity = await this.getOrderByCodeUseCase.execute(shortCode);
+    return entity.toResponseDto();
   }
 
   @Get(":id")

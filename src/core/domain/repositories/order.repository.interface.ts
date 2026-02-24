@@ -6,6 +6,8 @@ export const ORDER_REPOSITORY = Symbol("ORDER_REPOSITORY");
 export interface IOrderRepository {
   create(entity: OrderEntity): Promise<OrderEntity>;
   findById(id: string): Promise<OrderEntity | null>;
+  findByQrCode(qrCode: string): Promise<OrderEntity | null>;
+  findByShortCode(shortCode: string): Promise<OrderEntity | null>;
   findByUserId(userId: string): Promise<OrderEntity[]>;
   findAll(): Promise<OrderEntity[]>;
   updateStatus(id: string, status: OrderStatus): Promise<OrderEntity>;

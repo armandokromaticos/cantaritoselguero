@@ -32,6 +32,22 @@ export class OrderRepository implements IOrderRepository {
     return order ? OrderEntity.fromPrisma(order) : null;
   }
 
+  async findByQrCode(qrCode: string): Promise<OrderEntity | null> {
+    const order = await this.prisma.order.findUnique({
+      where: { qrCode },
+      include: OrderRepository.ORDER_INCLUDE,
+    });
+    return order ? OrderEntity.fromPrisma(order) : null;
+  }
+
+  async findByShortCode(shortCode: string): Promise<OrderEntity | null> {
+    const order = await this.prisma.order.findUnique({
+      where: { shortCode },
+      include: OrderRepository.ORDER_INCLUDE,
+    });
+    return order ? OrderEntity.fromPrisma(order) : null;
+  }
+
   async findByUserId(userId: string): Promise<OrderEntity[]> {
     const orders = await this.prisma.order.findMany({
       where: { userId },
