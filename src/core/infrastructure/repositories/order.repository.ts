@@ -11,7 +11,7 @@ export class OrderRepository implements IOrderRepository {
 
   private static readonly ORDER_INCLUDE = {
     items: {
-      include: { modifiers: true },
+      include: { modifiers: true, deliveries: true },
     },
   };
 
@@ -72,5 +72,15 @@ export class OrderRepository implements IOrderRepository {
       include: OrderRepository.ORDER_INCLUDE,
     });
     return OrderEntity.fromPrisma(order);
+  }
+
+  async createDelivery(
+    orderItemId: string,
+    standId: string,
+    deliveredByUserId: string,
+  ): Promise<void> {
+    await this.prisma.orderItemDelivery.create({
+      data: { orderItemId, standId, deliveredByUserId },
+    });
   }
 }
