@@ -8,6 +8,7 @@ import {
   IsArray,
   ValidatorConstraint,
   ValidatorConstraintInterface,
+  ValidationArguments,
   Validate,
 } from "class-validator";
 import { Type } from "class-transformer";
@@ -15,7 +16,7 @@ import { CreateOrderItemModifierDto } from "./create-order-item-modifier.dto";
 
 @ValidatorConstraint({ name: "MutuallyExclusiveIds", async: false })
 class MutuallyExclusiveIdsConstraint implements ValidatorConstraintInterface {
-  validate(_value: unknown, args: any) {
+  validate(_value: unknown, args: ValidationArguments) {
     const obj = args.object as CreateOrderItemDto;
     return !(obj.comboId && obj.productSizeId);
   }

@@ -14,6 +14,8 @@ import type { IProductSizeRepository } from "../../../domain/repositories/produc
 import { PRODUCT_SIZE_REPOSITORY } from "../../../domain/repositories/product-size.repository.interface";
 import type { IProductModifierRepository } from "../../../domain/repositories/product-modifier.repository.interface";
 import { PRODUCT_MODIFIER_REPOSITORY } from "../../../domain/repositories/product-modifier.repository.interface";
+import type { IProductModifierGroupRepository } from "../../../domain/repositories/product-modifier-group.repository.interface";
+import { PRODUCT_MODIFIER_GROUP_REPOSITORY } from "../../../domain/repositories/product-modifier-group.repository.interface";
 import type { IComboRepository } from "../../../domain/repositories/combo.repository.interface";
 import { COMBO_REPOSITORY } from "../../../domain/repositories/combo.repository.interface";
 import { CreateOrderDto } from "../../dto/orders/create-order.dto";
@@ -43,6 +45,8 @@ export class CreateOrderUseCase {
     private readonly productSizeRepository: IProductSizeRepository,
     @Inject(PRODUCT_MODIFIER_REPOSITORY)
     private readonly productModifierRepository: IProductModifierRepository,
+    @Inject(PRODUCT_MODIFIER_GROUP_REPOSITORY)
+    private readonly productModifierGroupRepository: IProductModifierGroupRepository,
     @Inject(COMBO_REPOSITORY)
     private readonly comboRepository: IComboRepository,
   ) {}
@@ -77,6 +81,11 @@ export class CreateOrderUseCase {
             `ProductSize with id ${itemDto.productSizeId} not found`,
           );
         }
+        if (size.productId !== itemDto.productId) {
+          throw new BadRequestException(
+            `ProductSize ${itemDto.productSizeId} does not belong to product ${itemDto.productId}`,
+          );
+        }
         unitPrice = size.price;
       } else {
         unitPrice = product.basePrice;
@@ -93,6 +102,14 @@ export class CreateOrderUseCase {
           if (!modifier) {
             throw new NotFoundException(
               `ProductModifier with id ${modDto.modifierId} not found`,
+            );
+          }
+          const group = await this.productModifierGroupRepository.findById(
+            modifier.groupId,
+          );
+          if (!group || group.productId !== itemDto.productId) {
+            throw new BadRequestException(
+              `ProductModifier ${modDto.modifierId} does not belong to product ${itemDto.productId}`,
             );
           }
           const adj = modifier.priceAdjustment;

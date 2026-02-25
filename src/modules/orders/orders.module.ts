@@ -9,6 +9,8 @@ import { PRODUCT_SIZE_REPOSITORY } from "../../core/domain/repositories/product-
 import { ProductSizeRepository } from "../../core/infrastructure/repositories/product-size.repository";
 import { PRODUCT_MODIFIER_REPOSITORY } from "../../core/domain/repositories/product-modifier.repository.interface";
 import { ProductModifierRepository } from "../../core/infrastructure/repositories/product-modifier.repository";
+import { PRODUCT_MODIFIER_GROUP_REPOSITORY } from "../../core/domain/repositories/product-modifier-group.repository.interface";
+import { ProductModifierGroupRepository } from "../../core/infrastructure/repositories/product-modifier-group.repository";
 import { COMBO_REPOSITORY } from "../../core/domain/repositories/combo.repository.interface";
 import { ComboRepository } from "../../core/infrastructure/repositories/combo.repository";
 import { CreateOrderUseCase } from "../../core/application/use-cases/orders/create-order.use-case";
@@ -28,6 +30,10 @@ import { GetOrderByCodeUseCase } from "../../core/application/use-cases/orders/g
     {
       provide: PRODUCT_MODIFIER_REPOSITORY,
       useClass: ProductModifierRepository,
+    },
+    {
+      provide: PRODUCT_MODIFIER_GROUP_REPOSITORY,
+      useClass: ProductModifierGroupRepository,
     },
     { provide: COMBO_REPOSITORY, useClass: ComboRepository },
     CreateOrderUseCase,

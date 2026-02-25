@@ -25,7 +25,6 @@ import { GetOrderByCodeUseCase } from "../../../core/application/use-cases/order
 @ApiTags("Orders")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.USER, Role.STAND_OPERATOR, Role.CATALOG_MANAGER)
 @Controller("orders")
 export class OrdersController {
   constructor(
@@ -38,6 +37,7 @@ export class OrdersController {
   ) {}
 
   @Post()
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: "Crear orden con items" })
   async createOrder(
     @Body() dto: CreateOrderDto,
@@ -48,6 +48,7 @@ export class OrdersController {
   }
 
   @Get()
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: "Listar ordenes (propias o todas para ADMIN)" })
   async findAllOrders(
     @CurrentUser() user: { id: string; role: Role },
@@ -57,6 +58,7 @@ export class OrdersController {
   }
 
   @Get("qr/:qrCode")
+  @Roles(Role.ADMIN, Role.STAND_OPERATOR)
   @ApiOperation({ summary: "Buscar orden por QR code" })
   async findByQrCode(
     @Param("qrCode", ParseUUIDPipe) qrCode: string,
@@ -66,6 +68,7 @@ export class OrdersController {
   }
 
   @Get("code/:shortCode")
+  @Roles(Role.ADMIN, Role.STAND_OPERATOR)
   @ApiOperation({ summary: "Buscar orden por codigo corto" })
   async findByShortCode(
     @Param("shortCode") shortCode: string,
@@ -75,6 +78,7 @@ export class OrdersController {
   }
 
   @Get(":id")
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: "Obtener orden por ID" })
   async findOneOrder(
     @Param("id", ParseUUIDPipe) id: string,
@@ -85,6 +89,7 @@ export class OrdersController {
   }
 
   @Post(":id/cancel")
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: "Cancelar orden PENDING" })
   async cancelOrder(
     @Param("id", ParseUUIDPipe) id: string,
