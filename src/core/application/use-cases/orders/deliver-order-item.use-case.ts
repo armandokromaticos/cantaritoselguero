@@ -67,22 +67,19 @@ export class DeliverOrderItemUseCase {
 
     await this.orderRepository.createDelivery(itemId, standId, operatorUserId);
 
-    // Transition status based on delivery progress
-    if (order.status === OrderStatus.PAID) {
-      await this.orderRepository.updateStatus(orderId, OrderStatus.PARTIAL);
-    }
-
-    // Re-fetch to check if all items are now delivered
+    // Re-fetch to determine correct status after delivery
     const updatedOrder = await this.orderRepository.findById(orderId);
     if (!updatedOrder) {
       throw new NotFoundException(`Order with id ${orderId} not found`);
     }
 
-    if (
-      updatedOrder.areAllItemsDelivered() &&
-      updatedOrder.canTransitionTo(OrderStatus.COMPLETED)
-    ) {
-      return this.orderRepository.updateStatus(orderId, OrderStatus.COMPLETED);
+    // Determine target status: COMPLETED if all items delivered, otherwise PARTIAL
+    const targetStatus = updatedOrder.areAllItemsDelivered()
+      ? OrderStatus.COMPLETED
+      : OrderStatus.PARTIAL;
+
+    if (updatedOrder.canTransitionTo(targetStatus)) {
+      return this.orderRepository.updateStatus(orderId, targetStatus);
     }
 
     return updatedOrder;
