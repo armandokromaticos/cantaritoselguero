@@ -11,4 +11,9 @@ export interface IOrderRepository {
   findByUserId(userId: string): Promise<OrderEntity[]>;
   findAll(): Promise<OrderEntity[]>;
   updateStatus(id: string, status: OrderStatus): Promise<OrderEntity>;
+  createDelivery(
+    orderItemId: string,
+    standId: string,
+    deliveredByUserId: string,
+  ): Promise<void>;
 }

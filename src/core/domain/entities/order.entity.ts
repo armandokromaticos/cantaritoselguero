@@ -2,12 +2,14 @@ import {
   Order as PrismaOrder,
   OrderItem as PrismaOrderItem,
   OrderItemModifier as PrismaOrderItemModifier,
+  OrderItemDelivery as PrismaOrderItemDelivery,
 } from "@prisma/client";
 import { OrderStatus } from "../enums/order-status.enum";
 import {
   OrderResponseDto,
   OrderItemResponseDto,
   OrderItemModifierResponseDto,
+  OrderItemDeliveryResponseDto,
 } from "../../application/dto/orders/order-response.dto";
 import { OrderStateMachine } from "../services/order-state-machine";
 import { Money } from "../value-objects/money.vo";
@@ -15,6 +17,7 @@ import { Money } from "../value-objects/money.vo";
 type PrismaOrderWithRelations = PrismaOrder & {
   items?: (PrismaOrderItem & {
     modifiers?: PrismaOrderItemModifier[];
+    deliveries?: PrismaOrderItemDelivery[];
   })[];
 };
 
@@ -22,6 +25,13 @@ interface OrderItemModifierInfo {
   id: string | undefined;
   modifierId: string;
   priceAdjustment: number;
+}
+
+interface OrderItemDeliveryInfo {
+  id: string;
+  standId: string;
+  deliveredByUserId: string;
+  deliveredAt: Date;
 }
 
 interface OrderItemInfo {
@@ -33,6 +43,7 @@ interface OrderItemInfo {
   unitPrice: number;
   subtotal: number;
   modifiers: OrderItemModifierInfo[];
+  deliveries: OrderItemDeliveryInfo[];
 }
 
 interface OrderProps {
@@ -115,6 +126,17 @@ export class OrderEntity {
     return OrderEntity.stateMachine.canTransition(this.props.status, status);
   }
 
+  isItemDelivered(itemId: string): boolean {
+    const item = this.props.items?.find((orderItem) => orderItem.id === itemId);
+    if (!item) return false;
+    return item.deliveries.length > 0;
+  }
+
+  areAllItemsDelivered(): boolean {
+    if (!this.props.items || this.props.items.length === 0) return false;
+    return this.props.items.every((item) => item.deliveries.length > 0);
+  }
+
   calculateTotal(): Money {
     if (!this.props.items || this.props.items.length === 0) {
       return Money.zero();
@@ -162,6 +184,7 @@ export class OrderEntity {
           modifierId: modifier.modifierId,
           priceAdjustment: modifier.priceAdjustment,
         })),
+        deliveries: [],
       })),
     });
   }
@@ -219,6 +242,12 @@ export class OrderEntity {
           modifierId: modifier.modifierId,
           priceAdjustment: Number(modifier.priceAdjustment),
         })),
+        deliveries: (item.deliveries ?? []).map((delivery) => ({
+          id: delivery.id,
+          standId: delivery.standId,
+          deliveredByUserId: delivery.deliveredByUserId,
+          deliveredAt: delivery.deliveredAt,
+        })),
       }));
     }
 
@@ -266,6 +295,14 @@ export class OrderEntity {
           modDto.modifierId = modifier.modifierId;
           modDto.priceAdjustment = modifier.priceAdjustment;
           return modDto;
+        });
+        itemDto.deliveries = item.deliveries.map((delivery) => {
+          const delDto = new OrderItemDeliveryResponseDto();
+          delDto.id = delivery.id;
+          delDto.standId = delivery.standId;
+          delDto.deliveredByUserId = delivery.deliveredByUserId;
+          delDto.deliveredAt = delivery.deliveredAt;
+          return delDto;
         });
         return itemDto;
       });

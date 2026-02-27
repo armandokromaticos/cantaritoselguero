@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
 } from "@nestjs/common";
@@ -14,6 +15,7 @@ import { RolesGuard } from "../../auth/guards/roles.guard";
 import { Roles } from "../../auth/decorators/roles.decorator";
 import { CurrentUser } from "../../auth/decorators/current-user.decorator";
 import { CreateOrderDto } from "../../../core/application/dto/orders/create-order.dto";
+import { UpdateOrderStatusDto } from "../../../core/application/dto/orders/update-order-status.dto";
 import { OrderResponseDto } from "../../../core/application/dto/orders/order-response.dto";
 import { CreateOrderUseCase } from "../../../core/application/use-cases/orders/create-order.use-case";
 import { GetOrderUseCase } from "../../../core/application/use-cases/orders/get-order.use-case";
@@ -21,6 +23,8 @@ import { GetOrdersUseCase } from "../../../core/application/use-cases/orders/get
 import { CancelOrderUseCase } from "../../../core/application/use-cases/orders/cancel-order.use-case";
 import { GetOrderByQrUseCase } from "../../../core/application/use-cases/orders/get-order-by-qr.use-case";
 import { GetOrderByCodeUseCase } from "../../../core/application/use-cases/orders/get-order-by-code.use-case";
+import { UpdateOrderStatusUseCase } from "../../../core/application/use-cases/orders/update-order-status.use-case";
+import { DeliverOrderItemUseCase } from "../../../core/application/use-cases/orders/deliver-order-item.use-case";
 
 @ApiTags("Orders")
 @ApiBearerAuth()
@@ -34,6 +38,8 @@ export class OrdersController {
     private readonly cancelOrderUseCase: CancelOrderUseCase,
     private readonly getOrderByQrUseCase: GetOrderByQrUseCase,
     private readonly getOrderByCodeUseCase: GetOrderByCodeUseCase,
+    private readonly updateOrderStatusUseCase: UpdateOrderStatusUseCase,
+    private readonly deliverOrderItemUseCase: DeliverOrderItemUseCase,
   ) {}
 
   @Post()
@@ -88,6 +94,17 @@ export class OrdersController {
     return entity.toResponseDto();
   }
 
+  @Patch(":id/status")
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: "Cambiar estado de orden (ADMIN)" })
+  async updateStatus(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: UpdateOrderStatusDto,
+  ): Promise<OrderResponseDto> {
+    const entity = await this.updateOrderStatusUseCase.execute(id, dto.status);
+    return entity.toResponseDto();
+  }
+
   @Post(":id/cancel")
   @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: "Cancelar orden PENDING" })
@@ -99,6 +116,24 @@ export class OrdersController {
       id,
       user.id,
       user.role,
+    );
+    return entity.toResponseDto();
+  }
+
+  @Post(":id/items/:itemId/deliver/:standId")
+  @Roles(Role.ADMIN, Role.STAND_OPERATOR)
+  @ApiOperation({ summary: "Marcar item como entregado en un stand" })
+  async deliverItem(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Param("itemId", ParseUUIDPipe) itemId: string,
+    @Param("standId", ParseUUIDPipe) standId: string,
+    @CurrentUser() user: { id: string; role: Role },
+  ): Promise<OrderResponseDto> {
+    const entity = await this.deliverOrderItemUseCase.execute(
+      id,
+      itemId,
+      standId,
+      user.id,
     );
     return entity.toResponseDto();
   }

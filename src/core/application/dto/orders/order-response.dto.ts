@@ -11,6 +11,20 @@ export class OrderItemModifierResponseDto {
   priceAdjustment: number;
 }
 
+export class OrderItemDeliveryResponseDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  standId: string;
+
+  @ApiProperty()
+  deliveredByUserId: string;
+
+  @ApiProperty()
+  deliveredAt: Date;
+}
+
 export class OrderItemResponseDto {
   @ApiProperty()
   id: string;
@@ -35,6 +49,9 @@ export class OrderItemResponseDto {
 
   @ApiPropertyOptional({ type: () => [OrderItemModifierResponseDto] })
   modifiers?: OrderItemModifierResponseDto[];
+
+  @ApiPropertyOptional({ type: () => [OrderItemDeliveryResponseDto] })
+  deliveries?: OrderItemDeliveryResponseDto[];
 }
 
 export class OrderResponseDto {
