@@ -134,6 +134,7 @@ export class OrdersController {
       itemId,
       standId,
       user.id,
+      user.role,
     );
     return entity.toResponseDto();
   }

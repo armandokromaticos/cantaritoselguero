@@ -11,6 +11,7 @@ import type { IStandRepository } from "../../../domain/repositories/stand.reposi
 import { STAND_REPOSITORY } from "../../../domain/repositories/stand.repository.interface";
 import { OrderEntity } from "../../../domain/entities/order.entity";
 import { OrderStatus } from "../../../domain/enums/order-status.enum";
+import { Role } from "../../../domain/enums/role.enum";
 
 @Injectable()
 export class DeliverOrderItemUseCase {
@@ -26,6 +27,7 @@ export class DeliverOrderItemUseCase {
     itemId: string,
     standId: string,
     operatorUserId: string,
+    userRole: Role,
   ): Promise<OrderEntity> {
     const order = await this.orderRepository.findById(orderId);
     if (!order) {
@@ -59,7 +61,7 @@ export class DeliverOrderItemUseCase {
       throw new NotFoundException(`Stand with id ${standId} not found`);
     }
 
-    if (!stand.hasOperator(operatorUserId)) {
+    if (userRole !== Role.ADMIN && !stand.hasOperator(operatorUserId)) {
       throw new ForbiddenException(
         "You are not assigned as an operator of this stand",
       );

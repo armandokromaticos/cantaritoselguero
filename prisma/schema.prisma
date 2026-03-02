@@ -223,6 +223,7 @@ model OrderItem {
   modifiers   OrderItemModifier[]
   deliveries  OrderItemDelivery[]
 
+  @@index([orderId])
   @@map("order_items")
 }
 

@@ -5,22 +5,22 @@ import { InvalidStateTransitionException } from "../exceptions/invalid-state-tra
 export class OrderStateMachine implements StateMachine<OrderStatus> {
   private static readonly transitions = new Map<OrderStatus, Set<OrderStatus>>([
     [OrderStatus.PENDING, new Set([OrderStatus.PAID, OrderStatus.CANCELLED])],
-    [OrderStatus.PAID, new Set([OrderStatus.PARTIAL])],
+    [OrderStatus.PAID, new Set([OrderStatus.PARTIAL, OrderStatus.COMPLETED])],
     [OrderStatus.PARTIAL, new Set([OrderStatus.COMPLETED])],
     [OrderStatus.COMPLETED, new Set()],
     [OrderStatus.CANCELLED, new Set()],
   ]);
 
-  canTransition(from: OrderStatus, to: OrderStatus): boolean {
+  canTransition(from: OrderStatus, targetStatus: OrderStatus): boolean {
     const allowed = OrderStateMachine.transitions.get(from);
-    return allowed?.has(to) ?? false;
+    return allowed?.has(targetStatus) ?? false;
   }
 
-  transition(from: OrderStatus, to: OrderStatus): OrderStatus {
-    if (!this.canTransition(from, to)) {
-      throw new InvalidStateTransitionException("Order", from, to);
+  transition(from: OrderStatus, targetStatus: OrderStatus): OrderStatus {
+    if (!this.canTransition(from, targetStatus)) {
+      throw new InvalidStateTransitionException("Order", from, targetStatus);
     }
-    return to;
+    return targetStatus;
   }
 
   getAllowedTransitions(from: OrderStatus): OrderStatus[] {
