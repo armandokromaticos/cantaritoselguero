@@ -15,6 +15,9 @@ import { OrderStateMachine } from "../services/order-state-machine";
 import { Money } from "../value-objects/money.vo";
 
 type PrismaOrderWithRelations = PrismaOrder & {
+  couponId?: string | null;
+  subtotal?: unknown;
+  discount?: unknown;
   items?: (PrismaOrderItem & {
     modifiers?: PrismaOrderItemModifier[];
     deliveries?: PrismaOrderItemDelivery[];
@@ -50,9 +53,12 @@ interface OrderProps {
   id: string | undefined;
   userId: string;
   standId: string | null;
+  couponId: string | null;
   status: OrderStatus;
   qrCode: string;
   shortCode: string;
+  subtotal: number;
+  discount: number;
   total: number;
   createdAt: Date;
   updatedAt: Date;
@@ -77,8 +83,11 @@ export interface CreateOrderItemParams {
 export interface CreateOrderParams {
   userId: string;
   standId?: string;
+  couponId?: string;
   qrCode: string;
   shortCode: string;
+  subtotal: number;
+  discount: number;
   total: number;
   items: CreateOrderItemParams[];
 }
@@ -100,6 +109,9 @@ export class OrderEntity {
   get standId(): string | null {
     return this.props.standId;
   }
+  get couponId(): string | null {
+    return this.props.couponId;
+  }
   get status(): OrderStatus {
     return this.props.status;
   }
@@ -108,6 +120,12 @@ export class OrderEntity {
   }
   get shortCode(): string {
     return this.props.shortCode;
+  }
+  get subtotal(): number {
+    return this.props.subtotal;
+  }
+  get discount(): number {
+    return this.props.discount;
   }
   get total(): number {
     return this.props.total;
@@ -165,9 +183,12 @@ export class OrderEntity {
       id: undefined,
       userId: params.userId,
       standId: params.standId ?? null,
+      couponId: params.couponId ?? null,
       status: OrderStatus.PENDING,
       qrCode: params.qrCode,
       shortCode: params.shortCode,
+      subtotal: params.subtotal,
+      discount: params.discount,
       total: params.total,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -193,8 +214,11 @@ export class OrderEntity {
     return {
       userId: this.props.userId,
       standId: this.props.standId,
+      couponId: this.props.couponId,
       qrCode: this.props.qrCode,
       shortCode: this.props.shortCode,
+      subtotal: this.props.subtotal,
+      discount: this.props.discount,
       total: this.props.total,
       items: {
         create: (this.props.items ?? []).map((item) => ({
@@ -220,9 +244,12 @@ export class OrderEntity {
       id: prisma.id,
       userId: prisma.userId,
       standId: prisma.standId,
+      couponId: prisma.couponId ?? null,
       status: prisma.status as OrderStatus,
       qrCode: prisma.qrCode,
       shortCode: prisma.shortCode,
+      subtotal: Number(prisma.subtotal ?? prisma.total),
+      discount: Number(prisma.discount ?? 0),
       total: Number(prisma.total),
       createdAt: prisma.createdAt,
       updatedAt: prisma.updatedAt,
@@ -262,9 +289,12 @@ export class OrderEntity {
     dto.id = this.props.id;
     dto.userId = this.props.userId;
     dto.standId = this.props.standId;
+    dto.couponId = this.props.couponId;
     dto.status = this.props.status;
     dto.qrCode = this.props.qrCode;
     dto.shortCode = this.props.shortCode;
+    dto.subtotal = this.props.subtotal;
+    dto.discount = this.props.discount;
     dto.total = this.props.total;
     dto.createdAt = this.props.createdAt;
     dto.updatedAt = this.props.updatedAt;

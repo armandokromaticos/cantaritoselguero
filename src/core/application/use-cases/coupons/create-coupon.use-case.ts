@@ -1,0 +1,35 @@
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import type { ICouponRepository } from "../../../domain/repositories/coupon.repository.interface";
+import { COUPON_REPOSITORY } from "../../../domain/repositories/coupon.repository.interface";
+import { CreateCouponDto } from "../../dto/coupons/create-coupon.dto";
+import { CouponEntity } from "../../../domain/entities/coupon.entity";
+
+@Injectable()
+export class CreateCouponUseCase {
+  constructor(
+    @Inject(COUPON_REPOSITORY)
+    private readonly couponRepository: ICouponRepository,
+  ) {}
+
+  async execute(dto: CreateCouponDto): Promise<CouponEntity> {
+    const nameUpper = dto.name.toUpperCase();
+    const existing = await this.couponRepository.findByName(nameUpper);
+    if (existing) {
+      throw new BadRequestException(
+        `Coupon with name "${nameUpper}" already exists`,
+      );
+    }
+
+    const entity = CouponEntity.fromCreateDto({
+      type: dto.type,
+      name: dto.name,
+      discountPercent: dto.discountPercent,
+      maxDiscount: dto.maxDiscount,
+      totalQuantity: dto.totalQuantity,
+      expiresAt: new Date(dto.expiresAt),
+      isActive: dto.isActive ?? true,
+    });
+
+    return await this.couponRepository.create(entity);
+  }
+}

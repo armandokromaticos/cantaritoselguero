@@ -23,6 +23,8 @@ import { UpdateOrderStatusUseCase } from "../../core/application/use-cases/order
 import { DeliverOrderItemUseCase } from "../../core/application/use-cases/orders/deliver-order-item.use-case";
 import { STAND_REPOSITORY } from "../../core/domain/repositories/stand.repository.interface";
 import { StandRepository } from "../../core/infrastructure/repositories/stand.repository";
+import { COUPON_REPOSITORY } from "../../core/domain/repositories/coupon.repository.interface";
+import { CouponRepository } from "../../core/infrastructure/repositories/coupon.repository";
 
 @Module({
   imports: [AuthModule],
@@ -41,6 +43,7 @@ import { StandRepository } from "../../core/infrastructure/repositories/stand.re
     },
     { provide: COMBO_REPOSITORY, useClass: ComboRepository },
     { provide: STAND_REPOSITORY, useClass: StandRepository },
+    { provide: COUPON_REPOSITORY, useClass: CouponRepository },
     CreateOrderUseCase,
     GetOrderUseCase,
     GetOrdersUseCase,
