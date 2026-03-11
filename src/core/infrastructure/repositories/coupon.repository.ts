@@ -75,4 +75,26 @@ export class CouponRepository implements ICouponRepository {
       data: { usedQuantity: { increment: 1 } },
     });
   }
+
+  async consumeCoupon(
+    couponId: string,
+    userId: string,
+    orderId: string,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (prisma) => {
+      const coupon = await prisma.coupon.findUniqueOrThrow({
+        where: { id: couponId },
+      });
+      if (coupon.usedQuantity >= coupon.totalQuantity) {
+        throw new Error("Coupon has no remaining uses");
+      }
+      await prisma.couponUsage.create({
+        data: { couponId, userId, orderId },
+      });
+      await prisma.coupon.update({
+        where: { id: couponId },
+        data: { usedQuantity: { increment: 1 } },
+      });
+    });
+  }
 }

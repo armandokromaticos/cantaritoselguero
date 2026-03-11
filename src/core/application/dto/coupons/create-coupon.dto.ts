@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsBoolean,
   Min,
+  Max,
   MinLength,
 } from "class-validator";
 import { CouponType } from "../../../domain/enums/coupon-type.enum";
@@ -25,6 +26,7 @@ export class CreateCouponDto {
   @ApiProperty({ example: 15.0, description: "Porcentaje de descuento" })
   @IsNumber()
   @Min(0.01)
+  @Max(100)
   discountPercent: number;
 
   @ApiProperty({

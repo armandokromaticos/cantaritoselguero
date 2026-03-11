@@ -216,6 +216,7 @@ model CouponUsage {
   order  Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
 
   @@unique([couponId, userId])
+  @@unique([orderId])
   @@map("coupon_usages")
 }
 

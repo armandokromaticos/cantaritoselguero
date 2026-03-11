@@ -11,4 +11,9 @@ export interface ICouponRepository {
   update(id: string, data: UpdateCouponParams): Promise<CouponEntity>;
   createUsage(couponId: string, userId: string, orderId: string): Promise<void>;
   incrementUsedQuantity(id: string): Promise<void>;
+  consumeCoupon(
+    couponId: string,
+    userId: string,
+    orderId: string,
+  ): Promise<void>;
 }

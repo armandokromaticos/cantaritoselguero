@@ -53,7 +53,7 @@ export class CouponsController {
   @Get()
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Listar cupones (filtrable por tipo)" })
-  @ApiQuery({ name: "type", required: false, enum: ["GLOBAL", "UNIQUE"] })
+  @ApiQuery({ name: "type", required: false, enum: CouponType })
   async findAllCoupons(
     @Query("type") type?: CouponType,
   ): Promise<CouponResponseDto[]> {

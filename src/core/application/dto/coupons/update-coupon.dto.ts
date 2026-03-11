@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsBoolean,
   Min,
+  Max,
   MinLength,
 } from "class-validator";
 
@@ -21,6 +22,7 @@ export class UpdateCouponDto {
   @IsOptional()
   @IsNumber()
   @Min(0.01)
+  @Max(100)
   discountPercent?: number;
 
   @ApiPropertyOptional({ example: 100.0 })

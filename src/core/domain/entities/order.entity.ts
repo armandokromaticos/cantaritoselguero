@@ -4,6 +4,7 @@ import {
   OrderItemModifier as PrismaOrderItemModifier,
   OrderItemDelivery as PrismaOrderItemDelivery,
 } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 import { OrderStatus } from "../enums/order-status.enum";
 import {
   OrderResponseDto,
@@ -16,8 +17,8 @@ import { Money } from "../value-objects/money.vo";
 
 type PrismaOrderWithRelations = PrismaOrder & {
   couponId?: string | null;
-  subtotal?: unknown;
-  discount?: unknown;
+  subtotal?: Decimal;
+  discount?: Decimal;
   items?: (PrismaOrderItem & {
     modifiers?: PrismaOrderItemModifier[];
     deliveries?: PrismaOrderItemDelivery[];

@@ -187,12 +187,11 @@ export class CreateOrderUseCase {
         const createdOrder = await this.orderRepository.create(entity);
 
         if (coupon && coupon.id && createdOrder.id) {
-          await this.couponRepository.createUsage(
+          await this.couponRepository.consumeCoupon(
             coupon.id,
             userId,
             createdOrder.id,
           );
-          await this.couponRepository.incrementUsedQuantity(coupon.id);
         }
 
         return createdOrder;
