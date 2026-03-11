@@ -23,7 +23,9 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  stands    StandOperator[]
+  stands     StandOperator[]
+  orders     Order[]
+  deliveries OrderItemDelivery[] @relation("deliveries")
 
   @@map("users")
 }
@@ -51,6 +53,8 @@ model Stand {
 
   operators   StandOperator[]
   products    Product[]
+  orders      Order[]
+  deliveries  OrderItemDelivery[]
 
   @@map("stands")
 }
@@ -87,6 +91,7 @@ model Product {
   sizes          ProductSize[]
   modifierGroups ProductModifierGroup[]
   comboItems     ComboItem[]
+  orderItems     OrderItem[]
 
   @@map("products")
 }
@@ -101,7 +106,8 @@ model ProductSize {
   isDefault Boolean @default(false) @map("is_default")
   isActive  Boolean @default(true) @map("is_active")
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
 
   @@map("product_sizes")
 }
@@ -130,7 +136,8 @@ model ProductModifier {
   isActive        Boolean @default(true) @map("is_active")
   sortOrder       Int     @default(0) @map("sort_order")
 
-  group ProductModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group              ProductModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  orderItemModifiers OrderItemModifier[]
 
   @@map("product_modifiers")
 }
@@ -149,7 +156,8 @@ model Combo {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  items ComboItem[]
+  items      ComboItem[]
+  orderItems OrderItem[]
 
   @@map("combos")
 }
@@ -165,4 +173,82 @@ model ComboItem {
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@map("combo_items")
+}
+
+// ============================================
+// ORDERS
+// ============================================
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PARTIAL
+  COMPLETED
+  CANCELLED
+}
+
+model Order {
+  id        String      @id @default(uuid())
+  userId    String      @map("user_id")
+  standId   String?     @map("stand_id")
+  status    OrderStatus @default(PENDING)
+  qrCode    String      @unique @map("qr_code")
+  shortCode String      @unique @map("short_code") @db.VarChar(6)
+  total     Decimal     @default(0) @db.Decimal(10, 2)
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  user  User   @relation(fields: [userId], references: [id])
+  stand Stand? @relation(fields: [standId], references: [id])
+  items OrderItem[]
+
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id            String  @id @default(uuid())
+  orderId       String  @map("order_id")
+  productId     String  @map("product_id")
+  productSizeId String? @map("product_size_id")
+  comboId       String? @map("combo_id")
+  quantity      Int     @default(1)
+  unitPrice     Decimal @map("unit_price") @db.Decimal(10, 2)
+  subtotal      Decimal @db.Decimal(10, 2)
+
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  productSize ProductSize? @relation(fields: [productSizeId], references: [id], onDelete: Restrict)
+  combo       Combo?       @relation(fields: [comboId], references: [id], onDelete: Restrict)
+  modifiers   OrderItemModifier[]
+  deliveries  OrderItemDelivery[]
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderItemModifier {
+  id              String  @id @default(uuid())
+  orderItemId     String  @map("order_item_id")
+  modifierId      String  @map("modifier_id")
+  priceAdjustment Decimal @map("price_adj") @db.Decimal(10, 2)
+
+  orderItem OrderItem       @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  modifier  ProductModifier @relation(fields: [modifierId], references: [id], onDelete: Restrict)
+
+  @@map("order_item_modifiers")
+}
+
+model OrderItemDelivery {
+  id                String   @id @default(uuid())
+  orderItemId       String   @map("order_item_id")
+  standId           String   @map("stand_id")
+  deliveredByUserId String   @map("delivered_by_user_id")
+  deliveredAt       DateTime @default(now()) @map("delivered_at")
+
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  stand       Stand     @relation(fields: [standId], references: [id], onDelete: Restrict)
+  deliveredBy User      @relation("deliveries", fields: [deliveredByUserId], references: [id], onDelete: Restrict)
+
+  @@map("order_item_deliveries")
 }

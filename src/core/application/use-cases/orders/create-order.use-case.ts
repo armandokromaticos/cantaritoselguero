@@ -1,0 +1,171 @@
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { randomUUID, randomInt } from "crypto";
+import { Prisma } from "@prisma/client";
+import type { IOrderRepository } from "../../../domain/repositories/order.repository.interface";
+import { ORDER_REPOSITORY } from "../../../domain/repositories/order.repository.interface";
+import type { IProductRepository } from "../../../domain/repositories/product.repository.interface";
+import { PRODUCT_REPOSITORY } from "../../../domain/repositories/product.repository.interface";
+import type { IProductSizeRepository } from "../../../domain/repositories/product-size.repository.interface";
+import { PRODUCT_SIZE_REPOSITORY } from "../../../domain/repositories/product-size.repository.interface";
+import type { IProductModifierRepository } from "../../../domain/repositories/product-modifier.repository.interface";
+import { PRODUCT_MODIFIER_REPOSITORY } from "../../../domain/repositories/product-modifier.repository.interface";
+import type { IProductModifierGroupRepository } from "../../../domain/repositories/product-modifier-group.repository.interface";
+import { PRODUCT_MODIFIER_GROUP_REPOSITORY } from "../../../domain/repositories/product-modifier-group.repository.interface";
+import type { IComboRepository } from "../../../domain/repositories/combo.repository.interface";
+import { COMBO_REPOSITORY } from "../../../domain/repositories/combo.repository.interface";
+import { CreateOrderDto } from "../../dto/orders/create-order.dto";
+import {
+  OrderEntity,
+  CreateOrderItemParams,
+  CreateOrderItemModifierParams,
+} from "../../../domain/entities/order.entity";
+
+function generateShortCode(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(randomInt(chars.length));
+  }
+  return code;
+}
+
+@Injectable()
+export class CreateOrderUseCase {
+  constructor(
+    @Inject(ORDER_REPOSITORY)
+    private readonly orderRepository: IOrderRepository,
+    @Inject(PRODUCT_REPOSITORY)
+    private readonly productRepository: IProductRepository,
+    @Inject(PRODUCT_SIZE_REPOSITORY)
+    private readonly productSizeRepository: IProductSizeRepository,
+    @Inject(PRODUCT_MODIFIER_REPOSITORY)
+    private readonly productModifierRepository: IProductModifierRepository,
+    @Inject(PRODUCT_MODIFIER_GROUP_REPOSITORY)
+    private readonly productModifierGroupRepository: IProductModifierGroupRepository,
+    @Inject(COMBO_REPOSITORY)
+    private readonly comboRepository: IComboRepository,
+  ) {}
+
+  async execute(userId: string, dto: CreateOrderDto): Promise<OrderEntity> {
+    const items: CreateOrderItemParams[] = [];
+
+    for (const itemDto of dto.items) {
+      const product = await this.productRepository.findById(itemDto.productId);
+      if (!product) {
+        throw new NotFoundException(
+          `Product with id ${itemDto.productId} not found`,
+        );
+      }
+
+      let unitPrice: number;
+
+      if (itemDto.comboId) {
+        const combo = await this.comboRepository.findById(itemDto.comboId);
+        if (!combo) {
+          throw new NotFoundException(
+            `Combo with id ${itemDto.comboId} not found`,
+          );
+        }
+        unitPrice = combo.price;
+      } else if (itemDto.productSizeId) {
+        const size = await this.productSizeRepository.findById(
+          itemDto.productSizeId,
+        );
+        if (!size) {
+          throw new NotFoundException(
+            `ProductSize with id ${itemDto.productSizeId} not found`,
+          );
+        }
+        if (size.productId !== itemDto.productId) {
+          throw new BadRequestException(
+            `ProductSize ${itemDto.productSizeId} does not belong to product ${itemDto.productId}`,
+          );
+        }
+        unitPrice = size.price;
+      } else {
+        unitPrice = product.basePrice;
+      }
+
+      const modifiers: CreateOrderItemModifierParams[] = [];
+      let modifierTotal = 0;
+
+      if (itemDto.modifiers && itemDto.modifiers.length > 0) {
+        for (const modDto of itemDto.modifiers) {
+          const modifier = await this.productModifierRepository.findById(
+            modDto.modifierId,
+          );
+          if (!modifier) {
+            throw new NotFoundException(
+              `ProductModifier with id ${modDto.modifierId} not found`,
+            );
+          }
+          const group = await this.productModifierGroupRepository.findById(
+            modifier.groupId,
+          );
+          if (!group || group.productId !== itemDto.productId) {
+            throw new BadRequestException(
+              `ProductModifier ${modDto.modifierId} does not belong to product ${itemDto.productId}`,
+            );
+          }
+          const adj = modifier.priceAdjustment;
+          modifierTotal += adj;
+          modifiers.push({
+            modifierId: modDto.modifierId,
+            priceAdjustment: adj,
+          });
+        }
+      }
+
+      const subtotal =
+        Math.round((unitPrice + modifierTotal) * itemDto.quantity * 100) / 100;
+
+      items.push({
+        productId: itemDto.productId,
+        productSizeId: itemDto.productSizeId,
+        comboId: itemDto.comboId,
+        quantity: itemDto.quantity,
+        unitPrice,
+        subtotal,
+        modifiers,
+      });
+    }
+
+    const total =
+      Math.round(items.reduce((sum, item) => sum + item.subtotal, 0) * 100) /
+      100;
+
+    const qrCode = randomUUID();
+    const maxRetries = 3;
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const shortCode = generateShortCode();
+        const entity = OrderEntity.fromCreateDto({
+          userId,
+          standId: dto.standId,
+          qrCode,
+          shortCode,
+          total,
+          items,
+        });
+        return await this.orderRepository.create(entity);
+      } catch (error: unknown) {
+        const isUniqueViolation =
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002";
+        if (!isUniqueViolation) {
+          throw error;
+        }
+      }
+    }
+
+    throw new BadRequestException(
+      "Failed to generate unique shortCode after multiple attempts",
+    );
+  }
+}

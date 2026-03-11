@@ -9,6 +9,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { ProductsModule } from "./modules/products/products.module";
 import { StandsModule } from "./modules/stands/stands.module";
 import { CombosModule } from "./modules/combos/combos.module";
+import { OrdersModule } from "./modules/orders/orders.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CombosModule } from "./modules/combos/combos.module";
     ProductsModule,
     StandsModule,
     CombosModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
