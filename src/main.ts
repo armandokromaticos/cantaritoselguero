@@ -26,6 +26,7 @@ async function bootstrap() {
     .addTag("Products", "Gestión de productos, tamaños y modificadores")
     .addTag("Combos", "Gestión de combos")
     .addTag("Orders", "Gestión de órdenes y entregas")
+    .addTag("Banners", "Gestión de banners para carrusel")
     .addBearerAuth()
     .build();
 
