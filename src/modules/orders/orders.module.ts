@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { AuthModule } from "../auth/auth.module";
+import { CouponsModule } from "../coupons/coupons.module";
 import { OrdersController } from "./controllers/orders.controller";
 import { ORDER_REPOSITORY } from "../../core/domain/repositories/order.repository.interface";
 import { OrderRepository } from "../../core/infrastructure/repositories/order.repository";
@@ -25,7 +26,7 @@ import { STAND_REPOSITORY } from "../../core/domain/repositories/stand.repositor
 import { StandRepository } from "../../core/infrastructure/repositories/stand.repository";
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, CouponsModule],
   controllers: [OrdersController],
   providers: [
     { provide: ORDER_REPOSITORY, useClass: OrderRepository },

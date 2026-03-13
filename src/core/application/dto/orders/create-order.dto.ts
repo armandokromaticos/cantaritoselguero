@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsUUID,
   IsOptional,
+  IsString,
   IsArray,
   ArrayMinSize,
   ValidateNested,
@@ -14,6 +15,14 @@ export class CreateOrderDto {
   @IsOptional()
   @IsUUID()
   standId?: string;
+
+  @ApiPropertyOptional({
+    example: "VERANO2026",
+    description: "Codigo del cupon a aplicar",
+  })
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
 
   @ApiProperty({ type: () => [CreateOrderItemDto] })
   @IsArray()

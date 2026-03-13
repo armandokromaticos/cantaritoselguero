@@ -18,12 +18,15 @@ import type { IProductModifierGroupRepository } from "../../../domain/repositori
 import { PRODUCT_MODIFIER_GROUP_REPOSITORY } from "../../../domain/repositories/product-modifier-group.repository.interface";
 import type { IComboRepository } from "../../../domain/repositories/combo.repository.interface";
 import { COMBO_REPOSITORY } from "../../../domain/repositories/combo.repository.interface";
+import type { ICouponRepository } from "../../../domain/repositories/coupon.repository.interface";
+import { COUPON_REPOSITORY } from "../../../domain/repositories/coupon.repository.interface";
 import { CreateOrderDto } from "../../dto/orders/create-order.dto";
 import {
   OrderEntity,
   CreateOrderItemParams,
   CreateOrderItemModifierParams,
 } from "../../../domain/entities/order.entity";
+import { CouponEntity } from "../../../domain/entities/coupon.entity";
 
 function generateShortCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -49,6 +52,8 @@ export class CreateOrderUseCase {
     private readonly productModifierGroupRepository: IProductModifierGroupRepository,
     @Inject(COMBO_REPOSITORY)
     private readonly comboRepository: IComboRepository,
+    @Inject(COUPON_REPOSITORY)
+    private readonly couponRepository: ICouponRepository,
   ) {}
 
   async execute(userId: string, dto: CreateOrderDto): Promise<OrderEntity> {
@@ -135,9 +140,32 @@ export class CreateOrderUseCase {
       });
     }
 
-    const total =
+    const subtotal =
       Math.round(items.reduce((sum, item) => sum + item.subtotal, 0) * 100) /
       100;
+
+    let coupon: CouponEntity | null = null;
+    let discount = 0;
+
+    if (dto.couponCode) {
+      coupon = await this.couponRepository.findByName(
+        dto.couponCode.toUpperCase(),
+      );
+      if (!coupon) {
+        throw new BadRequestException(`Coupon "${dto.couponCode}" not found`);
+      }
+      if (!coupon.isValid()) {
+        throw new BadRequestException(
+          "Coupon is not valid (inactive, expired, or no uses remaining)",
+        );
+      }
+      if (coupon.hasBeenUsedByUser(userId)) {
+        throw new BadRequestException("You have already used this coupon");
+      }
+      discount = coupon.calculateDiscount(subtotal);
+    }
+
+    const total = Math.round((subtotal - discount) * 100) / 100;
 
     const qrCode = randomUUID();
     const maxRetries = 3;
@@ -148,12 +176,25 @@ export class CreateOrderUseCase {
         const entity = OrderEntity.fromCreateDto({
           userId,
           standId: dto.standId,
+          couponId: coupon?.id,
           qrCode,
           shortCode,
+          subtotal,
+          discount,
           total,
           items,
         });
-        return await this.orderRepository.create(entity);
+        const createdOrder = await this.orderRepository.create(entity);
+
+        if (coupon && coupon.id && createdOrder.id) {
+          await this.couponRepository.consumeCoupon(
+            coupon.id,
+            userId,
+            createdOrder.id,
+          );
+        }
+
+        return createdOrder;
       } catch (error: unknown) {
         const isUniqueViolation =
           error instanceof Prisma.PrismaClientKnownRequestError &&

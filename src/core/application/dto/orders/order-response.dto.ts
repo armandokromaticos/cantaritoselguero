@@ -64,6 +64,9 @@ export class OrderResponseDto {
   @ApiPropertyOptional({ nullable: true, type: String })
   standId: string | null;
 
+  @ApiPropertyOptional({ nullable: true, type: String })
+  couponId: string | null;
+
   @ApiProperty()
   status: string;
 
@@ -72,6 +75,12 @@ export class OrderResponseDto {
 
   @ApiProperty()
   shortCode: string;
+
+  @ApiProperty()
+  subtotal: number;
+
+  @ApiProperty()
+  discount: number;
 
   @ApiProperty()
   total: number;

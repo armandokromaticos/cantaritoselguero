@@ -10,6 +10,7 @@ import { ProductsModule } from "./modules/products/products.module";
 import { StandsModule } from "./modules/stands/stands.module";
 import { CombosModule } from "./modules/combos/combos.module";
 import { OrdersModule } from "./modules/orders/orders.module";
+import { CouponsModule } from "./modules/coupons/coupons.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { OrdersModule } from "./modules/orders/orders.module";
     StandsModule,
     CombosModule,
     OrdersModule,
+    CouponsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
