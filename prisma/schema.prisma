@@ -250,7 +250,7 @@ model Order {
   stand       Stand?        @relation(fields: [standId], references: [id])
   coupon      Coupon?       @relation(fields: [couponId], references: [id])
   items       OrderItem[]
-  couponUsage CouponUsage[]
+  couponUsage CouponUsage?
 
   @@index([userId])
   @@map("orders")

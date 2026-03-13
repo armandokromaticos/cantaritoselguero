@@ -40,18 +40,36 @@ export class DeleteBannerImageUseCase {
       );
     }
 
-    const pathFromUrl = currentUrl.split("/").slice(-2).join("/");
+    // DB-first: clear the field so the banner no longer references the file
+    const updated = await this.bannerRepository.update(bannerId, {
+      [field]: null,
+    });
+
+    // Best-effort storage cleanup
     try {
+      const pathFromUrl = currentUrl.split("/").slice(-2).join("/");
       await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
     } catch (error) {
-      this.logger.error(
+      this.logger.warn(
         `Failed to delete ${field} from storage for banner ${bannerId}: ${error}`,
-      );
-      throw new BadRequestException(
-        `Failed to delete image from storage. The banner field was not cleared. Please try again.`,
       );
     }
 
-    return this.bannerRepository.update(bannerId, { [field]: null });
+    return updated;
+  }
+
+  /**
+   * Storage-only cleanup — does NOT modify the banner DB record.
+   * Used by DeleteBannerUseCase before deleting the entire row.
+   */
+  async deleteFromStorage(imageUrl: string, bannerId: string): Promise<void> {
+    try {
+      const pathFromUrl = imageUrl.split("/").slice(-2).join("/");
+      await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
+    } catch (error) {
+      this.logger.warn(
+        `Failed to delete image from storage for banner ${bannerId}: ${error}`,
+      );
+    }
   }
 }
