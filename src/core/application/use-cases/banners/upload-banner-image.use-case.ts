@@ -83,6 +83,12 @@ export class UploadBannerImageUseCase {
       file.mimetype,
     );
 
+    if (!publicUrl) {
+      throw new BadRequestException(
+        `Upload succeeded but no public URL was returned for banner ${bannerId}`,
+      );
+    }
+
     return this.bannerRepository.update(bannerId, { [field]: publicUrl });
   }
 }

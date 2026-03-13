@@ -37,10 +37,28 @@ export class UpdateBannerUseCase {
     if (dto.order !== undefined) data.order = dto.order;
     if (dto.backgroundColor !== undefined)
       data.backgroundColor = dto.backgroundColor;
-    if (dto.startDate !== undefined)
-      data.startDate = dto.startDate ? new Date(dto.startDate) : null;
-    if (dto.endDate !== undefined)
-      data.endDate = dto.endDate ? new Date(dto.endDate) : null;
+    if (dto.startDate !== undefined) {
+      if (dto.startDate) {
+        const parsed = new Date(dto.startDate);
+        if (isNaN(parsed.getTime())) {
+          throw new BadRequestException(`Invalid startDate: ${dto.startDate}`);
+        }
+        data.startDate = parsed;
+      } else {
+        data.startDate = null;
+      }
+    }
+    if (dto.endDate !== undefined) {
+      if (dto.endDate) {
+        const parsed = new Date(dto.endDate);
+        if (isNaN(parsed.getTime())) {
+          throw new BadRequestException(`Invalid endDate: ${dto.endDate}`);
+        }
+        data.endDate = parsed;
+      } else {
+        data.endDate = null;
+      }
+    }
     if (dto.isActive !== undefined) data.isActive = dto.isActive;
 
     const effectiveStartDate =

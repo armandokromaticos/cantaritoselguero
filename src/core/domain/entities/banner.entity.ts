@@ -4,7 +4,7 @@ import { BannerResponseDto } from "../../application/dto/banners/banner-response
 interface BannerProps {
   id: string | undefined;
   title: string | null;
-  imageUrl: string;
+  imageUrl: string | null;
   imageMobileUrl: string | null;
   altText: string;
   linkUrl: string | null;
@@ -34,7 +34,7 @@ export interface CreateBannerParams {
 
 export interface UpdateBannerParams {
   title?: string | null;
-  imageUrl?: string;
+  imageUrl?: string | null;
   imageMobileUrl?: string | null;
   altText?: string;
   linkUrl?: string | null;
@@ -59,7 +59,7 @@ export class BannerEntity {
   get title(): string | null {
     return this.props.title;
   }
-  get imageUrl(): string {
+  get imageUrl(): string | null {
     return this.props.imageUrl;
   }
   get imageMobileUrl(): string | null {

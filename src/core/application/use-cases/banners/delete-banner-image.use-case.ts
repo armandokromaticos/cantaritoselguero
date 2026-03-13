@@ -40,12 +40,15 @@ export class DeleteBannerImageUseCase {
       );
     }
 
+    const pathFromUrl = currentUrl.split("/").slice(-2).join("/");
     try {
-      const pathFromUrl = currentUrl.split("/").slice(-2).join("/");
       await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
     } catch (error) {
-      this.logger.warn(
+      this.logger.error(
         `Failed to delete ${field} from storage for banner ${bannerId}: ${error}`,
+      );
+      throw new BadRequestException(
+        `Failed to delete image from storage. The banner field was not cleared. Please try again.`,
       );
     }
 

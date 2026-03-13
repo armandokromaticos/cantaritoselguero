@@ -1,22 +1,22 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class BannerResponseDto {
   @ApiProperty()
   id: string;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ nullable: true })
   title: string | null;
 
-  @ApiProperty()
-  imageUrl: string;
+  @ApiProperty({ nullable: true })
+  imageUrl: string | null;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ nullable: true })
   imageMobileUrl: string | null;
 
   @ApiProperty()
   altText: string;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ nullable: true })
   linkUrl: string | null;
 
   @ApiProperty()
@@ -25,13 +25,13 @@ export class BannerResponseDto {
   @ApiProperty()
   order: number;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ nullable: true })
   backgroundColor: string | null;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ nullable: true })
   startDate: Date | null;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ nullable: true })
   endDate: Date | null;
 
   @ApiProperty()
