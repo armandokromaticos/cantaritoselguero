@@ -11,6 +11,7 @@ import { StandsModule } from "./modules/stands/stands.module";
 import { CombosModule } from "./modules/combos/combos.module";
 import { OrdersModule } from "./modules/orders/orders.module";
 import { CouponsModule } from "./modules/coupons/coupons.module";
+import { BannersModule } from "./modules/banners/banners.module";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CouponsModule } from "./modules/coupons/coupons.module";
     CombosModule,
     OrdersModule,
     CouponsModule,
+    BannersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

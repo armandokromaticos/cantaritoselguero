@@ -250,7 +250,7 @@ model Order {
   stand       Stand?        @relation(fields: [standId], references: [id])
   coupon      Coupon?       @relation(fields: [couponId], references: [id])
   items       OrderItem[]
-  couponUsage CouponUsage[]
+  couponUsage CouponUsage?
 
   @@index([userId])
   @@map("orders")
@@ -301,4 +301,28 @@ model OrderItemDelivery {
   deliveredBy User      @relation("deliveries", fields: [deliveredByUserId], references: [id], onDelete: Restrict)
 
   @@map("order_item_deliveries")
+}
+
+// ============================================
+// BANNERS
+// ============================================
+
+model Banner {
+  id              String    @id @default(uuid())
+  title           String?
+  imageUrl        String?   @map("image_url")
+  imageMobileUrl  String?   @map("image_mobile_url")
+  altText         String    @map("alt_text")
+  linkUrl         String?   @map("link_url")
+  section         String    @default("home-carousel")
+  order           Int       @default(0)
+  backgroundColor String?   @map("background_color")
+  startDate       DateTime? @map("start_date")
+  endDate         DateTime? @map("end_date")
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([section, isActive])
+  @@map("banners")
 }
