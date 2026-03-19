@@ -326,3 +326,24 @@ model Banner {
   @@index([section, isActive])
   @@map("banners")
 }
+
+// ============================================
+// MOOD GALLERY
+// ============================================
+
+model MoodGallery {
+  id             String   @id @default(uuid())
+  title          String?
+  imageUrl       String?  @map("image_url")
+  imageMobileUrl String?  @map("image_mobile_url")
+  altEs          String   @map("alt_es")
+  altEn          String   @map("alt_en")
+  section        String?  @default("mood-carousel")
+  order          Int      @default(0)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@map("mood_gallery")
+}
