@@ -22,8 +22,8 @@ export interface CreateMoodGalleryParams {
   altEs: string;
   altEn: string;
   section?: string;
-  order: number;
-  isActive: boolean;
+  order?: number;
+  isActive?: boolean;
 }
 
 export interface UpdateMoodGalleryParams {
@@ -87,8 +87,8 @@ export class MoodGalleryEntity {
       altEs: params.altEs,
       altEn: params.altEn,
       section: params.section ?? "mood-carousel",
-      order: params.order,
-      isActive: params.isActive,
+      order: params.order ?? 0,
+      isActive: params.isActive ?? true,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

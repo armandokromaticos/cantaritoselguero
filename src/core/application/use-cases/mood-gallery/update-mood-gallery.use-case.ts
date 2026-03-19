@@ -50,6 +50,13 @@ export class UpdateMoodGalleryUseCase {
     if (dto.order !== undefined) data.order = dto.order;
     if (dto.isActive !== undefined) data.isActive = dto.isActive;
 
-    return await this.moodGalleryRepository.update(id, data);
+    try {
+      return await this.moodGalleryRepository.update(id, data);
+    } catch (error: any) {
+      if (error?.code === "P2025") {
+        throw new NotFoundException(`MoodGallery with id ${id} not found`);
+      }
+      throw error;
+    }
   }
 }

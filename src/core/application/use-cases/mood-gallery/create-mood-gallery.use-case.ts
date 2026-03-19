@@ -19,8 +19,8 @@ export class CreateMoodGalleryUseCase {
       altEs: dto.altEs,
       altEn: dto.altEn,
       section: dto.section,
-      order: dto.order ?? 0,
-      isActive: dto.isActive ?? true,
+      order: dto.order,
+      isActive: dto.isActive,
     });
 
     return await this.moodGalleryRepository.create(entity);
