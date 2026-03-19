@@ -50,7 +50,13 @@ export class DeleteMoodGalleryImageUseCase {
     // Best-effort storage cleanup
     try {
       const pathFromUrl = currentUrl.split("/").slice(-2).join("/");
-      await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
+      if (!pathFromUrl.startsWith(`${moodGalleryId}/`)) {
+        this.logger.warn(
+          `Refusing to delete ${field} for mood-gallery ${moodGalleryId}: path "${pathFromUrl}" does not belong to this entry`,
+        );
+      } else {
+        await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
+      }
     } catch (error) {
       this.logger.warn(
         `Failed to delete ${field} from storage for mood-gallery ${moodGalleryId}: ${error}`,
@@ -70,6 +76,12 @@ export class DeleteMoodGalleryImageUseCase {
   ): Promise<void> {
     try {
       const pathFromUrl = imageUrl.split("/").slice(-2).join("/");
+      if (!pathFromUrl.startsWith(`${moodGalleryId}/`)) {
+        this.logger.warn(
+          `Refusing to delete image for mood-gallery ${moodGalleryId}: path "${pathFromUrl}" does not belong to this entry`,
+        );
+        return;
+      }
       await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
     } catch (error) {
       this.logger.warn(

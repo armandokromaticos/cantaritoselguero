@@ -1,10 +1,12 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import type { IMoodGalleryRepository } from "../../../domain/repositories/mood-gallery.repository.interface";
 import { MOOD_GALLERY_REPOSITORY } from "../../../domain/repositories/mood-gallery.repository.interface";
 import { DeleteMoodGalleryImageUseCase } from "./delete-mood-gallery-image.use-case";
 
 @Injectable()
 export class DeleteMoodGalleryUseCase {
+  private readonly logger = new Logger(DeleteMoodGalleryUseCase.name);
+
   constructor(
     @Inject(MOOD_GALLERY_REPOSITORY)
     private readonly moodGalleryRepository: IMoodGalleryRepository,
@@ -17,20 +19,17 @@ export class DeleteMoodGalleryUseCase {
       throw new NotFoundException(`MoodGallery with id ${id} not found`);
     }
 
-    // Storage-only cleanup before deleting the DB row
-    if (item.imageUrl) {
-      await this.deleteMoodGalleryImageUseCase.deleteFromStorage(
-        item.imageUrl,
-        id,
-      );
-    }
-    if (item.imageMobileUrl) {
-      await this.deleteMoodGalleryImageUseCase.deleteFromStorage(
-        item.imageMobileUrl,
-        id,
-      );
-    }
+    const { imageUrl, imageMobileUrl } = item;
 
+    // DB-first: delete the row so it's no longer accessible
     await this.moodGalleryRepository.delete(id);
+
+    // Best-effort storage cleanup
+    const urls = [imageUrl, imageMobileUrl].filter(Boolean) as string[];
+    await Promise.allSettled(
+      urls.map((url) =>
+        this.deleteMoodGalleryImageUseCase.deleteFromStorage(url, id),
+      ),
+    );
   }
 }

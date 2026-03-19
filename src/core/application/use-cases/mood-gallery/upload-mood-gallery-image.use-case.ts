@@ -67,17 +67,8 @@ export class UploadMoodGalleryImageUseCase {
 
     const oldUrl =
       field === "imageUrl" ? existing.imageUrl : existing.imageMobileUrl;
-    if (oldUrl) {
-      try {
-        const pathFromUrl = oldUrl.split("/").slice(-2).join("/");
-        await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
-      } catch (error) {
-        this.logger.warn(
-          `Failed to delete old ${field} for mood-gallery ${moodGalleryId}: ${error}`,
-        );
-      }
-    }
 
+    // Upload new file first to avoid leaving DB pointing to a deleted file
     const publicUrl = await this.supabaseService.uploadFile(
       BUCKET,
       filePath,
@@ -91,8 +82,36 @@ export class UploadMoodGalleryImageUseCase {
       );
     }
 
-    return this.moodGalleryRepository.update(moodGalleryId, {
-      [field]: publicUrl,
-    });
+    try {
+      const updated = await this.moodGalleryRepository.update(moodGalleryId, {
+        [field]: publicUrl,
+      });
+
+      // Best-effort cleanup of old file after successful update
+      if (oldUrl) {
+        try {
+          const pathFromUrl = oldUrl.split("/").slice(-2).join("/");
+          if (pathFromUrl.startsWith(`${moodGalleryId}/`)) {
+            await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
+          }
+        } catch (error) {
+          this.logger.warn(
+            `Failed to delete old ${field} for mood-gallery ${moodGalleryId}: ${error}`,
+          );
+        }
+      }
+
+      return updated;
+    } catch (error) {
+      // Rollback: delete the newly uploaded file if DB update failed
+      try {
+        await this.supabaseService.deleteFile(BUCKET, filePath);
+      } catch (rollbackError) {
+        this.logger.warn(
+          `Failed to rollback uploaded file ${filePath} for mood-gallery ${moodGalleryId}: ${rollbackError}`,
+        );
+      }
+      throw error;
+    }
   }
 }

@@ -18,7 +18,7 @@ export class CreateMoodGalleryUseCase {
       imageMobileUrl: dto.imageMobileUrl,
       altEs: dto.altEs,
       altEn: dto.altEn,
-      section: dto.section ?? "mood-carousel",
+      section: dto.section,
       order: dto.order ?? 0,
       isActive: dto.isActive ?? true,
     });

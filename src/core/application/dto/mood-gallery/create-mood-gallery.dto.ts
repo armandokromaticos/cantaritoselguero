@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsBoolean,
   IsUrl,
+  Matches,
   Min,
 } from "class-validator";
 
@@ -32,10 +33,12 @@ export class CreateMoodGalleryDto {
 
   @ApiProperty({ example: "Gente disfrutando en el cantarito" })
   @IsString()
+  @Matches(/\S/, { message: "altEs cannot be blank" })
   altEs: string;
 
   @ApiProperty({ example: "People enjoying at cantarito" })
   @IsString()
+  @Matches(/\S/, { message: "altEn cannot be blank" })
   altEn: string;
 
   @ApiPropertyOptional({ example: "mood-carousel", default: "mood-carousel" })

@@ -25,7 +25,7 @@ export class MoodGalleryRepository implements IMoodGalleryRepository {
     const where = section ? { section } : {};
     const records = await this.prisma.moodGallery.findMany({
       where,
-      orderBy: { order: "asc" },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     });
     return records.map((r) => MoodGalleryEntity.fromPrisma(r));
   }
@@ -36,7 +36,7 @@ export class MoodGalleryRepository implements IMoodGalleryRepository {
         isActive: true,
         ...(section ? { section } : {}),
       },
-      orderBy: { order: "asc" },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     });
     return records.map((r) => MoodGalleryEntity.fromPrisma(r));
   }

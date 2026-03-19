@@ -45,6 +45,9 @@ import {
 } from "../../../core/application/use-cases/mood-gallery/upload-mood-gallery-image.use-case";
 import { DeleteMoodGalleryImageUseCase } from "../../../core/application/use-cases/mood-gallery/delete-mood-gallery-image.use-case";
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_IMAGE_TYPES = /^image\/(jpeg|png|webp)$/;
+
 @ApiTags("Mood Gallery")
 @Controller("mood-gallery")
 export class MoodGalleryController {
@@ -139,15 +142,15 @@ export class MoodGalleryController {
     },
   })
   @UseInterceptors(
-    FileInterceptor("file", { limits: { fileSize: 5 * 1024 * 1024 } }),
+    FileInterceptor("file", { limits: { fileSize: MAX_IMAGE_SIZE } }),
   )
   async uploadImage(
     @Param("id", ParseUUIDPipe) id: string,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+          new MaxFileSizeValidator({ maxSize: MAX_IMAGE_SIZE }),
+          new FileTypeValidator({ fileType: ALLOWED_IMAGE_TYPES }),
         ],
       }),
     )
@@ -182,15 +185,15 @@ export class MoodGalleryController {
     },
   })
   @UseInterceptors(
-    FileInterceptor("file", { limits: { fileSize: 5 * 1024 * 1024 } }),
+    FileInterceptor("file", { limits: { fileSize: MAX_IMAGE_SIZE } }),
   )
   async uploadMobileImage(
     @Param("id", ParseUUIDPipe) id: string,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+          new MaxFileSizeValidator({ maxSize: MAX_IMAGE_SIZE }),
+          new FileTypeValidator({ fileType: ALLOWED_IMAGE_TYPES }),
         ],
       }),
     )
