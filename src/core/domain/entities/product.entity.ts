@@ -3,6 +3,7 @@ import {
   ProductSize as PrismaProductSize,
   ProductModifierGroup as PrismaProductModifierGroup,
   ProductModifier as PrismaProductModifier,
+  Tag as PrismaTag,
   Prisma,
 } from "@prisma/client";
 import { CreateProductDto } from "../../application/dto/products/create-product.dto";
@@ -10,12 +11,14 @@ import { ProductResponseDto } from "../../application/dto/products/product-respo
 import { ProductSizeEntity } from "./product-size.entity";
 import { ProductModifierGroupEntity } from "./product-modifier-group.entity";
 import { ProductModifierEntity } from "./product-modifier.entity";
+import { TagEntity } from "./tag.entity";
 
 type PrismaProductWithRelations = PrismaProduct & {
   sizes?: PrismaProductSize[];
   modifierGroups?: (PrismaProductModifierGroup & {
     modifiers: PrismaProductModifier[];
   })[];
+  tags?: { tag: PrismaTag }[];
 };
 
 interface ProductProps {
@@ -36,6 +39,7 @@ interface ProductProps {
     group: ProductModifierGroupEntity;
     modifiers: ProductModifierEntity[];
   }[];
+  tags?: TagEntity[];
 }
 
 export class ProductEntity {
@@ -124,6 +128,10 @@ export class ProductEntity {
       }));
     }
 
+    if (prisma.tags) {
+      props.tags = prisma.tags.map((pt) => TagEntity.fromPrisma(pt.tag));
+    }
+
     return new ProductEntity(props);
   }
 
@@ -193,6 +201,10 @@ export class ProductEntity {
           return groupDto;
         },
       );
+    }
+
+    if (this.props.tags) {
+      dto.tags = this.props.tags.map((tag) => tag.toResponseDto(lang));
     }
 
     return dto;

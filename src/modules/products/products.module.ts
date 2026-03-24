@@ -21,6 +21,8 @@ import { GetProductsUseCase } from "../../core/application/use-cases/products/ge
 import { UpdateProductUseCase } from "../../core/application/use-cases/products/update-product.use-case";
 import { DeleteProductUseCase } from "../../core/application/use-cases/products/delete-product.use-case";
 import { UploadProductImageUseCase } from "../../core/application/use-cases/products/upload-product-image.use-case";
+import { AssignTagsToProductUseCase } from "../../core/application/use-cases/products/assign-tags-to-product.use-case";
+import { RemoveTagFromProductUseCase } from "../../core/application/use-cases/products/remove-tag-from-product.use-case";
 
 // Use Cases - Sizes
 import { CreateProductSizeUseCase } from "../../core/application/use-cases/product-sizes/create-product-size.use-case";
@@ -68,6 +70,8 @@ import { UpdateProductModifierUseCase } from "../../core/application/use-cases/p
     CreateProductModifierUseCase,
     GetProductModifiersUseCase,
     UpdateProductModifierUseCase,
+    AssignTagsToProductUseCase,
+    RemoveTagFromProductUseCase,
   ],
 })
 export class ProductsModule {}

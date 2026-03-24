@@ -10,7 +10,7 @@ export class GetProductsUseCase {
     private readonly productRepository: IProductRepository,
   ) {}
 
-  async execute(): Promise<ProductEntity[]> {
-    return this.productRepository.findAll();
+  async execute(tagId?: string): Promise<ProductEntity[]> {
+    return this.productRepository.findAll(tagId);
   }
 }

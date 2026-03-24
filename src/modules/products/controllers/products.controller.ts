@@ -23,6 +23,7 @@ import {
   ApiConsumes,
   ApiBody,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
 import { Role } from "../../../core/domain/enums/role.enum";
@@ -51,6 +52,9 @@ import { CreateProductModifierDto } from "../../../core/application/dto/product-
 import { UpdateProductModifierDto } from "../../../core/application/dto/product-modifiers/update-product-modifier.dto";
 import { ProductModifierResponseDto } from "../../../core/application/dto/product-modifiers/product-modifier-response.dto";
 
+// Product Tags DTOs
+import { AssignTagsDto } from "../../../core/application/dto/products/assign-tags.dto";
+
 // Use Cases - Products
 import { CreateProductUseCase } from "../../../core/application/use-cases/products/create-product.use-case";
 import { GetProductUseCase } from "../../../core/application/use-cases/products/get-product.use-case";
@@ -61,6 +65,8 @@ import {
   UploadProductImageUseCase,
   UploadFileInput,
 } from "../../../core/application/use-cases/products/upload-product-image.use-case";
+import { AssignTagsToProductUseCase } from "../../../core/application/use-cases/products/assign-tags-to-product.use-case";
+import { RemoveTagFromProductUseCase } from "../../../core/application/use-cases/products/remove-tag-from-product.use-case";
 
 // Use Cases - Sizes
 import { CreateProductSizeUseCase } from "../../../core/application/use-cases/product-sizes/create-product-size.use-case";
@@ -101,6 +107,8 @@ export class ProductsController {
     private readonly createProductModifierUseCase: CreateProductModifierUseCase,
     private readonly getProductModifiersUseCase: GetProductModifiersUseCase,
     private readonly updateProductModifierUseCase: UpdateProductModifierUseCase,
+    private readonly assignTagsToProductUseCase: AssignTagsToProductUseCase,
+    private readonly removeTagFromProductUseCase: RemoveTagFromProductUseCase,
   ) {}
 
   // ── Products ──
@@ -118,11 +126,19 @@ export class ProductsController {
 
   @Get()
   @ApiOperation({ summary: "Listar productos" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
+  @ApiQuery({
+    name: "tag",
+    required: false,
+    type: String,
+    description: "Filter by tag ID",
+  })
   async findAllProducts(
     @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
     lang: Lang,
+    @Query("tag") tagId?: string,
   ): Promise<ProductResponseDto[]> {
-    const entities = await this.getProductsUseCase.execute();
+    const entities = await this.getProductsUseCase.execute(tagId);
     return entities.map((product) => product.toResponseDto(lang));
   }
 
@@ -323,5 +339,33 @@ export class ProductsController {
   ): Promise<ProductModifierResponseDto> {
     const entity = await this.updateProductModifierUseCase.execute(id, dto);
     return entity.toResponseDto(lang);
+  }
+
+  // ── Product Tags ──
+
+  @Post(":id/tags")
+  @ApiOperation({ summary: "Asignar tags a producto" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
+  async assignTags(
+    @Param("id") id: string,
+    @Body() dto: AssignTagsDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
+  ): Promise<ProductResponseDto> {
+    const entity = await this.assignTagsToProductUseCase.execute(
+      id,
+      dto.tagIds,
+    );
+    return entity.toResponseDto(lang);
+  }
+
+  @Delete(":id/tags/:tagId")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Quitar tag de producto" })
+  async removeTag(
+    @Param("id") id: string,
+    @Param("tagId") tagId: string,
+  ): Promise<void> {
+    await this.removeTagFromProductUseCase.execute(id, tagId);
   }
 }
