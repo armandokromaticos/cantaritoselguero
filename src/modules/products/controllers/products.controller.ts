@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
   Query,
@@ -24,6 +26,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Role } from "../../../core/domain/enums/role.enum";
+import { Lang } from "../../../core/domain/enums/lang.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
 import { Roles } from "../../auth/decorators/roles.decorator";
@@ -106,15 +109,18 @@ export class ProductsController {
   @ApiOperation({ summary: "Crear producto" })
   async createProduct(
     @Body() dto: CreateProductDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductResponseDto> {
     const entity = await this.createProductUseCase.execute(dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get()
   @ApiOperation({ summary: "Listar productos" })
   async findAllProducts(
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductResponseDto[]> {
     const entities = await this.getProductsUseCase.execute();
     return entities.map((product) => product.toResponseDto(lang));
@@ -124,7 +130,8 @@ export class ProductsController {
   @ApiOperation({ summary: "Obtener producto por ID" })
   async findOneProduct(
     @Param("id") id: string,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductResponseDto> {
     const entity = await this.getProductUseCase.execute(id);
     return entity.toResponseDto(lang);
@@ -135,7 +142,8 @@ export class ProductsController {
   async updateProduct(
     @Param("id") id: string,
     @Body() dto: UpdateProductDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductResponseDto> {
     const entity = await this.updateProductUseCase.execute(id, dto);
     return entity.toResponseDto(lang);
@@ -174,6 +182,8 @@ export class ProductsController {
       }),
     )
     file: Express.Multer.File,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductResponseDto> {
     const uploadInput: UploadFileInput = {
       buffer: file.buffer,
@@ -184,7 +194,7 @@ export class ProductsController {
       id,
       uploadInput,
     );
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   // ── Product Sizes ──
@@ -194,7 +204,8 @@ export class ProductsController {
   async createSize(
     @Param("productId") productId: string,
     @Body() dto: CreateProductSizeDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductSizeResponseDto> {
     const entity = await this.createProductSizeUseCase.execute(productId, dto);
     return entity.toResponseDto(lang);
@@ -204,7 +215,8 @@ export class ProductsController {
   @ApiOperation({ summary: "Listar tamaños de producto" })
   async findSizes(
     @Param("productId") productId: string,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductSizeResponseDto[]> {
     const entities = await this.getProductSizesUseCase.execute(productId);
     return entities.map((size) => size.toResponseDto(lang));
@@ -215,7 +227,8 @@ export class ProductsController {
   async updateSize(
     @Param("id") id: string,
     @Body() dto: UpdateProductSizeDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductSizeResponseDto> {
     const entity = await this.updateProductSizeUseCase.execute(id, dto);
     return entity.toResponseDto(lang);
@@ -235,7 +248,8 @@ export class ProductsController {
   async createModifierGroup(
     @Param("productId") productId: string,
     @Body() dto: CreateProductModifierGroupDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierGroupResponseDto> {
     const entity = await this.createProductModifierGroupUseCase.execute(
       productId,
@@ -248,7 +262,8 @@ export class ProductsController {
   @ApiOperation({ summary: "Listar grupos de modificadores" })
   async findModifierGroups(
     @Param("productId") productId: string,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierGroupResponseDto[]> {
     const entities =
       await this.getProductModifierGroupsUseCase.execute(productId);
@@ -260,7 +275,8 @@ export class ProductsController {
   async updateModifierGroup(
     @Param("id") id: string,
     @Body() dto: UpdateProductModifierGroupDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierGroupResponseDto> {
     const entity = await this.updateProductModifierGroupUseCase.execute(
       id,
@@ -276,7 +292,8 @@ export class ProductsController {
   async createModifier(
     @Param("groupId") groupId: string,
     @Body() dto: CreateProductModifierDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierResponseDto> {
     const entity = await this.createProductModifierUseCase.execute(
       groupId,
@@ -289,7 +306,8 @@ export class ProductsController {
   @ApiOperation({ summary: "Listar modificadores" })
   async findModifiers(
     @Param("groupId") groupId: string,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierResponseDto[]> {
     const entities = await this.getProductModifiersUseCase.execute(groupId);
     return entities.map((modifier) => modifier.toResponseDto(lang));
@@ -300,7 +318,8 @@ export class ProductsController {
   async updateModifier(
     @Param("id") id: string,
     @Body() dto: UpdateProductModifierDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierResponseDto> {
     const entity = await this.updateProductModifierUseCase.execute(id, dto);
     return entity.toResponseDto(lang);

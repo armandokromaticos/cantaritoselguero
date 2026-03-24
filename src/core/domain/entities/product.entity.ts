@@ -131,9 +131,9 @@ export class ProductEntity {
     return new ProductEntity({
       id: "",
       nameEs: dto.nameEs,
-      nameEn: dto.nameEn ?? null,
-      descriptionEs: dto.descriptionEs ?? null,
-      descriptionEn: dto.descriptionEn ?? null,
+      nameEn: dto.nameEn?.trim() || null,
+      descriptionEs: dto.descriptionEs?.trim() || null,
+      descriptionEn: dto.descriptionEn?.trim() || null,
       basePrice: dto.basePrice,
       image: dto.image ?? null,
       stock: dto.stock ?? null,
@@ -165,11 +165,11 @@ export class ProductEntity {
     dto.id = this.props.id;
     dto.name =
       lang === "en"
-        ? (this.props.nameEn ?? this.props.nameEs)
+        ? this.props.nameEn?.trim() || this.props.nameEs
         : this.props.nameEs;
     dto.description =
       lang === "en"
-        ? (this.props.descriptionEn ?? this.props.descriptionEs)
+        ? this.props.descriptionEn?.trim() || this.props.descriptionEs
         : this.props.descriptionEs;
     dto.basePrice = this.props.basePrice;
     dto.image = this.props.image;

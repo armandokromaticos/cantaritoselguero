@@ -71,7 +71,7 @@ export class ProductSizeEntity {
       id: "",
       productId,
       nameEs: dto.nameEs,
-      nameEn: dto.nameEn ?? null,
+      nameEn: dto.nameEn?.trim() || null,
       price: dto.price,
       stock: dto.stock ?? null,
       sortOrder: dto.sortOrder ?? 0,
@@ -99,7 +99,7 @@ export class ProductSizeEntity {
     dto.productId = this.props.productId;
     dto.name =
       lang === "en"
-        ? (this.props.nameEn ?? this.props.nameEs)
+        ? this.props.nameEn?.trim() || this.props.nameEs
         : this.props.nameEs;
     dto.price = this.props.price;
     dto.stock = this.props.stock;

@@ -112,9 +112,9 @@ export class ComboEntity {
     return new ComboEntity({
       id: undefined,
       nameEs: dto.nameEs,
-      nameEn: dto.nameEn ?? null,
-      descriptionEs: dto.descriptionEs ?? null,
-      descriptionEn: dto.descriptionEn ?? null,
+      nameEn: dto.nameEn?.trim() || null,
+      descriptionEs: dto.descriptionEs?.trim() || null,
+      descriptionEn: dto.descriptionEn?.trim() || null,
       price: dto.price,
       image: dto.image ?? null,
       isActive: dto.isActive ?? true,
@@ -143,11 +143,11 @@ export class ComboEntity {
     dto.id = this.props.id;
     dto.name =
       lang === "en"
-        ? (this.props.nameEn ?? this.props.nameEs)
+        ? this.props.nameEn?.trim() || this.props.nameEs
         : this.props.nameEs;
     dto.description =
       lang === "en"
-        ? (this.props.descriptionEn ?? this.props.descriptionEs)
+        ? this.props.descriptionEn?.trim() || this.props.descriptionEs
         : this.props.descriptionEs;
     dto.price = this.props.price;
     dto.image = this.props.image;
@@ -161,7 +161,7 @@ export class ComboEntity {
         productId: item.productId,
         productName:
           lang === "en"
-            ? (item.productNameEn ?? item.productNameEs)
+            ? item.productNameEn?.trim() || item.productNameEs
             : item.productNameEs,
         productBasePrice: item.productBasePrice,
         quantity: item.quantity,

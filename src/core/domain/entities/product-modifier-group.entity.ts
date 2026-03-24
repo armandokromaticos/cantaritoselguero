@@ -76,9 +76,9 @@ export class ProductModifierGroupEntity {
       id: "",
       productId,
       nameEs: dto.nameEs,
-      nameEn: dto.nameEn ?? null,
-      descriptionEs: dto.descriptionEs ?? null,
-      descriptionEn: dto.descriptionEn ?? null,
+      nameEn: dto.nameEn?.trim() || null,
+      descriptionEs: dto.descriptionEs?.trim() || null,
+      descriptionEn: dto.descriptionEn?.trim() || null,
       minSelect: dto.minSelect ?? 0,
       maxSelect: dto.maxSelect ?? 1,
       sortOrder: dto.sortOrder ?? 0,
@@ -104,11 +104,11 @@ export class ProductModifierGroupEntity {
     dto.productId = this.props.productId;
     dto.name =
       lang === "en"
-        ? (this.props.nameEn ?? this.props.nameEs)
+        ? this.props.nameEn?.trim() || this.props.nameEs
         : this.props.nameEs;
     dto.description =
       lang === "en"
-        ? (this.props.descriptionEn ?? this.props.descriptionEs)
+        ? this.props.descriptionEn?.trim() || this.props.descriptionEs
         : this.props.descriptionEs;
     dto.minSelect = this.props.minSelect;
     dto.maxSelect = this.props.maxSelect;

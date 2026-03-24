@@ -69,7 +69,7 @@ export class ProductModifierEntity {
       id: "",
       groupId,
       nameEs: dto.nameEs,
-      nameEn: dto.nameEn ?? null,
+      nameEn: dto.nameEn?.trim() || null,
       priceAdjustment: dto.priceAdjustment ?? 0,
       isDefault: dto.isDefault ?? false,
       isActive: dto.isActive ?? true,
@@ -95,7 +95,7 @@ export class ProductModifierEntity {
     dto.groupId = this.props.groupId;
     dto.name =
       lang === "en"
-        ? (this.props.nameEn ?? this.props.nameEs)
+        ? this.props.nameEn?.trim() || this.props.nameEs
         : this.props.nameEs;
     dto.priceAdjustment = this.props.priceAdjustment;
     dto.isDefault = this.props.isDefault;

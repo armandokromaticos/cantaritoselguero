@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
+  ParseEnumPipe,
   ParseUUIDPipe,
   Patch,
   Post,
@@ -24,6 +26,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Role } from "../../../core/domain/enums/role.enum";
+import { Lang } from "../../../core/domain/enums/lang.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
 import { Roles } from "../../auth/decorators/roles.decorator";
@@ -62,7 +65,8 @@ export class CombosController {
   @ApiOperation({ summary: "Crear combo" })
   async createCombo(
     @Body() dto: CreateComboDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ComboResponseDto> {
     const entity = await this.createComboUseCase.execute(dto);
     return entity.toResponseDto(lang);
@@ -71,7 +75,8 @@ export class CombosController {
   @Get()
   @ApiOperation({ summary: "Listar combos" })
   async findAllCombos(
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ComboResponseDto[]> {
     const entities = await this.getCombosUseCase.execute();
     return entities.map((combo) => combo.toResponseDto(lang));
@@ -81,7 +86,8 @@ export class CombosController {
   @ApiOperation({ summary: "Obtener combo por ID" })
   async findOneCombo(
     @Param("id", ParseUUIDPipe) id: string,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ComboResponseDto> {
     const entity = await this.getComboUseCase.execute(id);
     return entity.toResponseDto(lang);
@@ -92,7 +98,8 @@ export class CombosController {
   async updateCombo(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: UpdateComboDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ComboResponseDto> {
     const entity = await this.updateComboUseCase.execute(id, dto);
     return entity.toResponseDto(lang);
@@ -124,6 +131,8 @@ export class CombosController {
       }),
     )
     file: Express.Multer.File,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ComboResponseDto> {
     const uploadInput: UploadFileInput = {
       buffer: file.buffer,
@@ -131,7 +140,7 @@ export class CombosController {
       originalname: file.originalname,
     };
     const entity = await this.uploadComboImageUseCase.execute(id, uploadInput);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Post(":id/items")
@@ -139,7 +148,8 @@ export class CombosController {
   async addItem(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: AddComboItemDto,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ComboResponseDto> {
     const entity = await this.addComboItemUseCase.execute(id, dto);
     return entity.toResponseDto(lang);
@@ -150,7 +160,8 @@ export class CombosController {
   async removeItem(
     @Param("id", ParseUUIDPipe) id: string,
     @Param("itemId", ParseUUIDPipe) itemId: string,
-    @Query("lang") lang: string = "es",
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ComboResponseDto> {
     const entity = await this.removeComboItemUseCase.execute(id, itemId);
     return entity.toResponseDto(lang);

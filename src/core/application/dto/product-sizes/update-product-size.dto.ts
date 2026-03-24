@@ -7,11 +7,12 @@ import {
   IsOptional,
   IsString,
   Min,
+  ValidateIf,
 } from "class-validator";
 
 export class UpdateProductSizeDto {
   @ApiPropertyOptional({ example: "Grande" })
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsString()
   @IsNotEmpty()
   nameEs?: string;
