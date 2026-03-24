@@ -93,10 +93,9 @@ export class ProductRepository implements IProductRepository {
     return (await this.findById(productId))!;
   }
 
-  async removeTag(productId: string, tagId: string): Promise<ProductEntity> {
+  async removeTag(productId: string, tagId: string): Promise<void> {
     await this.prisma.productTag.delete({
       where: { productId_tagId: { productId, tagId } },
     });
-    return (await this.findById(productId))!;
   }
 }

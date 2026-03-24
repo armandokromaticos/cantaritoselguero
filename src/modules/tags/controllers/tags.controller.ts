@@ -7,6 +7,7 @@ import {
   HttpCode,
   Param,
   ParseEnumPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -71,7 +72,7 @@ export class TagsController {
   @ApiOperation({ summary: "Actualizar tag" })
   @ApiQuery({ name: "lang", required: false, enum: Lang })
   async updateTag(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: UpdateTagDto,
     @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
     lang: Lang,
@@ -83,7 +84,7 @@ export class TagsController {
   @Delete(":id")
   @HttpCode(204)
   @ApiOperation({ summary: "Eliminar tag" })
-  async deleteTag(@Param("id") id: string): Promise<void> {
+  async deleteTag(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
     await this.deleteTagUseCase.execute(id);
   }
 }

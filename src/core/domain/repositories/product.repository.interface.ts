@@ -10,5 +10,5 @@ export interface IProductRepository {
   updateStock(id: string, stock: number | null): Promise<void>;
   delete(id: string): Promise<void>;
   assignTags(productId: string, tagIds: string[]): Promise<ProductEntity>;
-  removeTag(productId: string, tagId: string): Promise<ProductEntity>;
+  removeTag(productId: string, tagId: string): Promise<void>;
 }
