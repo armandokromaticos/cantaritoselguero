@@ -130,7 +130,7 @@ export class ProductEntity {
   static fromCreateDto(dto: CreateProductDto): ProductEntity {
     return new ProductEntity({
       id: "",
-      nameEs: dto.nameEs,
+      nameEs: dto.nameEs.trim(),
       nameEn: dto.nameEn?.trim() || null,
       descriptionEs: dto.descriptionEs?.trim() || null,
       descriptionEn: dto.descriptionEn?.trim() || null,
@@ -160,7 +160,7 @@ export class ProductEntity {
     return data;
   }
 
-  toResponseDto(lang: string = "es"): ProductResponseDto {
+  toResponseDto(lang: "es" | "en" = "es"): ProductResponseDto {
     const dto = new ProductResponseDto();
     dto.id = this.props.id;
     dto.name =

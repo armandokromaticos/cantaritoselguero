@@ -60,6 +60,8 @@ CREATE TABLE product_tags (
   PRIMARY KEY (product_id, tag_id)
 );
 
+CREATE INDEX idx_product_tags_tag_id ON product_tags (tag_id);
+
 -- =============================================
 -- PASO 7: Sections
 -- =============================================
@@ -87,3 +89,7 @@ CREATE TABLE section_items (
     (product_id IS NULL AND combo_id IS NOT NULL)
   )
 );
+
+CREATE INDEX idx_section_items_section_order ON section_items (section_id, "order");
+CREATE INDEX idx_section_items_product_id ON section_items (product_id);
+CREATE INDEX idx_section_items_combo_id ON section_items (combo_id);

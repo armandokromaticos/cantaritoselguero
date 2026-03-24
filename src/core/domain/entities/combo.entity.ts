@@ -111,7 +111,7 @@ export class ComboEntity {
   static fromCreateDto(dto: CreateComboDto): ComboEntity {
     return new ComboEntity({
       id: undefined,
-      nameEs: dto.nameEs,
+      nameEs: dto.nameEs.trim(),
       nameEn: dto.nameEn?.trim() || null,
       descriptionEs: dto.descriptionEs?.trim() || null,
       descriptionEn: dto.descriptionEn?.trim() || null,
@@ -135,7 +135,7 @@ export class ComboEntity {
     };
   }
 
-  toResponseDto(lang: string = "es"): ComboResponseDto {
+  toResponseDto(lang: "es" | "en" = "es"): ComboResponseDto {
     if (!this.props.id) {
       throw new Error("Cannot convert unpersisted entity to response DTO");
     }

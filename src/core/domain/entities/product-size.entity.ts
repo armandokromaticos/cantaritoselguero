@@ -70,7 +70,7 @@ export class ProductSizeEntity {
     return new ProductSizeEntity({
       id: "",
       productId,
-      nameEs: dto.nameEs,
+      nameEs: dto.nameEs.trim(),
       nameEn: dto.nameEn?.trim() || null,
       price: dto.price,
       stock: dto.stock ?? null,
@@ -93,7 +93,7 @@ export class ProductSizeEntity {
     return data;
   }
 
-  toResponseDto(lang: string = "es"): ProductSizeResponseDto {
+  toResponseDto(lang: "es" | "en" = "es"): ProductSizeResponseDto {
     const dto = new ProductSizeResponseDto();
     dto.id = this.props.id;
     dto.productId = this.props.productId;

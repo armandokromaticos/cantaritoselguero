@@ -68,7 +68,7 @@ export class ProductModifierEntity {
     return new ProductModifierEntity({
       id: "",
       groupId,
-      nameEs: dto.nameEs,
+      nameEs: dto.nameEs.trim(),
       nameEn: dto.nameEn?.trim() || null,
       priceAdjustment: dto.priceAdjustment ?? 0,
       isDefault: dto.isDefault ?? false,
@@ -89,7 +89,7 @@ export class ProductModifierEntity {
     return data;
   }
 
-  toResponseDto(lang: string = "es"): ProductModifierResponseDto {
+  toResponseDto(lang: "es" | "en" = "es"): ProductModifierResponseDto {
     const dto = new ProductModifierResponseDto();
     dto.id = this.props.id;
     dto.groupId = this.props.groupId;
