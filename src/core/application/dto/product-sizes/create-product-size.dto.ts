@@ -13,7 +13,12 @@ export class CreateProductSizeDto {
   @ApiProperty({ example: "Grande" })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  nameEs: string;
+
+  @ApiPropertyOptional({ example: "Large" })
+  @IsOptional()
+  @IsString()
+  nameEn?: string;
 
   @ApiProperty({ example: 55.0 })
   @IsNumber()

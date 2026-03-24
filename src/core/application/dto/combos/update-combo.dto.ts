@@ -14,12 +14,22 @@ export class UpdateComboDto {
   @ValidateIf((_, value) => value !== undefined)
   @IsString()
   @IsNotEmpty()
-  name?: string;
+  nameEs?: string;
+
+  @ApiPropertyOptional({ example: "Family Combo" })
+  @IsOptional()
+  @IsString()
+  nameEn?: string;
 
   @ApiPropertyOptional({ example: "Incluye 4 cantaritos y 2 micheladas" })
   @IsOptional()
   @IsString()
-  description?: string;
+  descriptionEs?: string;
+
+  @ApiPropertyOptional({ example: "Includes 4 cantaritos and 2 micheladas" })
+  @IsOptional()
+  @IsString()
+  descriptionEn?: string;
 
   @ApiPropertyOptional({ example: 150.0 })
   @ValidateIf((_, value) => value !== undefined)

@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -59,25 +60,31 @@ export class CombosController {
 
   @Post()
   @ApiOperation({ summary: "Crear combo" })
-  async createCombo(@Body() dto: CreateComboDto): Promise<ComboResponseDto> {
+  async createCombo(
+    @Body() dto: CreateComboDto,
+    @Query("lang") lang: string = "es",
+  ): Promise<ComboResponseDto> {
     const entity = await this.createComboUseCase.execute(dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get()
   @ApiOperation({ summary: "Listar combos" })
-  async findAllCombos(): Promise<ComboResponseDto[]> {
+  async findAllCombos(
+    @Query("lang") lang: string = "es",
+  ): Promise<ComboResponseDto[]> {
     const entities = await this.getCombosUseCase.execute();
-    return entities.map((combo) => combo.toResponseDto());
+    return entities.map((combo) => combo.toResponseDto(lang));
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Obtener combo por ID" })
   async findOneCombo(
     @Param("id", ParseUUIDPipe) id: string,
+    @Query("lang") lang: string = "es",
   ): Promise<ComboResponseDto> {
     const entity = await this.getComboUseCase.execute(id);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Patch(":id")
@@ -85,9 +92,10 @@ export class CombosController {
   async updateCombo(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: UpdateComboDto,
+    @Query("lang") lang: string = "es",
   ): Promise<ComboResponseDto> {
     const entity = await this.updateComboUseCase.execute(id, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Post(":id/image")
@@ -131,9 +139,10 @@ export class CombosController {
   async addItem(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: AddComboItemDto,
+    @Query("lang") lang: string = "es",
   ): Promise<ComboResponseDto> {
     const entity = await this.addComboItemUseCase.execute(id, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Delete(":id/items/:itemId")
@@ -141,8 +150,9 @@ export class CombosController {
   async removeItem(
     @Param("id", ParseUUIDPipe) id: string,
     @Param("itemId", ParseUUIDPipe) itemId: string,
+    @Query("lang") lang: string = "es",
   ): Promise<ComboResponseDto> {
     const entity = await this.removeComboItemUseCase.execute(id, itemId);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 }

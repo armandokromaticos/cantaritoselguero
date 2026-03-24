@@ -38,8 +38,12 @@ export class ProductModifierGroupRepository implements IProductModifierGroupRepo
     entity: Partial<ProductModifierGroupEntity>,
   ): Promise<ProductModifierGroupEntity> {
     const data: Record<string, unknown> = {};
-    if (entity.name !== undefined) data.name = entity.name;
-    if (entity.description !== undefined) data.description = entity.description;
+    if (entity.nameEs !== undefined) data.nameEs = entity.nameEs;
+    if (entity.nameEn !== undefined) data.nameEn = entity.nameEn;
+    if (entity.descriptionEs !== undefined)
+      data.descriptionEs = entity.descriptionEs;
+    if (entity.descriptionEn !== undefined)
+      data.descriptionEn = entity.descriptionEn;
     if (entity.minSelect !== undefined) data.minSelect = entity.minSelect;
     if (entity.maxSelect !== undefined) data.maxSelect = entity.maxSelect;
     if (entity.sortOrder !== undefined) data.sortOrder = entity.sortOrder;

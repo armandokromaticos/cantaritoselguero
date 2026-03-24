@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -112,16 +113,21 @@ export class ProductsController {
 
   @Get()
   @ApiOperation({ summary: "Listar productos" })
-  async findAllProducts(): Promise<ProductResponseDto[]> {
+  async findAllProducts(
+    @Query("lang") lang: string = "es",
+  ): Promise<ProductResponseDto[]> {
     const entities = await this.getProductsUseCase.execute();
-    return entities.map((product) => product.toResponseDto());
+    return entities.map((product) => product.toResponseDto(lang));
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Obtener producto por ID" })
-  async findOneProduct(@Param("id") id: string): Promise<ProductResponseDto> {
+  async findOneProduct(
+    @Param("id") id: string,
+    @Query("lang") lang: string = "es",
+  ): Promise<ProductResponseDto> {
     const entity = await this.getProductUseCase.execute(id);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Patch(":id")
@@ -129,9 +135,10 @@ export class ProductsController {
   async updateProduct(
     @Param("id") id: string,
     @Body() dto: UpdateProductDto,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductResponseDto> {
     const entity = await this.updateProductUseCase.execute(id, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Delete(":id")
@@ -187,18 +194,20 @@ export class ProductsController {
   async createSize(
     @Param("productId") productId: string,
     @Body() dto: CreateProductSizeDto,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductSizeResponseDto> {
     const entity = await this.createProductSizeUseCase.execute(productId, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get(":productId/sizes")
   @ApiOperation({ summary: "Listar tamaños de producto" })
   async findSizes(
     @Param("productId") productId: string,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductSizeResponseDto[]> {
     const entities = await this.getProductSizesUseCase.execute(productId);
-    return entities.map((size) => size.toResponseDto());
+    return entities.map((size) => size.toResponseDto(lang));
   }
 
   @Patch(":productId/sizes/:id")
@@ -206,9 +215,10 @@ export class ProductsController {
   async updateSize(
     @Param("id") id: string,
     @Body() dto: UpdateProductSizeDto,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductSizeResponseDto> {
     const entity = await this.updateProductSizeUseCase.execute(id, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Delete(":productId/sizes/:id")
@@ -225,22 +235,24 @@ export class ProductsController {
   async createModifierGroup(
     @Param("productId") productId: string,
     @Body() dto: CreateProductModifierGroupDto,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductModifierGroupResponseDto> {
     const entity = await this.createProductModifierGroupUseCase.execute(
       productId,
       dto,
     );
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get(":productId/modifier-groups")
   @ApiOperation({ summary: "Listar grupos de modificadores" })
   async findModifierGroups(
     @Param("productId") productId: string,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductModifierGroupResponseDto[]> {
     const entities =
       await this.getProductModifierGroupsUseCase.execute(productId);
-    return entities.map((group) => group.toResponseDto());
+    return entities.map((group) => group.toResponseDto(lang));
   }
 
   @Patch(":productId/modifier-groups/:id")
@@ -248,12 +260,13 @@ export class ProductsController {
   async updateModifierGroup(
     @Param("id") id: string,
     @Body() dto: UpdateProductModifierGroupDto,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductModifierGroupResponseDto> {
     const entity = await this.updateProductModifierGroupUseCase.execute(
       id,
       dto,
     );
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   // ── Product Modifiers ──
@@ -263,21 +276,23 @@ export class ProductsController {
   async createModifier(
     @Param("groupId") groupId: string,
     @Body() dto: CreateProductModifierDto,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductModifierResponseDto> {
     const entity = await this.createProductModifierUseCase.execute(
       groupId,
       dto,
     );
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get(":productId/modifier-groups/:groupId/modifiers")
   @ApiOperation({ summary: "Listar modificadores" })
   async findModifiers(
     @Param("groupId") groupId: string,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductModifierResponseDto[]> {
     const entities = await this.getProductModifiersUseCase.execute(groupId);
-    return entities.map((modifier) => modifier.toResponseDto());
+    return entities.map((modifier) => modifier.toResponseDto(lang));
   }
 
   @Patch(":productId/modifier-groups/:groupId/modifiers/:id")
@@ -285,8 +300,9 @@ export class ProductsController {
   async updateModifier(
     @Param("id") id: string,
     @Body() dto: UpdateProductModifierDto,
+    @Query("lang") lang: string = "es",
   ): Promise<ProductModifierResponseDto> {
     const entity = await this.updateProductModifierUseCase.execute(id, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 }

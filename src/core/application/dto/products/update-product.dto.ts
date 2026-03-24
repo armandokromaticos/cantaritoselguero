@@ -15,12 +15,22 @@ export class UpdateProductDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  name?: string;
+  nameEs?: string;
+
+  @ApiPropertyOptional({ example: "Cantarito Drink" })
+  @IsOptional()
+  @IsString()
+  nameEn?: string;
 
   @ApiPropertyOptional({ example: "Bebida tradicional" })
   @IsOptional()
   @IsString()
-  description?: string;
+  descriptionEs?: string;
+
+  @ApiPropertyOptional({ example: "Traditional drink" })
+  @IsOptional()
+  @IsString()
+  descriptionEn?: string;
 
   @ApiPropertyOptional({ example: 45.0 })
   @IsOptional()

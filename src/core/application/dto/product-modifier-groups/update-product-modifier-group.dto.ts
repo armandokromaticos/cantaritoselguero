@@ -29,12 +29,22 @@ export class UpdateProductModifierGroupDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  name?: string;
+  nameEs?: string;
+
+  @ApiPropertyOptional({ example: "Type of chili" })
+  @IsOptional()
+  @IsString()
+  nameEn?: string;
 
   @ApiPropertyOptional({ example: "Selecciona el tipo de chile" })
   @IsOptional()
   @IsString()
-  description?: string;
+  descriptionEs?: string;
+
+  @ApiPropertyOptional({ example: "Select the type of chili" })
+  @IsOptional()
+  @IsString()
+  descriptionEn?: string;
 
   @ApiPropertyOptional({ example: 0 })
   @IsOptional()

@@ -17,7 +17,8 @@ type PrismaComboWithRelations = PrismaCombo & {
 interface ComboItemInfo {
   id: string;
   productId: string;
-  productName: string;
+  productNameEs: string;
+  productNameEn: string | null;
   productBasePrice: number;
   quantity: number;
   sortOrder: number;
@@ -25,8 +26,10 @@ interface ComboItemInfo {
 
 interface ComboProps {
   id: string | undefined;
-  name: string;
-  description: string | null;
+  nameEs: string;
+  nameEn: string | null;
+  descriptionEs: string | null;
+  descriptionEn: string | null;
   price: number;
   image: string | null;
   isActive: boolean;
@@ -45,11 +48,17 @@ export class ComboEntity {
   get id(): string | undefined {
     return this.props.id;
   }
-  get name(): string {
-    return this.props.name;
+  get nameEs(): string {
+    return this.props.nameEs;
   }
-  get description(): string | null {
-    return this.props.description;
+  get nameEn(): string | null {
+    return this.props.nameEn;
+  }
+  get descriptionEs(): string | null {
+    return this.props.descriptionEs;
+  }
+  get descriptionEn(): string | null {
+    return this.props.descriptionEn;
   }
   get price(): number {
     return this.props.price;
@@ -73,8 +82,10 @@ export class ComboEntity {
   static fromPrisma(prisma: PrismaComboWithRelations): ComboEntity {
     const props: ComboProps = {
       id: prisma.id,
-      name: prisma.name,
-      description: prisma.description,
+      nameEs: prisma.nameEs,
+      nameEn: prisma.nameEn,
+      descriptionEs: prisma.descriptionEs,
+      descriptionEn: prisma.descriptionEn,
       price: Number(prisma.price),
       image: prisma.image,
       isActive: prisma.isActive,
@@ -86,7 +97,8 @@ export class ComboEntity {
       props.items = prisma.items.map((item) => ({
         id: item.id,
         productId: item.productId,
-        productName: item.product.name,
+        productNameEs: item.product.nameEs,
+        productNameEn: item.product.nameEn,
         productBasePrice: Number(item.product.basePrice),
         quantity: item.quantity,
         sortOrder: item.sortOrder,
@@ -99,8 +111,10 @@ export class ComboEntity {
   static fromCreateDto(dto: CreateComboDto): ComboEntity {
     return new ComboEntity({
       id: undefined,
-      name: dto.name,
-      description: dto.description ?? null,
+      nameEs: dto.nameEs,
+      nameEn: dto.nameEn ?? null,
+      descriptionEs: dto.descriptionEs ?? null,
+      descriptionEn: dto.descriptionEn ?? null,
       price: dto.price,
       image: dto.image ?? null,
       isActive: dto.isActive ?? true,
@@ -111,22 +125,30 @@ export class ComboEntity {
 
   toPrismaCreate(): Record<string, unknown> {
     return {
-      name: this.props.name,
-      description: this.props.description,
+      nameEs: this.props.nameEs,
+      nameEn: this.props.nameEn,
+      descriptionEs: this.props.descriptionEs,
+      descriptionEn: this.props.descriptionEn,
       price: this.props.price,
       image: this.props.image,
       isActive: this.props.isActive,
     };
   }
 
-  toResponseDto(): ComboResponseDto {
+  toResponseDto(lang: string = "es"): ComboResponseDto {
     if (!this.props.id) {
       throw new Error("Cannot convert unpersisted entity to response DTO");
     }
     const dto = new ComboResponseDto();
     dto.id = this.props.id;
-    dto.name = this.props.name;
-    dto.description = this.props.description;
+    dto.name =
+      lang === "en"
+        ? (this.props.nameEn ?? this.props.nameEs)
+        : this.props.nameEs;
+    dto.description =
+      lang === "en"
+        ? (this.props.descriptionEn ?? this.props.descriptionEs)
+        : this.props.descriptionEs;
     dto.price = this.props.price;
     dto.image = this.props.image;
     dto.isActive = this.props.isActive;
@@ -137,7 +159,10 @@ export class ComboEntity {
       dto.items = this.props.items.map((item) => ({
         id: item.id,
         productId: item.productId,
-        productName: item.productName,
+        productName:
+          lang === "en"
+            ? (item.productNameEn ?? item.productNameEs)
+            : item.productNameEs,
         productBasePrice: item.productBasePrice,
         quantity: item.quantity,
         sortOrder: item.sortOrder,

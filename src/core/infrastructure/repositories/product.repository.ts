@@ -41,8 +41,12 @@ export class ProductRepository implements IProductRepository {
     entity: Partial<ProductEntity>,
   ): Promise<ProductEntity> {
     const data: Record<string, unknown> = {};
-    if (entity.name !== undefined) data.name = entity.name;
-    if (entity.description !== undefined) data.description = entity.description;
+    if (entity.nameEs !== undefined) data.nameEs = entity.nameEs;
+    if (entity.nameEn !== undefined) data.nameEn = entity.nameEn;
+    if (entity.descriptionEs !== undefined)
+      data.descriptionEs = entity.descriptionEs;
+    if (entity.descriptionEn !== undefined)
+      data.descriptionEn = entity.descriptionEn;
     if (entity.basePrice !== undefined) {
       data.basePrice = new Prisma.Decimal(entity.basePrice);
     }
