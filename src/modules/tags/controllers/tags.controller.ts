@@ -46,6 +46,7 @@ export class TagsController {
 
   @Post()
   @ApiOperation({ summary: "Crear tag" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async createTag(
     @Body() dto: CreateTagDto,
     @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
@@ -68,6 +69,7 @@ export class TagsController {
 
   @Patch(":id")
   @ApiOperation({ summary: "Actualizar tag" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async updateTag(
     @Param("id") id: string,
     @Body() dto: UpdateTagDto,

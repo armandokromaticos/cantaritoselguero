@@ -25,6 +25,11 @@ export class UpdateTagUseCase {
     if (!existing) {
       throw new NotFoundException(`Tag with id ${id} not found`);
     }
-    return this.tagRepository.update(id, dto as Partial<TagEntity>);
+    const updates: { nameEs?: string; nameEn?: string; isActive?: boolean } =
+      {};
+    if (dto.nameEs !== undefined) updates.nameEs = dto.nameEs;
+    if (dto.nameEn !== undefined) updates.nameEn = dto.nameEn;
+    if (dto.isActive !== undefined) updates.isActive = dto.isActive;
+    return this.tagRepository.update(id, updates as Partial<TagEntity>);
   }
 }

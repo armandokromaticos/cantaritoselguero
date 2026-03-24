@@ -14,6 +14,7 @@ export class CreateTagDto {
 
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @IsNotEmpty()
   @IsBoolean()
   isActive?: boolean;
 }

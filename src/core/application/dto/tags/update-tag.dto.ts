@@ -20,7 +20,7 @@ export class UpdateTagDto {
   nameEn?: string;
 
   @ApiPropertyOptional({ example: true })
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsBoolean()
   isActive?: boolean;
 }
