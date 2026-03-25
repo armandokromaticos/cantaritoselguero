@@ -102,20 +102,33 @@ export class SectionRepository implements ISectionRepository {
     return (await this.findById(sectionId))!;
   }
 
-  async removeItem(sectionId: string, itemId: string): Promise<void> {
-    await this.prisma.sectionItem.deleteMany({
+  async removeItem(sectionId: string, itemId: string): Promise<number> {
+    const result = await this.prisma.sectionItem.deleteMany({
       where: { id: itemId, sectionId },
     });
+    return result.count;
   }
 
   async reorderItems(
     sectionId: string,
     items: { itemId: string; order: number }[],
   ): Promise<SectionEntity> {
+    const itemIds = items.map((entry) => entry.itemId);
+    const foundItems = await this.prisma.sectionItem.findMany({
+      where: { id: { in: itemIds }, sectionId },
+      select: { id: true },
+    });
+    const foundIds = new Set(foundItems.map((found) => found.id));
+    const invalid = itemIds.filter((id) => !foundIds.has(id));
+    if (invalid.length > 0) {
+      throw new Error(
+        `Items [${invalid.join(", ")}] do not belong to section ${sectionId}`,
+      );
+    }
     await this.prisma.$transaction(
       items.map((item) =>
-        this.prisma.sectionItem.update({
-          where: { id: item.itemId },
+        this.prisma.sectionItem.updateMany({
+          where: { id: item.itemId, sectionId },
           data: { order: item.order },
         }),
       ),

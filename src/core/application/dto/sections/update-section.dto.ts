@@ -3,7 +3,6 @@ import {
   IsBoolean,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
   Matches,
   Min,
@@ -18,7 +17,7 @@ export class UpdateSectionDto {
   nameEs?: string;
 
   @ApiPropertyOptional({ example: "Alcoholic Drinks" })
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsString()
   nameEn?: string;
 
@@ -32,7 +31,7 @@ export class UpdateSectionDto {
   slug?: string;
 
   @ApiPropertyOptional({ example: 1 })
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsInt()
   @Min(0)
   order?: number;

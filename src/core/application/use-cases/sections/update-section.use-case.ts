@@ -25,7 +25,13 @@ export class UpdateSectionUseCase {
     if (!existing) {
       throw new NotFoundException(`Section with id ${id} not found`);
     }
-    const updates: Record<string, unknown> = {};
+    const updates: {
+      nameEs?: string;
+      nameEn?: string;
+      slug?: string;
+      order?: number;
+      isActive?: boolean;
+    } = {};
     if (dto.nameEs !== undefined) updates.nameEs = dto.nameEs;
     if (dto.nameEn !== undefined) updates.nameEn = dto.nameEn;
     if (dto.slug !== undefined) updates.slug = dto.slug.trim().toLowerCase();

@@ -15,7 +15,7 @@ export interface ISectionRepository {
     comboId: string | null,
     order: number,
   ): Promise<SectionEntity>;
-  removeItem(sectionId: string, itemId: string): Promise<void>;
+  removeItem(sectionId: string, itemId: string): Promise<number>;
   reorderItems(
     sectionId: string,
     items: { itemId: string; order: number }[],

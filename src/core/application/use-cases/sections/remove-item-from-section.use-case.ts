@@ -14,6 +14,11 @@ export class RemoveItemFromSectionUseCase {
     if (!existing) {
       throw new NotFoundException(`Section with id ${sectionId} not found`);
     }
-    await this.sectionRepository.removeItem(sectionId, itemId);
+    const deleted = await this.sectionRepository.removeItem(sectionId, itemId);
+    if (deleted === 0) {
+      throw new NotFoundException(
+        `Item ${itemId} not found in section ${sectionId}`,
+      );
+    }
   }
 }

@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import type { ISectionRepository } from "../../../domain/repositories/section.repository.interface";
 import { SECTION_REPOSITORY } from "../../../domain/repositories/section.repository.interface";
 import { ReorderSectionItemsDto } from "../../dto/sections/reorder-section-items.dto";
@@ -19,6 +24,13 @@ export class ReorderSectionItemsUseCase {
     if (!existing) {
       throw new NotFoundException(`Section with id ${sectionId} not found`);
     }
-    return this.sectionRepository.reorderItems(sectionId, dto.items);
+    try {
+      return await this.sectionRepository.reorderItems(sectionId, dto.items);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("do not belong")) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
   }
 }
