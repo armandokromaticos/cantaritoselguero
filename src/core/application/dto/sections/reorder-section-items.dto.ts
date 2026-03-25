@@ -1,6 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsArray, IsInt, IsUUID, Min, ValidateNested } from "class-validator";
+import {
+  ArrayUnique,
+  IsArray,
+  IsInt,
+  IsUUID,
+  Min,
+  ValidateNested,
+} from "class-validator";
 
 export class ReorderItemDto {
   @ApiProperty()
@@ -16,6 +23,9 @@ export class ReorderItemDto {
 export class ReorderSectionItemsDto {
   @ApiProperty({ type: [ReorderItemDto] })
   @IsArray()
+  @ArrayUnique((item: ReorderItemDto) => item.itemId, {
+    message: "Duplicate itemId values are not allowed",
+  })
   @ValidateNested({ each: true })
   @Type(() => ReorderItemDto)
   items: ReorderItemDto[];

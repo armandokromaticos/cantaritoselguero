@@ -11,9 +11,10 @@ export class GetSectionBySlugUseCase {
   ) {}
 
   async execute(slug: string): Promise<SectionEntity> {
-    const section = await this.sectionRepository.findBySlug(slug);
+    const normalizedSlug = slug.trim().toLowerCase();
+    const section = await this.sectionRepository.findBySlug(normalizedSlug);
     if (!section) {
-      throw new NotFoundException(`Section with slug "${slug}" not found`);
+      throw new NotFoundException(`Section with slug "${normalizedSlug}" not found`);
     }
     return section;
   }

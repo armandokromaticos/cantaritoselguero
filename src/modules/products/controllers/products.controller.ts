@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   DefaultValuePipe,
@@ -138,6 +139,9 @@ export class ProductsController {
     lang: Lang,
     @Query("tag") tagId?: string,
   ): Promise<ProductResponseDto[]> {
+    if (tagId && !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tagId)) {
+      throw new BadRequestException("tag must be a valid UUID");
+    }
     const entities = await this.getProductsUseCase.execute(tagId);
     return entities.map((product) => product.toResponseDto(lang));
   }

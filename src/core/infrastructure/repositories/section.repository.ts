@@ -106,6 +106,11 @@ export class SectionRepository implements ISectionRepository {
     comboId: string | null,
     order: number,
   ): Promise<SectionEntity> {
+    const hasProduct = productId !== null;
+    const hasCombo = comboId !== null;
+    if (hasProduct === hasCombo) {
+      throw new Error("Exactly one of productId or comboId must be provided");
+    }
     await this.prisma.sectionItem.create({
       data: {
         sectionId,
