@@ -175,10 +175,14 @@ export class ProductEntity {
       lang === "en"
         ? this.props.nameEn?.trim() || this.props.nameEs
         : this.props.nameEs;
+    dto.nameEs = this.props.nameEs;
+    dto.nameEn = this.props.nameEn;
     dto.description =
       lang === "en"
         ? this.props.descriptionEn?.trim() || this.props.descriptionEs
         : this.props.descriptionEs;
+    dto.descriptionEs = this.props.descriptionEs;
+    dto.descriptionEn = this.props.descriptionEn;
     dto.basePrice = this.props.basePrice;
     dto.image = this.props.image;
     dto.stock = this.computedStock;

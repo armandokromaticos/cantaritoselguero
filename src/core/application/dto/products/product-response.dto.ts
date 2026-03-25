@@ -10,8 +10,20 @@ export class ProductResponseDto {
   @ApiProperty()
   name: string;
 
+  @ApiProperty()
+  nameEs: string;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  nameEn: string | null;
+
   @ApiPropertyOptional({ nullable: true, type: String })
   description: string | null;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  descriptionEs: string | null;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  descriptionEn: string | null;
 
   @ApiProperty()
   basePrice: number;

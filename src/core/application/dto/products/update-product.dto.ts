@@ -44,11 +44,12 @@ export class UpdateProductDto {
   @IsString()
   image?: string;
 
-  @ApiPropertyOptional({ example: 100 })
+  @ApiPropertyOptional({ example: 100, nullable: true, type: Number })
   @IsOptional()
+  @ValidateIf((_, value) => value !== null)
   @IsInt()
   @Min(0)
-  stock?: number;
+  stock?: number | null;
 
   @ApiPropertyOptional({ example: true })
   @IsOptional()
