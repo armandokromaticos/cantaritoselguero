@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { PrismaModule } from "../../core/infrastructure/database/prisma/prisma.module";
+import { AuthModule } from "../auth/auth.module";
 import { TAG_REPOSITORY } from "../../core/domain/repositories/tag.repository.interface";
 import { TagRepository } from "../../core/infrastructure/repositories/tag.repository";
 import { CreateTagUseCase } from "../../core/application/use-cases/tags/create-tag.use-case";
@@ -9,7 +10,7 @@ import { DeleteTagUseCase } from "../../core/application/use-cases/tags/delete-t
 import { TagsController } from "./controllers/tags.controller";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AuthModule],
   controllers: [TagsController],
   providers: [
     {

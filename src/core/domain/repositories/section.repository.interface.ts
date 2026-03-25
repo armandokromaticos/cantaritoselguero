@@ -6,7 +6,7 @@ export interface ISectionRepository {
   create(entity: SectionEntity): Promise<SectionEntity>;
   findById(id: string): Promise<SectionEntity | null>;
   findBySlug(slug: string): Promise<SectionEntity | null>;
-  findAll(): Promise<SectionEntity[]>;
+  findAll(activeOnly?: boolean): Promise<SectionEntity[]>;
   update(id: string, entity: Partial<SectionEntity>): Promise<SectionEntity>;
   delete(id: string): Promise<void>;
   addItem(

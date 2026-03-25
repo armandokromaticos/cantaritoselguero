@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { PrismaModule } from "../../core/infrastructure/database/prisma/prisma.module";
+import { AuthModule } from "../auth/auth.module";
 import { SECTION_REPOSITORY } from "../../core/domain/repositories/section.repository.interface";
 import { SectionRepository } from "../../core/infrastructure/repositories/section.repository";
 import { CreateSectionUseCase } from "../../core/application/use-cases/sections/create-section.use-case";
@@ -13,7 +14,7 @@ import { ReorderSectionItemsUseCase } from "../../core/application/use-cases/sec
 import { SectionsController } from "./controllers/sections.controller";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AuthModule],
   controllers: [SectionsController],
   providers: [
     {

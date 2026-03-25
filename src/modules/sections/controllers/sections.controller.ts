@@ -39,9 +39,6 @@ import { RemoveItemFromSectionUseCase } from "../../../core/application/use-case
 import { ReorderSectionItemsUseCase } from "../../../core/application/use-cases/sections/reorder-section-items.use-case";
 
 @ApiTags("Sections")
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN)
 @Controller("sections")
 export class SectionsController {
   constructor(
@@ -55,9 +52,37 @@ export class SectionsController {
     private readonly reorderSectionItemsUseCase: ReorderSectionItemsUseCase,
   ) {}
 
-  // ── Sections CRUD ──
+  // ── Public Endpoints ──
+
+  @Get()
+  @ApiOperation({ summary: "Listar secciones activas con items (público)" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
+  async findActiveSections(
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
+  ): Promise<SectionResponseDto[]> {
+    const entities = await this.getSectionsUseCase.execute(true);
+    return entities.map((section) => section.toResponseDto(lang));
+  }
+
+  @Get(":slug")
+  @ApiOperation({ summary: "Obtener sección por slug (público)" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
+  async findSectionBySlug(
+    @Param("slug") slug: string,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
+  ): Promise<SectionResponseDto> {
+    const entity = await this.getSectionBySlugUseCase.execute(slug);
+    return entity.toResponseDto(lang);
+  }
+
+  // ── Admin CRUD ──
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Crear sección" })
   @ApiQuery({ name: "lang", required: false, enum: Lang })
   async createSection(
@@ -69,30 +94,10 @@ export class SectionsController {
     return entity.toResponseDto(lang);
   }
 
-  @Get()
-  @ApiOperation({ summary: "Listar secciones con items" })
-  @ApiQuery({ name: "lang", required: false, enum: Lang })
-  async findAllSections(
-    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
-    lang: Lang,
-  ): Promise<SectionResponseDto[]> {
-    const entities = await this.getSectionsUseCase.execute();
-    return entities.map((section) => section.toResponseDto(lang));
-  }
-
-  @Get(":slug")
-  @ApiOperation({ summary: "Obtener sección por slug" })
-  @ApiQuery({ name: "lang", required: false, enum: Lang })
-  async findSectionBySlug(
-    @Param("slug") slug: string,
-    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
-    lang: Lang,
-  ): Promise<SectionResponseDto> {
-    const entity = await this.getSectionBySlugUseCase.execute(slug);
-    return entity.toResponseDto(lang);
-  }
-
   @Patch(":id")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Actualizar sección" })
   @ApiQuery({ name: "lang", required: false, enum: Lang })
   async updateSection(
@@ -106,6 +111,9 @@ export class SectionsController {
   }
 
   @Delete(":id")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @HttpCode(204)
   @ApiOperation({ summary: "Eliminar sección" })
   async deleteSection(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
@@ -115,6 +123,9 @@ export class SectionsController {
   // ── Section Items ──
 
   @Post(":id/items")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Agregar item a sección" })
   @ApiQuery({ name: "lang", required: false, enum: Lang })
   async addItem(
@@ -128,6 +139,9 @@ export class SectionsController {
   }
 
   @Delete(":id/items/:itemId")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @HttpCode(204)
   @ApiOperation({ summary: "Quitar item de sección" })
   async removeItem(
@@ -138,6 +152,9 @@ export class SectionsController {
   }
 
   @Patch(":id/items/reorder")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Reordenar items de sección" })
   @ApiQuery({ name: "lang", required: false, enum: Lang })
   async reorderItems(

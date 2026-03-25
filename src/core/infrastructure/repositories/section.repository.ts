@@ -55,9 +55,24 @@ export class SectionRepository implements ISectionRepository {
     return section ? SectionEntity.fromPrisma(section) : null;
   }
 
-  async findAll(): Promise<SectionEntity[]> {
+  async findAll(activeOnly?: boolean): Promise<SectionEntity[]> {
+    const where = activeOnly ? { isActive: true } : undefined;
+    const include = activeOnly
+      ? {
+          items: {
+            ...SectionRepository.SECTION_INCLUDE.items,
+            where: {
+              OR: [
+                { product: { isActive: true } },
+                { combo: { isActive: true } },
+              ],
+            },
+          },
+        }
+      : SectionRepository.SECTION_INCLUDE;
     const sections = await this.prisma.section.findMany({
-      include: SectionRepository.SECTION_INCLUDE,
+      where,
+      include,
       orderBy: { order: "asc" },
     });
     return sections.map((section) => SectionEntity.fromPrisma(section));

@@ -10,7 +10,7 @@ export class GetSectionsUseCase {
     private readonly sectionRepository: ISectionRepository,
   ) {}
 
-  async execute(): Promise<SectionEntity[]> {
-    return this.sectionRepository.findAll();
+  async execute(activeOnly?: boolean): Promise<SectionEntity[]> {
+    return this.sectionRepository.findAll(activeOnly);
   }
 }
