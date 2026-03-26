@@ -1,12 +1,16 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -20,9 +24,11 @@ import {
   ApiConsumes,
   ApiBody,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
 import { Role } from "../../../core/domain/enums/role.enum";
+import { Lang } from "../../../core/domain/enums/lang.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
 import { Roles } from "../../auth/decorators/roles.decorator";
@@ -47,6 +53,9 @@ import { CreateProductModifierDto } from "../../../core/application/dto/product-
 import { UpdateProductModifierDto } from "../../../core/application/dto/product-modifiers/update-product-modifier.dto";
 import { ProductModifierResponseDto } from "../../../core/application/dto/product-modifiers/product-modifier-response.dto";
 
+// Product Tags DTOs
+import { AssignTagsDto } from "../../../core/application/dto/products/assign-tags.dto";
+
 // Use Cases - Products
 import { CreateProductUseCase } from "../../../core/application/use-cases/products/create-product.use-case";
 import { GetProductUseCase } from "../../../core/application/use-cases/products/get-product.use-case";
@@ -57,6 +66,8 @@ import {
   UploadProductImageUseCase,
   UploadFileInput,
 } from "../../../core/application/use-cases/products/upload-product-image.use-case";
+import { AssignTagsToProductUseCase } from "../../../core/application/use-cases/products/assign-tags-to-product.use-case";
+import { RemoveTagFromProductUseCase } from "../../../core/application/use-cases/products/remove-tag-from-product.use-case";
 
 // Use Cases - Sizes
 import { CreateProductSizeUseCase } from "../../../core/application/use-cases/product-sizes/create-product-size.use-case";
@@ -97,6 +108,8 @@ export class ProductsController {
     private readonly createProductModifierUseCase: CreateProductModifierUseCase,
     private readonly getProductModifiersUseCase: GetProductModifiersUseCase,
     private readonly updateProductModifierUseCase: UpdateProductModifierUseCase,
+    private readonly assignTagsToProductUseCase: AssignTagsToProductUseCase,
+    private readonly removeTagFromProductUseCase: RemoveTagFromProductUseCase,
   ) {}
 
   // ── Products ──
@@ -105,23 +118,43 @@ export class ProductsController {
   @ApiOperation({ summary: "Crear producto" })
   async createProduct(
     @Body() dto: CreateProductDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductResponseDto> {
     const entity = await this.createProductUseCase.execute(dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get()
   @ApiOperation({ summary: "Listar productos" })
-  async findAllProducts(): Promise<ProductResponseDto[]> {
-    const entities = await this.getProductsUseCase.execute();
-    return entities.map((product) => product.toResponseDto());
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
+  @ApiQuery({
+    name: "tag",
+    required: false,
+    type: String,
+    description: "Filter by tag ID",
+  })
+  async findAllProducts(
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
+    @Query("tag") tagId?: string,
+  ): Promise<ProductResponseDto[]> {
+    if (tagId && !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tagId)) {
+      throw new BadRequestException("tag must be a valid UUID");
+    }
+    const entities = await this.getProductsUseCase.execute(tagId);
+    return entities.map((product) => product.toResponseDto(lang));
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Obtener producto por ID" })
-  async findOneProduct(@Param("id") id: string): Promise<ProductResponseDto> {
+  async findOneProduct(
+    @Param("id") id: string,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
+  ): Promise<ProductResponseDto> {
     const entity = await this.getProductUseCase.execute(id);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Patch(":id")
@@ -129,9 +162,11 @@ export class ProductsController {
   async updateProduct(
     @Param("id") id: string,
     @Body() dto: UpdateProductDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductResponseDto> {
     const entity = await this.updateProductUseCase.execute(id, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Delete(":id")
@@ -167,6 +202,8 @@ export class ProductsController {
       }),
     )
     file: Express.Multer.File,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductResponseDto> {
     const uploadInput: UploadFileInput = {
       buffer: file.buffer,
@@ -177,7 +214,7 @@ export class ProductsController {
       id,
       uploadInput,
     );
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   // ── Product Sizes ──
@@ -187,18 +224,22 @@ export class ProductsController {
   async createSize(
     @Param("productId") productId: string,
     @Body() dto: CreateProductSizeDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductSizeResponseDto> {
     const entity = await this.createProductSizeUseCase.execute(productId, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get(":productId/sizes")
   @ApiOperation({ summary: "Listar tamaños de producto" })
   async findSizes(
     @Param("productId") productId: string,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductSizeResponseDto[]> {
     const entities = await this.getProductSizesUseCase.execute(productId);
-    return entities.map((size) => size.toResponseDto());
+    return entities.map((size) => size.toResponseDto(lang));
   }
 
   @Patch(":productId/sizes/:id")
@@ -206,9 +247,11 @@ export class ProductsController {
   async updateSize(
     @Param("id") id: string,
     @Body() dto: UpdateProductSizeDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductSizeResponseDto> {
     const entity = await this.updateProductSizeUseCase.execute(id, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Delete(":productId/sizes/:id")
@@ -225,22 +268,26 @@ export class ProductsController {
   async createModifierGroup(
     @Param("productId") productId: string,
     @Body() dto: CreateProductModifierGroupDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierGroupResponseDto> {
     const entity = await this.createProductModifierGroupUseCase.execute(
       productId,
       dto,
     );
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get(":productId/modifier-groups")
   @ApiOperation({ summary: "Listar grupos de modificadores" })
   async findModifierGroups(
     @Param("productId") productId: string,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierGroupResponseDto[]> {
     const entities =
       await this.getProductModifierGroupsUseCase.execute(productId);
-    return entities.map((group) => group.toResponseDto());
+    return entities.map((group) => group.toResponseDto(lang));
   }
 
   @Patch(":productId/modifier-groups/:id")
@@ -248,12 +295,14 @@ export class ProductsController {
   async updateModifierGroup(
     @Param("id") id: string,
     @Body() dto: UpdateProductModifierGroupDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierGroupResponseDto> {
     const entity = await this.updateProductModifierGroupUseCase.execute(
       id,
       dto,
     );
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   // ── Product Modifiers ──
@@ -263,21 +312,25 @@ export class ProductsController {
   async createModifier(
     @Param("groupId") groupId: string,
     @Body() dto: CreateProductModifierDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierResponseDto> {
     const entity = await this.createProductModifierUseCase.execute(
       groupId,
       dto,
     );
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get(":productId/modifier-groups/:groupId/modifiers")
   @ApiOperation({ summary: "Listar modificadores" })
   async findModifiers(
     @Param("groupId") groupId: string,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierResponseDto[]> {
     const entities = await this.getProductModifiersUseCase.execute(groupId);
-    return entities.map((modifier) => modifier.toResponseDto());
+    return entities.map((modifier) => modifier.toResponseDto(lang));
   }
 
   @Patch(":productId/modifier-groups/:groupId/modifiers/:id")
@@ -285,8 +338,38 @@ export class ProductsController {
   async updateModifier(
     @Param("id") id: string,
     @Body() dto: UpdateProductModifierDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<ProductModifierResponseDto> {
     const entity = await this.updateProductModifierUseCase.execute(id, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
+  }
+
+  // ── Product Tags ──
+
+  @Post(":id/tags")
+  @ApiOperation({ summary: "Asignar tags a producto" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
+  async assignTags(
+    @Param("id") id: string,
+    @Body() dto: AssignTagsDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
+  ): Promise<ProductResponseDto> {
+    const entity = await this.assignTagsToProductUseCase.execute(
+      id,
+      dto.tagIds,
+    );
+    return entity.toResponseDto(lang);
+  }
+
+  @Delete(":id/tags/:tagId")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Quitar tag de producto" })
+  async removeTag(
+    @Param("id") id: string,
+    @Param("tagId") tagId: string,
+  ): Promise<void> {
+    await this.removeTagFromProductUseCase.execute(id, tagId);
   }
 }

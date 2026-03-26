@@ -5,8 +5,10 @@ import { ProductModifierGroupResponseDto } from "../../application/dto/product-m
 interface ProductModifierGroupProps {
   id: string;
   productId: string;
-  name: string;
-  description: string | null;
+  nameEs: string;
+  nameEn: string | null;
+  descriptionEs: string | null;
+  descriptionEn: string | null;
   minSelect: number;
   maxSelect: number;
   sortOrder: number;
@@ -25,11 +27,17 @@ export class ProductModifierGroupEntity {
   get productId(): string {
     return this.props.productId;
   }
-  get name(): string {
-    return this.props.name;
+  get nameEs(): string {
+    return this.props.nameEs;
   }
-  get description(): string | null {
-    return this.props.description;
+  get nameEn(): string | null {
+    return this.props.nameEn;
+  }
+  get descriptionEs(): string | null {
+    return this.props.descriptionEs;
+  }
+  get descriptionEn(): string | null {
+    return this.props.descriptionEn;
   }
   get minSelect(): number {
     return this.props.minSelect;
@@ -50,8 +58,10 @@ export class ProductModifierGroupEntity {
     return new ProductModifierGroupEntity({
       id: prisma.id,
       productId: prisma.productId,
-      name: prisma.name,
-      description: prisma.description,
+      nameEs: prisma.nameEs,
+      nameEn: prisma.nameEn,
+      descriptionEs: prisma.descriptionEs,
+      descriptionEn: prisma.descriptionEn,
       minSelect: prisma.minSelect,
       maxSelect: prisma.maxSelect,
       sortOrder: prisma.sortOrder,
@@ -65,8 +75,10 @@ export class ProductModifierGroupEntity {
     return new ProductModifierGroupEntity({
       id: "",
       productId,
-      name: dto.name,
-      description: dto.description ?? null,
+      nameEs: dto.nameEs.trim(),
+      nameEn: dto.nameEn?.trim() || null,
+      descriptionEs: dto.descriptionEs?.trim() || null,
+      descriptionEn: dto.descriptionEn?.trim() || null,
       minSelect: dto.minSelect ?? 0,
       maxSelect: dto.maxSelect ?? 1,
       sortOrder: dto.sortOrder ?? 0,
@@ -75,8 +87,10 @@ export class ProductModifierGroupEntity {
 
   toPrismaCreate(): Record<string, unknown> {
     const data: Record<string, unknown> = {};
-    data.name = this.props.name;
-    data.description = this.props.description;
+    data.nameEs = this.props.nameEs;
+    data.nameEn = this.props.nameEn;
+    data.descriptionEs = this.props.descriptionEs;
+    data.descriptionEn = this.props.descriptionEn;
     data.minSelect = this.props.minSelect;
     data.maxSelect = this.props.maxSelect;
     data.sortOrder = this.props.sortOrder;
@@ -84,12 +98,18 @@ export class ProductModifierGroupEntity {
     return data;
   }
 
-  toResponseDto(): ProductModifierGroupResponseDto {
+  toResponseDto(lang: "es" | "en" = "es"): ProductModifierGroupResponseDto {
     const dto = new ProductModifierGroupResponseDto();
     dto.id = this.props.id;
     dto.productId = this.props.productId;
-    dto.name = this.props.name;
-    dto.description = this.props.description;
+    dto.name =
+      lang === "en"
+        ? this.props.nameEn?.trim() || this.props.nameEs
+        : this.props.nameEs;
+    dto.description =
+      lang === "en"
+        ? this.props.descriptionEn?.trim() || this.props.descriptionEs
+        : this.props.descriptionEs;
     dto.minSelect = this.props.minSelect;
     dto.maxSelect = this.props.maxSelect;
     dto.sortOrder = this.props.sortOrder;

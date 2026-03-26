@@ -3,6 +3,7 @@ import {
   ProductSize as PrismaProductSize,
   ProductModifierGroup as PrismaProductModifierGroup,
   ProductModifier as PrismaProductModifier,
+  Tag as PrismaTag,
   Prisma,
 } from "@prisma/client";
 import { CreateProductDto } from "../../application/dto/products/create-product.dto";
@@ -10,18 +11,22 @@ import { ProductResponseDto } from "../../application/dto/products/product-respo
 import { ProductSizeEntity } from "./product-size.entity";
 import { ProductModifierGroupEntity } from "./product-modifier-group.entity";
 import { ProductModifierEntity } from "./product-modifier.entity";
+import { TagEntity } from "./tag.entity";
 
 type PrismaProductWithRelations = PrismaProduct & {
   sizes?: PrismaProductSize[];
   modifierGroups?: (PrismaProductModifierGroup & {
     modifiers: PrismaProductModifier[];
   })[];
+  tags?: { tag: PrismaTag }[];
 };
 
 interface ProductProps {
   id: string;
-  name: string;
-  description: string | null;
+  nameEs: string;
+  nameEn: string | null;
+  descriptionEs: string | null;
+  descriptionEn: string | null;
   basePrice: number;
   image: string | null;
   stock: number | null;
@@ -34,6 +39,7 @@ interface ProductProps {
     group: ProductModifierGroupEntity;
     modifiers: ProductModifierEntity[];
   }[];
+  tags?: TagEntity[];
 }
 
 export class ProductEntity {
@@ -46,11 +52,17 @@ export class ProductEntity {
   get id(): string {
     return this.props.id;
   }
-  get name(): string {
-    return this.props.name;
+  get nameEs(): string {
+    return this.props.nameEs;
   }
-  get description(): string | null {
-    return this.props.description;
+  get nameEn(): string | null {
+    return this.props.nameEn;
+  }
+  get descriptionEs(): string | null {
+    return this.props.descriptionEs;
+  }
+  get descriptionEn(): string | null {
+    return this.props.descriptionEn;
   }
   get basePrice(): number {
     return this.props.basePrice;
@@ -88,8 +100,10 @@ export class ProductEntity {
   static fromPrisma(prisma: PrismaProductWithRelations): ProductEntity {
     const props: ProductProps = {
       id: prisma.id,
-      name: prisma.name,
-      description: prisma.description,
+      nameEs: prisma.nameEs,
+      nameEn: prisma.nameEn,
+      descriptionEs: prisma.descriptionEs,
+      descriptionEn: prisma.descriptionEn,
       basePrice: Number(prisma.basePrice),
       image: prisma.image,
       stock: prisma.stock,
@@ -114,14 +128,20 @@ export class ProductEntity {
       }));
     }
 
+    if (prisma.tags) {
+      props.tags = prisma.tags.map((pt) => TagEntity.fromPrisma(pt.tag));
+    }
+
     return new ProductEntity(props);
   }
 
   static fromCreateDto(dto: CreateProductDto): ProductEntity {
     return new ProductEntity({
       id: "",
-      name: dto.name,
-      description: dto.description ?? null,
+      nameEs: dto.nameEs.trim(),
+      nameEn: dto.nameEn?.trim() || null,
+      descriptionEs: dto.descriptionEs?.trim() || null,
+      descriptionEn: dto.descriptionEn?.trim() || null,
       basePrice: dto.basePrice,
       image: dto.image ?? null,
       stock: dto.stock ?? null,
@@ -134,8 +154,10 @@ export class ProductEntity {
 
   toPrismaCreate(): Record<string, unknown> {
     const data: Record<string, unknown> = {};
-    data.name = this.props.name;
-    data.description = this.props.description;
+    data.nameEs = this.props.nameEs;
+    data.nameEn = this.props.nameEn;
+    data.descriptionEs = this.props.descriptionEs;
+    data.descriptionEn = this.props.descriptionEn;
     data.basePrice = new Prisma.Decimal(this.props.basePrice);
     data.image = this.props.image;
     data.stock = this.props.stock;
@@ -146,11 +168,21 @@ export class ProductEntity {
     return data;
   }
 
-  toResponseDto(): ProductResponseDto {
+  toResponseDto(lang: "es" | "en" = "es"): ProductResponseDto {
     const dto = new ProductResponseDto();
     dto.id = this.props.id;
-    dto.name = this.props.name;
-    dto.description = this.props.description;
+    dto.name =
+      lang === "en"
+        ? this.props.nameEn?.trim() || this.props.nameEs
+        : this.props.nameEs;
+    dto.nameEs = this.props.nameEs;
+    dto.nameEn = this.props.nameEn;
+    dto.description =
+      lang === "en"
+        ? this.props.descriptionEn?.trim() || this.props.descriptionEs
+        : this.props.descriptionEs;
+    dto.descriptionEs = this.props.descriptionEs;
+    dto.descriptionEn = this.props.descriptionEn;
     dto.basePrice = this.props.basePrice;
     dto.image = this.props.image;
     dto.stock = this.computedStock;
@@ -160,19 +192,23 @@ export class ProductEntity {
     dto.updatedAt = this.props.updatedAt;
 
     if (this.props.sizes) {
-      dto.sizes = this.props.sizes.map((size) => size.toResponseDto());
+      dto.sizes = this.props.sizes.map((size) => size.toResponseDto(lang));
     }
 
     if (this.props.modifierGroups) {
       dto.modifierGroups = this.props.modifierGroups.map(
         ({ group, modifiers }) => {
-          const groupDto = group.toResponseDto();
+          const groupDto = group.toResponseDto(lang);
           groupDto.modifiers = modifiers.map((modifier) =>
-            modifier.toResponseDto(),
+            modifier.toResponseDto(lang),
           );
           return groupDto;
         },
       );
+    }
+
+    if (this.props.tags) {
+      dto.tags = this.props.tags.map((tag) => tag.toResponseDto(lang));
     }
 
     return dto;

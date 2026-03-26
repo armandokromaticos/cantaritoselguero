@@ -13,7 +13,12 @@ export class CreateProductModifierDto {
   @ApiProperty({ example: "Chile habanero" })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  nameEs: string;
+
+  @ApiPropertyOptional({ example: "Habanero chili" })
+  @IsOptional()
+  @IsString()
+  nameEn?: string;
 
   @ApiPropertyOptional({ example: 10.0 })
   @IsOptional()

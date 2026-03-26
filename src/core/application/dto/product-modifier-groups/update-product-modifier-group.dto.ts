@@ -6,6 +6,7 @@ import {
   IsString,
   Min,
   Validate,
+  ValidateIf,
   ValidatorConstraint,
   ValidatorConstraintInterface,
   ValidationArguments,
@@ -26,15 +27,25 @@ class MinLessOrEqualMaxConstraint implements ValidatorConstraintInterface {
 
 export class UpdateProductModifierGroupDto {
   @ApiPropertyOptional({ example: "Tipo de chile" })
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsString()
   @IsNotEmpty()
-  name?: string;
+  nameEs?: string;
+
+  @ApiPropertyOptional({ example: "Type of chili" })
+  @IsOptional()
+  @IsString()
+  nameEn?: string;
 
   @ApiPropertyOptional({ example: "Selecciona el tipo de chile" })
   @IsOptional()
   @IsString()
-  description?: string;
+  descriptionEs?: string;
+
+  @ApiPropertyOptional({ example: "Select the type of chili" })
+  @IsOptional()
+  @IsString()
+  descriptionEn?: string;
 
   @ApiPropertyOptional({ example: 0 })
   @IsOptional()

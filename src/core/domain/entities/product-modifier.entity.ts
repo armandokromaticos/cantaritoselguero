@@ -8,7 +8,8 @@ import { ProductModifierResponseDto } from "../../application/dto/product-modifi
 interface ProductModifierProps {
   id: string;
   groupId: string;
-  name: string;
+  nameEs: string;
+  nameEn: string | null;
   priceAdjustment: number;
   isDefault: boolean;
   isActive: boolean;
@@ -28,8 +29,11 @@ export class ProductModifierEntity {
   get groupId(): string {
     return this.props.groupId;
   }
-  get name(): string {
-    return this.props.name;
+  get nameEs(): string {
+    return this.props.nameEs;
+  }
+  get nameEn(): string | null {
+    return this.props.nameEn;
   }
   get priceAdjustment(): number {
     return this.props.priceAdjustment;
@@ -48,7 +52,8 @@ export class ProductModifierEntity {
     return new ProductModifierEntity({
       id: prisma.id,
       groupId: prisma.groupId,
-      name: prisma.name,
+      nameEs: prisma.nameEs,
+      nameEn: prisma.nameEn,
       priceAdjustment: Number(prisma.priceAdjustment),
       isDefault: prisma.isDefault,
       isActive: prisma.isActive,
@@ -63,7 +68,8 @@ export class ProductModifierEntity {
     return new ProductModifierEntity({
       id: "",
       groupId,
-      name: dto.name,
+      nameEs: dto.nameEs.trim(),
+      nameEn: dto.nameEn?.trim() || null,
       priceAdjustment: dto.priceAdjustment ?? 0,
       isDefault: dto.isDefault ?? false,
       isActive: dto.isActive ?? true,
@@ -73,7 +79,8 @@ export class ProductModifierEntity {
 
   toPrismaCreate(): Record<string, unknown> {
     const data: Record<string, unknown> = {};
-    data.name = this.props.name;
+    data.nameEs = this.props.nameEs;
+    data.nameEn = this.props.nameEn;
     data.priceAdjustment = new Prisma.Decimal(this.props.priceAdjustment);
     data.isDefault = this.props.isDefault;
     data.isActive = this.props.isActive;
@@ -82,11 +89,14 @@ export class ProductModifierEntity {
     return data;
   }
 
-  toResponseDto(): ProductModifierResponseDto {
+  toResponseDto(lang: "es" | "en" = "es"): ProductModifierResponseDto {
     const dto = new ProductModifierResponseDto();
     dto.id = this.props.id;
     dto.groupId = this.props.groupId;
-    dto.name = this.props.name;
+    dto.name =
+      lang === "en"
+        ? this.props.nameEn?.trim() || this.props.nameEs
+        : this.props.nameEs;
     dto.priceAdjustment = this.props.priceAdjustment;
     dto.isDefault = this.props.isDefault;
     dto.isActive = this.props.isActive;

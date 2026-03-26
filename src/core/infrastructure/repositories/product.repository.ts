@@ -19,6 +19,9 @@ export class ProductRepository implements IProductRepository {
     modifierGroups: {
       include: { modifiers: true },
     },
+    tags: {
+      include: { tag: true },
+    },
   };
 
   async findById(id: string): Promise<ProductEntity | null> {
@@ -29,8 +32,10 @@ export class ProductRepository implements IProductRepository {
     return product ? ProductEntity.fromPrisma(product) : null;
   }
 
-  async findAll(): Promise<ProductEntity[]> {
+  async findAll(tagId?: string): Promise<ProductEntity[]> {
+    const where = tagId ? { tags: { some: { tagId } } } : undefined;
     const products = await this.prisma.product.findMany({
+      where,
       include: ProductRepository.PRODUCT_INCLUDE,
     });
     return products.map((product) => ProductEntity.fromPrisma(product));
@@ -41,8 +46,12 @@ export class ProductRepository implements IProductRepository {
     entity: Partial<ProductEntity>,
   ): Promise<ProductEntity> {
     const data: Record<string, unknown> = {};
-    if (entity.name !== undefined) data.name = entity.name;
-    if (entity.description !== undefined) data.description = entity.description;
+    if (entity.nameEs !== undefined) data.nameEs = entity.nameEs;
+    if (entity.nameEn !== undefined) data.nameEn = entity.nameEn;
+    if (entity.descriptionEs !== undefined)
+      data.descriptionEs = entity.descriptionEs;
+    if (entity.descriptionEn !== undefined)
+      data.descriptionEn = entity.descriptionEn;
     if (entity.basePrice !== undefined) {
       data.basePrice = new Prisma.Decimal(entity.basePrice);
     }
@@ -71,5 +80,22 @@ export class ProductRepository implements IProductRepository {
 
   async delete(id: string): Promise<void> {
     await this.prisma.product.delete({ where: { id } });
+  }
+
+  async assignTags(
+    productId: string,
+    tagIds: string[],
+  ): Promise<ProductEntity> {
+    await this.prisma.productTag.createMany({
+      data: tagIds.map((tagId) => ({ productId, tagId })),
+      skipDuplicates: true,
+    });
+    return (await this.findById(productId))!;
+  }
+
+  async removeTag(productId: string, tagId: string): Promise<void> {
+    await this.prisma.productTag.delete({
+      where: { productId_tagId: { productId, tagId } },
+    });
   }
 }

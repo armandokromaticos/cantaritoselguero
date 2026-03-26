@@ -29,7 +29,7 @@ export class DeleteProductUseCase {
         error.code === "P2003"
       ) {
         throw new ConflictException(
-          `Product "${existing.name}" cannot be deleted because it is used in one or more combos`,
+          `Product "${existing.nameEs}" cannot be deleted because it is used in one or more combos`,
         );
       }
       throw error;

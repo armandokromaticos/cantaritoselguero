@@ -5,7 +5,8 @@ import { ProductSizeResponseDto } from "../../application/dto/product-sizes/prod
 interface ProductSizeProps {
   id: string;
   productId: string;
-  name: string;
+  nameEs: string;
+  nameEn: string | null;
   price: number;
   stock: number | null;
   sortOrder: number;
@@ -26,8 +27,11 @@ export class ProductSizeEntity {
   get productId(): string {
     return this.props.productId;
   }
-  get name(): string {
-    return this.props.name;
+  get nameEs(): string {
+    return this.props.nameEs;
+  }
+  get nameEn(): string | null {
+    return this.props.nameEn;
   }
   get price(): number {
     return this.props.price;
@@ -49,7 +53,8 @@ export class ProductSizeEntity {
     return new ProductSizeEntity({
       id: prisma.id,
       productId: prisma.productId,
-      name: prisma.name,
+      nameEs: prisma.nameEs,
+      nameEn: prisma.nameEn,
       price: Number(prisma.price),
       stock: prisma.stock,
       sortOrder: prisma.sortOrder,
@@ -65,7 +70,8 @@ export class ProductSizeEntity {
     return new ProductSizeEntity({
       id: "",
       productId,
-      name: dto.name,
+      nameEs: dto.nameEs.trim(),
+      nameEn: dto.nameEn?.trim() || null,
       price: dto.price,
       stock: dto.stock ?? null,
       sortOrder: dto.sortOrder ?? 0,
@@ -76,7 +82,8 @@ export class ProductSizeEntity {
 
   toPrismaCreate(): Record<string, unknown> {
     const data: Record<string, unknown> = {};
-    data.name = this.props.name;
+    data.nameEs = this.props.nameEs;
+    data.nameEn = this.props.nameEn;
     data.price = new Prisma.Decimal(this.props.price);
     data.stock = this.props.stock;
     data.sortOrder = this.props.sortOrder;
@@ -86,11 +93,14 @@ export class ProductSizeEntity {
     return data;
   }
 
-  toResponseDto(): ProductSizeResponseDto {
+  toResponseDto(lang: "es" | "en" = "es"): ProductSizeResponseDto {
     const dto = new ProductSizeResponseDto();
     dto.id = this.props.id;
     dto.productId = this.props.productId;
-    dto.name = this.props.name;
+    dto.name =
+      lang === "en"
+        ? this.props.nameEn?.trim() || this.props.nameEs
+        : this.props.nameEs;
     dto.price = this.props.price;
     dto.stock = this.props.stock;
     dto.sortOrder = this.props.sortOrder;

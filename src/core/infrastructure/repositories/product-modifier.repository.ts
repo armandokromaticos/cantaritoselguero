@@ -37,7 +37,8 @@ export class ProductModifierRepository implements IProductModifierRepository {
     entity: Partial<ProductModifierEntity>,
   ): Promise<ProductModifierEntity> {
     const data: Record<string, unknown> = {};
-    if (entity.name !== undefined) data.name = entity.name;
+    if (entity.nameEs !== undefined) data.nameEs = entity.nameEs;
+    if (entity.nameEn !== undefined) data.nameEn = entity.nameEn;
     if (entity.priceAdjustment !== undefined) {
       data.priceAdjustment = new Prisma.Decimal(entity.priceAdjustment);
     }

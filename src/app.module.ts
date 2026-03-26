@@ -13,6 +13,8 @@ import { OrdersModule } from "./modules/orders/orders.module";
 import { CouponsModule } from "./modules/coupons/coupons.module";
 import { BannersModule } from "./modules/banners/banners.module";
 import { MoodGalleryModule } from "./modules/mood-gallery/mood-gallery.module";
+import { TagsModule } from "./modules/tags/tags.module";
+import { SectionsModule } from "./modules/sections/sections.module";
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { MoodGalleryModule } from "./modules/mood-gallery/mood-gallery.module";
     CouponsModule,
     BannersModule,
     MoodGalleryModule,
+    TagsModule,
+    SectionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
