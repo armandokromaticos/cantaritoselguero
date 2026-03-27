@@ -43,6 +43,7 @@ interface OrderItemInfo {
   productId: string;
   productSizeId: string | null;
   comboId: string | null;
+  standId: string | null;
   quantity: number;
   unitPrice: number;
   subtotal: number;
@@ -75,6 +76,7 @@ export interface CreateOrderItemParams {
   productId: string;
   productSizeId?: string;
   comboId?: string;
+  standId?: string;
   quantity: number;
   unitPrice: number;
   subtotal: number;
@@ -198,6 +200,7 @@ export class OrderEntity {
         productId: item.productId,
         productSizeId: item.productSizeId ?? null,
         comboId: item.comboId ?? null,
+        standId: item.standId ?? null,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         subtotal: item.subtotal,
@@ -226,6 +229,7 @@ export class OrderEntity {
           productId: item.productId,
           productSizeId: item.productSizeId,
           comboId: item.comboId,
+          standId: item.standId,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           subtotal: item.subtotal,
@@ -262,6 +266,7 @@ export class OrderEntity {
         productId: item.productId,
         productSizeId: item.productSizeId,
         comboId: item.comboId,
+        standId: item.standId ?? null,
         quantity: item.quantity,
         unitPrice: Number(item.unitPrice),
         subtotal: Number(item.subtotal),
@@ -312,6 +317,7 @@ export class OrderEntity {
         itemDto.productId = item.productId;
         itemDto.productSizeId = item.productSizeId;
         itemDto.comboId = item.comboId;
+        itemDto.standId = item.standId;
         itemDto.quantity = item.quantity;
         itemDto.unitPrice = item.unitPrice;
         itemDto.subtotal = item.subtotal;

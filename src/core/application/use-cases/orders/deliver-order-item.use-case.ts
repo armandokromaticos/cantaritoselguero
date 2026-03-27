@@ -56,6 +56,13 @@ export class DeliverOrderItemUseCase {
       );
     }
 
+    // If item has an assigned stand, validate delivery comes from that stand
+    if (item.standId && item.standId !== standId) {
+      throw new BadRequestException(
+        `OrderItem ${itemId} is assigned to stand ${item.standId}, cannot deliver from stand ${standId}`,
+      );
+    }
+
     const stand = await this.standRepository.findById(standId);
     if (!stand) {
       throw new NotFoundException(`Stand with id ${standId} not found`);

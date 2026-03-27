@@ -73,4 +73,12 @@ export class StandRepository implements IStandRepository {
     }
     return stand;
   }
+
+  async findStandIdsByOperator(userId: string): Promise<string[]> {
+    const records = await this.prisma.standOperator.findMany({
+      where: { userId },
+      select: { standId: true },
+    });
+    return records.map((r) => r.standId);
+  }
 }

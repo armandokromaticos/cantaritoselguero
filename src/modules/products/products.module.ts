@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { AuthModule } from "../auth/auth.module";
+import { StandsModule } from "../stands/stands.module";
 import { ProductsController } from "./controllers/products.controller";
 
 // Repository symbols
@@ -39,9 +40,10 @@ import { UpdateProductModifierGroupUseCase } from "../../core/application/use-ca
 import { CreateProductModifierUseCase } from "../../core/application/use-cases/product-modifiers/create-product-modifier.use-case";
 import { GetProductModifiersUseCase } from "../../core/application/use-cases/product-modifiers/get-product-modifiers.use-case";
 import { UpdateProductModifierUseCase } from "../../core/application/use-cases/product-modifiers/update-product-modifier.use-case";
+import { GetProductStandsUseCase } from "../../core/application/use-cases/stand-catalog/get-product-stands.use-case";
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, StandsModule],
   controllers: [ProductsController],
   providers: [
     { provide: PRODUCT_REPOSITORY, useClass: ProductRepository },
@@ -72,6 +74,7 @@ import { UpdateProductModifierUseCase } from "../../core/application/use-cases/p
     UpdateProductModifierUseCase,
     AssignTagsToProductUseCase,
     RemoveTagFromProductUseCase,
+    GetProductStandsUseCase,
   ],
 })
 export class ProductsModule {}

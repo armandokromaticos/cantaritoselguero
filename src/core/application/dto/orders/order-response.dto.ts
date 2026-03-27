@@ -38,6 +38,9 @@ export class OrderItemResponseDto {
   @ApiPropertyOptional({ nullable: true, type: String })
   comboId: string | null;
 
+  @ApiPropertyOptional({ nullable: true, type: String })
+  standId: string | null;
+
   @ApiProperty()
   quantity: number;
 

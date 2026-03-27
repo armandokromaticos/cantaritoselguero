@@ -1,7 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../database/prisma/prisma.service";
-import { IOrderRepository } from "../../domain/repositories/order.repository.interface";
+import {
+  IOrderRepository,
+  OrderFilters,
+} from "../../domain/repositories/order.repository.interface";
 import { OrderEntity } from "../../domain/entities/order.entity";
 import { OrderStatus } from "../../domain/enums/order-status.enum";
 
@@ -57,8 +60,23 @@ export class OrderRepository implements IOrderRepository {
     return orders.map((order) => OrderEntity.fromPrisma(order));
   }
 
-  async findAll(): Promise<OrderEntity[]> {
+  async findAll(filters?: OrderFilters): Promise<OrderEntity[]> {
+    const where: Record<string, unknown> = {};
+
+    if (filters?.userId) {
+      where.userId = filters.userId;
+    }
+
+    if (filters?.status && filters.status.length > 0) {
+      where.status = { in: filters.status };
+    }
+
+    if (filters?.standId) {
+      where.items = { some: { standId: filters.standId } };
+    }
+
     const orders = await this.prisma.order.findMany({
+      where,
       include: OrderRepository.ORDER_INCLUDE,
       orderBy: { createdAt: "desc" },
     });
@@ -82,5 +100,31 @@ export class OrderRepository implements IOrderRepository {
     await this.prisma.orderItemDelivery.create({
       data: { orderItemId, standId, deliveredByUserId },
     });
+  }
+
+  async findPendingByStand(standId: string): Promise<OrderEntity[]> {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        status: { in: [OrderStatus.PAID, OrderStatus.PARTIAL] },
+        items: {
+          some: {
+            standId,
+            deliveries: { none: {} },
+          },
+        },
+      },
+      include: {
+        items: {
+          include: {
+            modifiers: true,
+            deliveries: true,
+            product: true,
+            productSize: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+    return orders.map((order) => OrderEntity.fromPrisma(order));
   }
 }

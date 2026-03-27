@@ -54,7 +54,9 @@ model Stand {
 
   operators   StandOperator[]
   products    Product[]
+  catalog     StandProduct[]
   orders      Order[]
+  orderItems  OrderItem[]
   deliveries  OrderItemDelivery[]
 
   @@map("stands")
@@ -70,6 +72,20 @@ model StandOperator {
 
   @@id([standId, userId])
   @@map("stand_operators")
+}
+
+model StandProduct {
+  standId   String   @map("stand_id")
+  productId String   @map("product_id")
+  isActive  Boolean  @default(true) @map("is_active")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  stand   Stand   @relation(fields: [standId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([standId, productId])
+  @@map("stand_products")
 }
 
 // ============================================
@@ -91,6 +107,7 @@ model Product {
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   stand          Stand?                 @relation(fields: [standId], references: [id])
+  standCatalog   StandProduct[]
   sizes          ProductSize[]
   modifierGroups ProductModifierGroup[]
   comboItems     ComboItem[]
@@ -273,6 +290,7 @@ model OrderItem {
   productId     String  @map("product_id")
   productSizeId String? @map("product_size_id")
   comboId       String? @map("combo_id")
+  standId       String? @map("stand_id")
   quantity      Int     @default(1)
   unitPrice     Decimal @map("unit_price") @db.Decimal(10, 2)
   subtotal      Decimal @db.Decimal(10, 2)
@@ -281,6 +299,7 @@ model OrderItem {
   product     Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
   productSize ProductSize? @relation(fields: [productSizeId], references: [id], onDelete: Restrict)
   combo       Combo?       @relation(fields: [comboId], references: [id], onDelete: Restrict)
+  stand       Stand?       @relation(fields: [standId], references: [id], onDelete: Restrict)
   modifiers   OrderItemModifier[]
   deliveries  OrderItemDelivery[]
 

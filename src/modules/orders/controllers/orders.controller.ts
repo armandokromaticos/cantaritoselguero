@@ -6,9 +6,10 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Role } from "../../../core/domain/enums/role.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
@@ -54,12 +55,14 @@ export class OrdersController {
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.USER)
-  @ApiOperation({ summary: "Listar ordenes (propias o todas para ADMIN)" })
+  @Roles(Role.ADMIN, Role.USER, Role.STAND_OPERATOR)
+  @ApiOperation({ summary: "Listar ordenes (propias, por stand, o todas para ADMIN)" })
+  @ApiQuery({ name: "standId", required: false, type: String, description: "Filtrar por stand" })
   async findAllOrders(
     @CurrentUser() user: { id: string; role: Role },
+    @Query("standId") standId?: string,
   ): Promise<OrderResponseDto[]> {
-    const entities = await this.getOrdersUseCase.execute(user.id, user.role);
+    const entities = await this.getOrdersUseCase.execute(user.id, user.role, standId);
     return entities.map((order) => order.toResponseDto());
   }
 
