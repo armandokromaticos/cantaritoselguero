@@ -164,6 +164,7 @@ model ProductModifier {
 
   group              ProductModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   orderItemModifiers OrderItemModifier[]
+  tags               ProductModifierTag[]
 
   @@map("product_modifiers")
 }
@@ -390,7 +391,8 @@ model Tag {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  products ProductTag[]
+  products  ProductTag[]
+  modifiers ProductModifierTag[]
 
   @@map("tags")
 }
@@ -404,6 +406,17 @@ model ProductTag {
 
   @@id([productId, tagId])
   @@map("product_tags")
+}
+
+model ProductModifierTag {
+  modifierId String @map("modifier_id")
+  tagId      String @map("tag_id")
+
+  modifier ProductModifier @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+  tag      Tag             @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([modifierId, tagId])
+  @@map("product_modifier_tags")
 }
 
 // ============================================

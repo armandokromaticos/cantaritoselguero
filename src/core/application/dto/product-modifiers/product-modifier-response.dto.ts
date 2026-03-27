@@ -1,4 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { TagResponseDto } from "../tags/tag-response.dto";
 
 export class ProductModifierResponseDto {
   @ApiProperty()
@@ -21,4 +22,7 @@ export class ProductModifierResponseDto {
 
   @ApiProperty()
   sortOrder: number;
+
+  @ApiPropertyOptional({ type: () => [TagResponseDto] })
+  tags?: TagResponseDto[];
 }

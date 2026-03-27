@@ -87,6 +87,8 @@ import { UpdateProductModifierGroupUseCase } from "../../../core/application/use
 import { CreateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/create-product-modifier.use-case";
 import { GetProductModifiersUseCase } from "../../../core/application/use-cases/product-modifiers/get-product-modifiers.use-case";
 import { UpdateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/update-product-modifier.use-case";
+import { AssignTagsToModifierUseCase } from "../../../core/application/use-cases/product-modifiers/assign-tags-to-modifier.use-case";
+import { RemoveTagFromModifierUseCase } from "../../../core/application/use-cases/product-modifiers/remove-tag-from-modifier.use-case";
 
 @ApiTags("Products")
 @ApiBearerAuth()
@@ -113,6 +115,8 @@ export class ProductsController {
     private readonly updateProductModifierUseCase: UpdateProductModifierUseCase,
     private readonly assignTagsToProductUseCase: AssignTagsToProductUseCase,
     private readonly removeTagFromProductUseCase: RemoveTagFromProductUseCase,
+    private readonly assignTagsToModifierUseCase: AssignTagsToModifierUseCase,
+    private readonly removeTagFromModifierUseCase: RemoveTagFromModifierUseCase,
     private readonly getProductStandsUseCase: GetProductStandsUseCase,
   ) {}
 
@@ -352,6 +356,29 @@ export class ProductsController {
   ): Promise<ProductModifierResponseDto> {
     const entity = await this.updateProductModifierUseCase.execute(id, dto);
     return entity.toResponseDto(lang);
+  }
+
+  // ── Modifier Tags ──
+
+  @Post(":productId/modifier-groups/:groupId/modifiers/:modifierId/tags")
+  @ApiOperation({ summary: "Asignar tags a modificador" })
+  async assignModifierTags(
+    @Param("modifierId", ParseUUIDPipe) modifierId: string,
+    @Body() dto: AssignTagsDto,
+  ): Promise<void> {
+    await this.assignTagsToModifierUseCase.execute(modifierId, dto.tagIds);
+  }
+
+  @Delete(
+    ":productId/modifier-groups/:groupId/modifiers/:modifierId/tags/:tagId",
+  )
+  @HttpCode(204)
+  @ApiOperation({ summary: "Quitar tag de modificador" })
+  async removeModifierTag(
+    @Param("modifierId", ParseUUIDPipe) modifierId: string,
+    @Param("tagId", ParseUUIDPipe) tagId: string,
+  ): Promise<void> {
+    await this.removeTagFromModifierUseCase.execute(modifierId, tagId);
   }
 
   // ── Product Tags ──

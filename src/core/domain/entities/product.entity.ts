@@ -13,10 +13,14 @@ import { ProductModifierGroupEntity } from "./product-modifier-group.entity";
 import { ProductModifierEntity } from "./product-modifier.entity";
 import { TagEntity } from "./tag.entity";
 
+type PrismaModifierWithTags = PrismaProductModifier & {
+  tags?: { tag: PrismaTag }[];
+};
+
 type PrismaProductWithRelations = PrismaProduct & {
   sizes?: PrismaProductSize[];
   modifierGroups?: (PrismaProductModifierGroup & {
-    modifiers: PrismaProductModifier[];
+    modifiers: PrismaModifierWithTags[];
   })[];
   tags?: { tag: PrismaTag }[];
 };

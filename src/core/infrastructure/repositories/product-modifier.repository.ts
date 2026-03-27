@@ -32,6 +32,19 @@ export class ProductModifierRepository implements IProductModifierRepository {
     );
   }
 
+  async assignTags(modifierId: string, tagIds: string[]): Promise<void> {
+    await this.prisma.productModifierTag.createMany({
+      data: tagIds.map((tagId) => ({ modifierId, tagId })),
+      skipDuplicates: true,
+    });
+  }
+
+  async removeTag(modifierId: string, tagId: string): Promise<void> {
+    await this.prisma.productModifierTag.delete({
+      where: { modifierId_tagId: { modifierId, tagId } },
+    });
+  }
+
   async update(
     id: string,
     entity: Partial<ProductModifierEntity>,
