@@ -20,6 +20,16 @@ export class CreateProductSizeDto {
   @IsString()
   nameEn?: string;
 
+  @ApiPropertyOptional({ example: "Descripción del tamaño" })
+  @IsOptional()
+  @IsString()
+  descriptionEs?: string;
+
+  @ApiPropertyOptional({ example: "Size description" })
+  @IsOptional()
+  @IsString()
+  descriptionEn?: string;
+
   @ApiProperty({ example: 55.0 })
   @IsNumber()
   @Min(0)

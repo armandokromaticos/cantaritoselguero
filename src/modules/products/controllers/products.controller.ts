@@ -89,6 +89,8 @@ import { GetProductModifiersUseCase } from "../../../core/application/use-cases/
 import { UpdateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/update-product-modifier.use-case";
 import { AssignTagsToModifierUseCase } from "../../../core/application/use-cases/product-modifiers/assign-tags-to-modifier.use-case";
 import { RemoveTagFromModifierUseCase } from "../../../core/application/use-cases/product-modifiers/remove-tag-from-modifier.use-case";
+import { SetModifierSizePricesUseCase } from "../../../core/application/use-cases/product-modifiers/set-modifier-size-prices.use-case";
+import { SetModifierSizePricesDto } from "../../../core/application/dto/product-modifiers/set-modifier-size-prices.dto";
 
 @ApiTags("Products")
 @ApiBearerAuth()
@@ -117,6 +119,7 @@ export class ProductsController {
     private readonly removeTagFromProductUseCase: RemoveTagFromProductUseCase,
     private readonly assignTagsToModifierUseCase: AssignTagsToModifierUseCase,
     private readonly removeTagFromModifierUseCase: RemoveTagFromModifierUseCase,
+    private readonly setModifierSizePricesUseCase: SetModifierSizePricesUseCase,
     private readonly getProductStandsUseCase: GetProductStandsUseCase,
   ) {}
 
@@ -392,6 +395,26 @@ export class ProductsController {
       groupId,
       modifierId,
       tagId,
+    );
+  }
+
+  // ── Modifier Size Prices ──
+
+  @Patch(
+    ":productId/modifier-groups/:groupId/modifiers/:modifierId/size-prices",
+  )
+  @ApiOperation({ summary: "Asignar precios por tamaño a modificador" })
+  async setModifierSizePrices(
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("groupId", ParseUUIDPipe) groupId: string,
+    @Param("modifierId", ParseUUIDPipe) modifierId: string,
+    @Body() dto: SetModifierSizePricesDto,
+  ): Promise<void> {
+    await this.setModifierSizePricesUseCase.execute(
+      productId,
+      groupId,
+      modifierId,
+      dto,
     );
   }
 

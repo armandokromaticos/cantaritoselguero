@@ -121,7 +121,18 @@ export class CreateOrderUseCase {
               `ProductModifier ${modDto.modifierId} does not belong to product ${itemDto.productId}`,
             );
           }
-          const adj = modifier.priceAdjustment;
+          // Resolve price: size-specific override or default
+          let adj = modifier.priceAdjustment;
+          if (itemDto.productSizeId) {
+            const sizePrice =
+              await this.productModifierRepository.findSizePrice(
+                modDto.modifierId,
+                itemDto.productSizeId,
+              );
+            if (sizePrice !== null) {
+              adj = sizePrice;
+            }
+          }
           modifierTotal += adj;
           modifiers.push({
             modifierId: modDto.modifierId,

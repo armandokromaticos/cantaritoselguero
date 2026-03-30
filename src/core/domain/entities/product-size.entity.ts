@@ -7,6 +7,8 @@ interface ProductSizeProps {
   productId: string;
   nameEs: string;
   nameEn: string | null;
+  descriptionEs: string | null;
+  descriptionEn: string | null;
   price: number;
   stock: number | null;
   sortOrder: number;
@@ -33,6 +35,12 @@ export class ProductSizeEntity {
   get nameEn(): string | null {
     return this.props.nameEn;
   }
+  get descriptionEs(): string | null {
+    return this.props.descriptionEs;
+  }
+  get descriptionEn(): string | null {
+    return this.props.descriptionEn;
+  }
   get price(): number {
     return this.props.price;
   }
@@ -55,6 +63,8 @@ export class ProductSizeEntity {
       productId: prisma.productId,
       nameEs: prisma.nameEs,
       nameEn: prisma.nameEn,
+      descriptionEs: prisma.descriptionEs,
+      descriptionEn: prisma.descriptionEn,
       price: Number(prisma.price),
       stock: prisma.stock,
       sortOrder: prisma.sortOrder,
@@ -72,6 +82,8 @@ export class ProductSizeEntity {
       productId,
       nameEs: dto.nameEs.trim(),
       nameEn: dto.nameEn?.trim() || null,
+      descriptionEs: dto.descriptionEs?.trim() || null,
+      descriptionEn: dto.descriptionEn?.trim() || null,
       price: dto.price,
       stock: dto.stock ?? null,
       sortOrder: dto.sortOrder ?? 0,
@@ -84,6 +96,8 @@ export class ProductSizeEntity {
     const data: Record<string, unknown> = {};
     data.nameEs = this.props.nameEs;
     data.nameEn = this.props.nameEn;
+    data.descriptionEs = this.props.descriptionEs;
+    data.descriptionEn = this.props.descriptionEn;
     data.price = new Prisma.Decimal(this.props.price);
     data.stock = this.props.stock;
     data.sortOrder = this.props.sortOrder;
@@ -101,6 +115,10 @@ export class ProductSizeEntity {
       lang === "en"
         ? this.props.nameEn?.trim() || this.props.nameEs
         : this.props.nameEs;
+    dto.description =
+      lang === "en"
+        ? this.props.descriptionEn?.trim() || this.props.descriptionEs
+        : this.props.descriptionEs?.trim() || this.props.descriptionEn;
     dto.price = this.props.price;
     dto.stock = this.props.stock;
     dto.sortOrder = this.props.sortOrder;

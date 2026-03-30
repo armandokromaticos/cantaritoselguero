@@ -35,6 +35,10 @@ export class ProductSizeRepository implements IProductSizeRepository {
     const data: Record<string, unknown> = {};
     if (entity.nameEs !== undefined) data.nameEs = entity.nameEs;
     if (entity.nameEn !== undefined) data.nameEn = entity.nameEn;
+    if (entity.descriptionEs !== undefined)
+      data.descriptionEs = entity.descriptionEs;
+    if (entity.descriptionEn !== undefined)
+      data.descriptionEn = entity.descriptionEn;
     if (entity.price !== undefined) {
       data.price = new Prisma.Decimal(entity.price);
     }

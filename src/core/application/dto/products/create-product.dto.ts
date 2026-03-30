@@ -6,7 +6,6 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
   Min,
 } from "class-validator";
 
@@ -51,9 +50,4 @@ export class CreateProductDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  standId?: string;
 }

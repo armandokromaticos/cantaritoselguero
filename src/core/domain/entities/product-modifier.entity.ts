@@ -1,15 +1,25 @@
 import {
   ProductModifier as PrismaProductModifier,
+  ModifierSizePrice as PrismaModifierSizePrice,
   Tag as PrismaTag,
   Prisma,
 } from "@prisma/client";
 import { CreateProductModifierDto } from "../../application/dto/product-modifiers/create-product-modifier.dto";
-import { ProductModifierResponseDto } from "../../application/dto/product-modifiers/product-modifier-response.dto";
+import {
+  ProductModifierResponseDto,
+  ModifierSizePriceResponseDto,
+} from "../../application/dto/product-modifiers/product-modifier-response.dto";
 import { TagEntity } from "./tag.entity";
 
-type PrismaModifierWithTags = PrismaProductModifier & {
+type PrismaModifierWithRelations = PrismaProductModifier & {
   tags?: { tag: PrismaTag }[];
+  sizePrices?: PrismaModifierSizePrice[];
 };
+
+interface SizePriceInfo {
+  productSizeId: string;
+  priceAdjustment: number;
+}
 
 interface ProductModifierProps {
   id: string;
@@ -21,6 +31,7 @@ interface ProductModifierProps {
   isActive: boolean;
   sortOrder: number;
   tags?: TagEntity[];
+  sizePrices?: SizePriceInfo[];
 }
 
 export class ProductModifierEntity {
@@ -55,7 +66,9 @@ export class ProductModifierEntity {
     return this.props.sortOrder;
   }
 
-  static fromPrisma(prisma: PrismaModifierWithTags): ProductModifierEntity {
+  static fromPrisma(
+    prisma: PrismaModifierWithRelations,
+  ): ProductModifierEntity {
     return new ProductModifierEntity({
       id: prisma.id,
       groupId: prisma.groupId,
@@ -65,7 +78,13 @@ export class ProductModifierEntity {
       isDefault: prisma.isDefault,
       isActive: prisma.isActive,
       sortOrder: prisma.sortOrder,
-      tags: prisma.tags?.map((modifierTag) => TagEntity.fromPrisma(modifierTag.tag)),
+      tags: prisma.tags?.map((modifierTag) =>
+        TagEntity.fromPrisma(modifierTag.tag),
+      ),
+      sizePrices: prisma.sizePrices?.map((sizePrice) => ({
+        productSizeId: sizePrice.productSizeId,
+        priceAdjustment: Number(sizePrice.priceAdjustment),
+      })),
     });
   }
 
@@ -111,6 +130,14 @@ export class ProductModifierEntity {
     dto.sortOrder = this.props.sortOrder;
     if (this.props.tags) {
       dto.tags = this.props.tags.map((tag) => tag.toResponseDto(lang));
+    }
+    if (this.props.sizePrices) {
+      dto.sizePrices = this.props.sizePrices.map((sizePrice) => {
+        const spDto = new ModifierSizePriceResponseDto();
+        spDto.productSizeId = sizePrice.productSizeId;
+        spDto.priceAdjustment = sizePrice.priceAdjustment;
+        return spDto;
+      });
     }
     return dto;
   }
