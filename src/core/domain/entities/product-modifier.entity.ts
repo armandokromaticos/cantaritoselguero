@@ -65,7 +65,7 @@ export class ProductModifierEntity {
       isDefault: prisma.isDefault,
       isActive: prisma.isActive,
       sortOrder: prisma.sortOrder,
-      tags: prisma.tags?.map((mt) => TagEntity.fromPrisma(mt.tag)),
+      tags: prisma.tags?.map((modifierTag) => TagEntity.fromPrisma(modifierTag.tag)),
     });
   }
 
