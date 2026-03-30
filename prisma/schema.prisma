@@ -54,7 +54,9 @@ model Stand {
 
   operators   StandOperator[]
   products    Product[]
+  catalog     StandProduct[]
   orders      Order[]
+  orderItems  OrderItem[]
   deliveries  OrderItemDelivery[]
 
   @@map("stands")
@@ -70,6 +72,22 @@ model StandOperator {
 
   @@id([standId, userId])
   @@map("stand_operators")
+}
+
+model StandProduct {
+  standId   String   @map("stand_id")
+  productId String   @map("product_id")
+  isActive  Boolean  @default(true) @map("is_active")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  stand   Stand   @relation(fields: [standId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([standId, productId])
+  @@index([productId])
+  @@index([standId])
+  @@map("stand_products")
 }
 
 // ============================================
@@ -91,6 +109,7 @@ model Product {
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   stand          Stand?                 @relation(fields: [standId], references: [id])
+  standCatalog   StandProduct[]
   sizes          ProductSize[]
   modifierGroups ProductModifierGroup[]
   comboItems     ComboItem[]
@@ -147,6 +166,7 @@ model ProductModifier {
 
   group              ProductModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   orderItemModifiers OrderItemModifier[]
+  tags               ProductModifierTag[]
 
   @@map("product_modifiers")
 }
@@ -273,6 +293,7 @@ model OrderItem {
   productId     String  @map("product_id")
   productSizeId String? @map("product_size_id")
   comboId       String? @map("combo_id")
+  standId       String? @map("stand_id")
   quantity      Int     @default(1)
   unitPrice     Decimal @map("unit_price") @db.Decimal(10, 2)
   subtotal      Decimal @db.Decimal(10, 2)
@@ -281,10 +302,12 @@ model OrderItem {
   product     Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
   productSize ProductSize? @relation(fields: [productSizeId], references: [id], onDelete: Restrict)
   combo       Combo?       @relation(fields: [comboId], references: [id], onDelete: Restrict)
+  stand       Stand?       @relation(fields: [standId], references: [id], onDelete: Restrict)
   modifiers   OrderItemModifier[]
   deliveries  OrderItemDelivery[]
 
   @@index([orderId])
+  @@index([standId])
   @@map("order_items")
 }
 
@@ -371,7 +394,8 @@ model Tag {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  products ProductTag[]
+  products  ProductTag[]
+  modifiers ProductModifierTag[]
 
   @@map("tags")
 }
@@ -385,6 +409,17 @@ model ProductTag {
 
   @@id([productId, tagId])
   @@map("product_tags")
+}
+
+model ProductModifierTag {
+  modifierId String @map("modifier_id")
+  tagId      String @map("tag_id")
+
+  modifier ProductModifier @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+  tag      Tag             @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([modifierId, tagId])
+  @@map("product_modifier_tags")
 }
 
 // ============================================

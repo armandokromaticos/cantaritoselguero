@@ -12,4 +12,6 @@ export interface IProductModifierRepository {
     id: string,
     entity: Partial<ProductModifierEntity>,
   ): Promise<ProductModifierEntity>;
+  assignTags(modifierId: string, tagIds: string[]): Promise<void>;
+  removeTag(modifierId: string, tagId: string): Promise<void>;
 }

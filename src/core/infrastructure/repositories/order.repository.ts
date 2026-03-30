@@ -1,7 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../database/prisma/prisma.service";
-import { IOrderRepository } from "../../domain/repositories/order.repository.interface";
+import {
+  IOrderRepository,
+  OrderFilters,
+  PendingOrderGroup,
+} from "../../domain/repositories/order.repository.interface";
 import { OrderEntity } from "../../domain/entities/order.entity";
 import { OrderStatus } from "../../domain/enums/order-status.enum";
 
@@ -57,9 +61,37 @@ export class OrderRepository implements IOrderRepository {
     return orders.map((order) => OrderEntity.fromPrisma(order));
   }
 
-  async findAll(): Promise<OrderEntity[]> {
+  async findAll(filters?: OrderFilters): Promise<OrderEntity[]> {
+    const where: Record<string, unknown> = {};
+
+    if (filters?.userId) {
+      where.userId = filters.userId;
+    }
+
+    if (filters?.status && filters.status.length > 0) {
+      where.status = { in: filters.status };
+    }
+
+    const standFilter = filters?.standId
+      ? filters.standId
+      : filters?.standIds && filters.standIds.length > 0
+        ? { in: filters.standIds }
+        : undefined;
+
+    if (standFilter) {
+      where.items = { some: { standId: standFilter } };
+    }
+
+    const itemsInclude = standFilter
+      ? {
+          where: { standId: standFilter },
+          include: { modifiers: true, deliveries: true },
+        }
+      : { include: { modifiers: true, deliveries: true } };
+
     const orders = await this.prisma.order.findMany({
-      include: OrderRepository.ORDER_INCLUDE,
+      where,
+      include: { items: itemsInclude },
       orderBy: { createdAt: "desc" },
     });
     return orders.map((order) => OrderEntity.fromPrisma(order));
@@ -82,5 +114,83 @@ export class OrderRepository implements IOrderRepository {
     await this.prisma.orderItemDelivery.create({
       data: { orderItemId, standId, deliveredByUserId },
     });
+  }
+
+  async findPendingByStand(standId: string): Promise<OrderEntity[]> {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        status: { in: [OrderStatus.PAID, OrderStatus.PARTIAL] },
+        items: {
+          some: {
+            standId,
+            deliveries: { none: {} },
+          },
+        },
+      },
+      include: {
+        items: {
+          where: {
+            standId,
+            deliveries: { none: {} },
+          },
+          include: {
+            modifiers: true,
+            deliveries: true,
+            product: true,
+            productSize: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+    return orders.map((order) => OrderEntity.fromPrisma(order));
+  }
+
+  async findPendingItemsByStand(standId: string): Promise<PendingOrderGroup[]> {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        status: { in: [OrderStatus.PAID, OrderStatus.PARTIAL] },
+        items: {
+          some: {
+            standId,
+            deliveries: { none: {} },
+          },
+        },
+      },
+      include: {
+        items: {
+          where: {
+            standId,
+            deliveries: { none: {} },
+          },
+          include: {
+            product: true,
+            productSize: true,
+            modifiers: {
+              include: { modifier: true },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+
+    return orders.map((order) => ({
+      orderId: order.id,
+      shortCode: order.shortCode,
+      qrCode: order.qrCode,
+      createdAt: order.createdAt,
+      items: order.items.map((item) => ({
+        itemId: item.id,
+        productNameEs: item.product.nameEs,
+        productNameEn: item.product.nameEn,
+        sizeName: item.productSize?.nameEs ?? null,
+        quantity: item.quantity,
+        modifiers: item.modifiers.map((mod) => ({
+          nameEs: mod.modifier.nameEs,
+          nameEn: mod.modifier.nameEn,
+        })),
+      })),
+    }));
   }
 }

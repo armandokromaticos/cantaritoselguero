@@ -9,4 +9,5 @@ export interface IStandRepository {
   update(id: string, entity: Partial<StandEntity>): Promise<StandEntity>;
   addOperator(standId: string, userId: string): Promise<StandEntity>;
   removeOperator(standId: string, userId: string): Promise<StandEntity>;
+  findStandIdsByOperator(userId: string): Promise<string[]>;
 }

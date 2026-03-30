@@ -20,6 +20,8 @@ import type { IComboRepository } from "../../../domain/repositories/combo.reposi
 import { COMBO_REPOSITORY } from "../../../domain/repositories/combo.repository.interface";
 import type { ICouponRepository } from "../../../domain/repositories/coupon.repository.interface";
 import { COUPON_REPOSITORY } from "../../../domain/repositories/coupon.repository.interface";
+import type { IStandProductRepository } from "../../../domain/repositories/stand-product.repository.interface";
+import { STAND_PRODUCT_REPOSITORY } from "../../../domain/repositories/stand-product.repository.interface";
 import { CreateOrderDto } from "../../dto/orders/create-order.dto";
 import {
   OrderEntity,
@@ -54,6 +56,8 @@ export class CreateOrderUseCase {
     private readonly comboRepository: IComboRepository,
     @Inject(COUPON_REPOSITORY)
     private readonly couponRepository: ICouponRepository,
+    @Inject(STAND_PRODUCT_REPOSITORY)
+    private readonly standProductRepository: IStandProductRepository,
   ) {}
 
   async execute(userId: string, dto: CreateOrderDto): Promise<OrderEntity> {
@@ -129,10 +133,19 @@ export class CreateOrderUseCase {
       const subtotal =
         Math.round((unitPrice + modifierTotal) * itemDto.quantity * 100) / 100;
 
+      // Resolve standId for the item
+      const resolvedStandId = await this.resolveItemStandId(
+        itemDto.standId,
+        itemDto.productId,
+        itemDto.comboId,
+        dto.standId,
+      );
+
       items.push({
         productId: itemDto.productId,
         productSizeId: itemDto.productSizeId,
         comboId: itemDto.comboId,
+        standId: resolvedStandId,
         quantity: itemDto.quantity,
         unitPrice,
         subtotal,
@@ -207,6 +220,55 @@ export class CreateOrderUseCase {
 
     throw new BadRequestException(
       "Failed to generate unique shortCode after multiple attempts",
+    );
+  }
+
+  private async resolveItemStandId(
+    explicitStandId: string | undefined,
+    productId: string,
+    comboId: string | undefined,
+    orderStandId: string | undefined,
+  ): Promise<string | undefined> {
+    // Combos are delivered from the order-level stand
+    if (comboId) {
+      if (!orderStandId) {
+        throw new BadRequestException(
+          "A standId is required on the order when ordering combo items",
+        );
+      }
+      return orderStandId;
+    }
+
+    // Explicit stand: validate it's an active association in the product's catalog
+    if (explicitStandId) {
+      const isActive = await this.standProductRepository.existsActive(
+        explicitStandId,
+        productId,
+      );
+      if (!isActive) {
+        throw new BadRequestException(
+          `Stand ${explicitStandId} does not have product ${productId} active in its catalog`,
+        );
+      }
+      return explicitStandId;
+    }
+
+    // Auto-resolve: check how many stands serve this product
+    const standIds =
+      await this.standProductRepository.findStandIdsForProduct(productId);
+
+    if (standIds.length === 0) {
+      // Global product, no stand assigned
+      return undefined;
+    }
+    if (standIds.length === 1) {
+      // Auto-assign the only stand
+      return standIds[0];
+    }
+
+    // Multiple stands: require explicit selection
+    throw new BadRequestException(
+      `Product ${productId} is available at multiple stands. Please specify a standId for this item.`,
     );
   }
 }

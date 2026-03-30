@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { AuthModule } from "../auth/auth.module";
 import { CouponsModule } from "../coupons/coupons.module";
+import { StandsModule } from "../stands/stands.module";
 import { OrdersController } from "./controllers/orders.controller";
 import { ORDER_REPOSITORY } from "../../core/domain/repositories/order.repository.interface";
 import { OrderRepository } from "../../core/infrastructure/repositories/order.repository";
@@ -22,11 +23,9 @@ import { GetOrderByQrUseCase } from "../../core/application/use-cases/orders/get
 import { GetOrderByCodeUseCase } from "../../core/application/use-cases/orders/get-order-by-code.use-case";
 import { UpdateOrderStatusUseCase } from "../../core/application/use-cases/orders/update-order-status.use-case";
 import { DeliverOrderItemUseCase } from "../../core/application/use-cases/orders/deliver-order-item.use-case";
-import { STAND_REPOSITORY } from "../../core/domain/repositories/stand.repository.interface";
-import { StandRepository } from "../../core/infrastructure/repositories/stand.repository";
 
 @Module({
-  imports: [AuthModule, CouponsModule],
+  imports: [AuthModule, CouponsModule, StandsModule],
   controllers: [OrdersController],
   providers: [
     { provide: ORDER_REPOSITORY, useClass: OrderRepository },
@@ -41,7 +40,6 @@ import { StandRepository } from "../../core/infrastructure/repositories/stand.re
       useClass: ProductModifierGroupRepository,
     },
     { provide: COMBO_REPOSITORY, useClass: ComboRepository },
-    { provide: STAND_REPOSITORY, useClass: StandRepository },
     CreateOrderUseCase,
     GetOrderUseCase,
     GetOrdersUseCase,

@@ -1,9 +1,15 @@
 import {
   ProductModifier as PrismaProductModifier,
+  Tag as PrismaTag,
   Prisma,
 } from "@prisma/client";
 import { CreateProductModifierDto } from "../../application/dto/product-modifiers/create-product-modifier.dto";
 import { ProductModifierResponseDto } from "../../application/dto/product-modifiers/product-modifier-response.dto";
+import { TagEntity } from "./tag.entity";
+
+type PrismaModifierWithTags = PrismaProductModifier & {
+  tags?: { tag: PrismaTag }[];
+};
 
 interface ProductModifierProps {
   id: string;
@@ -14,6 +20,7 @@ interface ProductModifierProps {
   isDefault: boolean;
   isActive: boolean;
   sortOrder: number;
+  tags?: TagEntity[];
 }
 
 export class ProductModifierEntity {
@@ -48,7 +55,7 @@ export class ProductModifierEntity {
     return this.props.sortOrder;
   }
 
-  static fromPrisma(prisma: PrismaProductModifier): ProductModifierEntity {
+  static fromPrisma(prisma: PrismaModifierWithTags): ProductModifierEntity {
     return new ProductModifierEntity({
       id: prisma.id,
       groupId: prisma.groupId,
@@ -58,6 +65,7 @@ export class ProductModifierEntity {
       isDefault: prisma.isDefault,
       isActive: prisma.isActive,
       sortOrder: prisma.sortOrder,
+      tags: prisma.tags?.map((modifierTag) => TagEntity.fromPrisma(modifierTag.tag)),
     });
   }
 
@@ -101,6 +109,9 @@ export class ProductModifierEntity {
     dto.isDefault = this.props.isDefault;
     dto.isActive = this.props.isActive;
     dto.sortOrder = this.props.sortOrder;
+    if (this.props.tags) {
+      dto.tags = this.props.tags.map((tag) => tag.toResponseDto(lang));
+    }
     return dto;
   }
 }

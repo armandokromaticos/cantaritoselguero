@@ -17,7 +17,11 @@ export class ProductRepository implements IProductRepository {
   private static readonly PRODUCT_INCLUDE = {
     sizes: true,
     modifierGroups: {
-      include: { modifiers: true },
+      include: {
+        modifiers: {
+          include: { tags: { include: { tag: true } } },
+        },
+      },
     },
     tags: {
       include: { tag: true },

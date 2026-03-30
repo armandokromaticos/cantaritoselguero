@@ -8,6 +8,7 @@ import {
   HttpCode,
   Param,
   ParseEnumPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -68,6 +69,8 @@ import {
 } from "../../../core/application/use-cases/products/upload-product-image.use-case";
 import { AssignTagsToProductUseCase } from "../../../core/application/use-cases/products/assign-tags-to-product.use-case";
 import { RemoveTagFromProductUseCase } from "../../../core/application/use-cases/products/remove-tag-from-product.use-case";
+import { GetProductStandsUseCase } from "../../../core/application/use-cases/stand-catalog/get-product-stands.use-case";
+import { StandResponseDto } from "../../../core/application/dto/stands/stand-response.dto";
 
 // Use Cases - Sizes
 import { CreateProductSizeUseCase } from "../../../core/application/use-cases/product-sizes/create-product-size.use-case";
@@ -84,6 +87,8 @@ import { UpdateProductModifierGroupUseCase } from "../../../core/application/use
 import { CreateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/create-product-modifier.use-case";
 import { GetProductModifiersUseCase } from "../../../core/application/use-cases/product-modifiers/get-product-modifiers.use-case";
 import { UpdateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/update-product-modifier.use-case";
+import { AssignTagsToModifierUseCase } from "../../../core/application/use-cases/product-modifiers/assign-tags-to-modifier.use-case";
+import { RemoveTagFromModifierUseCase } from "../../../core/application/use-cases/product-modifiers/remove-tag-from-modifier.use-case";
 
 @ApiTags("Products")
 @ApiBearerAuth()
@@ -110,6 +115,9 @@ export class ProductsController {
     private readonly updateProductModifierUseCase: UpdateProductModifierUseCase,
     private readonly assignTagsToProductUseCase: AssignTagsToProductUseCase,
     private readonly removeTagFromProductUseCase: RemoveTagFromProductUseCase,
+    private readonly assignTagsToModifierUseCase: AssignTagsToModifierUseCase,
+    private readonly removeTagFromModifierUseCase: RemoveTagFromModifierUseCase,
+    private readonly getProductStandsUseCase: GetProductStandsUseCase,
   ) {}
 
   // ── Products ──
@@ -139,7 +147,12 @@ export class ProductsController {
     lang: Lang,
     @Query("tag") tagId?: string,
   ): Promise<ProductResponseDto[]> {
-    if (tagId && !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tagId)) {
+    if (
+      tagId &&
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        tagId,
+      )
+    ) {
       throw new BadRequestException("tag must be a valid UUID");
     }
     const entities = await this.getProductsUseCase.execute(tagId);
@@ -345,6 +358,43 @@ export class ProductsController {
     return entity.toResponseDto(lang);
   }
 
+  // ── Modifier Tags ──
+
+  @Post(":productId/modifier-groups/:groupId/modifiers/:modifierId/tags")
+  @ApiOperation({ summary: "Asignar tags a modificador" })
+  async assignModifierTags(
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("groupId", ParseUUIDPipe) groupId: string,
+    @Param("modifierId", ParseUUIDPipe) modifierId: string,
+    @Body() dto: AssignTagsDto,
+  ): Promise<void> {
+    await this.assignTagsToModifierUseCase.execute(
+      productId,
+      groupId,
+      modifierId,
+      dto.tagIds,
+    );
+  }
+
+  @Delete(
+    ":productId/modifier-groups/:groupId/modifiers/:modifierId/tags/:tagId",
+  )
+  @HttpCode(204)
+  @ApiOperation({ summary: "Quitar tag de modificador" })
+  async removeModifierTag(
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("groupId", ParseUUIDPipe) groupId: string,
+    @Param("modifierId", ParseUUIDPipe) modifierId: string,
+    @Param("tagId", ParseUUIDPipe) tagId: string,
+  ): Promise<void> {
+    await this.removeTagFromModifierUseCase.execute(
+      productId,
+      groupId,
+      modifierId,
+      tagId,
+    );
+  }
+
   // ── Product Tags ──
 
   @Post(":id/tags")
@@ -371,5 +421,17 @@ export class ProductsController {
     @Param("tagId") tagId: string,
   ): Promise<void> {
     await this.removeTagFromProductUseCase.execute(id, tagId);
+  }
+
+  // ── Product Stands ──
+
+  @Get(":id/stands")
+  @Roles(Role.ADMIN, Role.CATALOG_MANAGER)
+  @ApiOperation({ summary: "Ver en qué stands está disponible un producto" })
+  async getProductStands(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<StandResponseDto[]> {
+    const stands = await this.getProductStandsUseCase.execute(id);
+    return stands.map((stand) => stand.toResponseDto());
   }
 }
