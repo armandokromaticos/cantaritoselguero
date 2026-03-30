@@ -7,6 +7,8 @@ import { PRODUCT_REPOSITORY } from "../../core/domain/repositories/product.repos
 import { ProductRepository } from "../../core/infrastructure/repositories/product.repository";
 import { STAND_PRODUCT_REPOSITORY } from "../../core/domain/repositories/stand-product.repository.interface";
 import { StandProductRepository } from "../../core/infrastructure/repositories/stand-product.repository";
+import { ORDER_REPOSITORY } from "../../core/domain/repositories/order.repository.interface";
+import { OrderRepository } from "../../core/infrastructure/repositories/order.repository";
 import { CreateStandUseCase } from "../../core/application/use-cases/stands/create-stand.use-case";
 import { GetStandUseCase } from "../../core/application/use-cases/stands/get-stand.use-case";
 import { GetStandsUseCase } from "../../core/application/use-cases/stands/get-stands.use-case";
@@ -26,6 +28,7 @@ import { GetStandPendingItemsUseCase } from "../../core/application/use-cases/st
     { provide: STAND_REPOSITORY, useClass: StandRepository },
     { provide: PRODUCT_REPOSITORY, useClass: ProductRepository },
     { provide: STAND_PRODUCT_REPOSITORY, useClass: StandProductRepository },
+    { provide: ORDER_REPOSITORY, useClass: OrderRepository },
     CreateStandUseCase,
     GetStandUseCase,
     GetStandsUseCase,

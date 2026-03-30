@@ -59,7 +59,7 @@ export class DeliverOrderItemUseCase {
     // If item has an assigned stand, validate delivery comes from that stand
     if (item.standId && item.standId !== standId) {
       throw new BadRequestException(
-        `OrderItem ${itemId} is assigned to stand ${item.standId}, cannot deliver from stand ${standId}`,
+        "OrderItem is assigned to a different stand and cannot be delivered from this stand",
       );
     }
 

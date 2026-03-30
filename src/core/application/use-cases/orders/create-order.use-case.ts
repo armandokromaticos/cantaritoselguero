@@ -231,18 +231,23 @@ export class CreateOrderUseCase {
   ): Promise<string | undefined> {
     // Combos are delivered from the order-level stand
     if (comboId) {
+      if (!orderStandId) {
+        throw new BadRequestException(
+          "A standId is required on the order when ordering combo items",
+        );
+      }
       return orderStandId;
     }
 
-    // Explicit stand: validate it's in the product's catalog
+    // Explicit stand: validate it's an active association in the product's catalog
     if (explicitStandId) {
-      const exists = await this.standProductRepository.exists(
+      const isActive = await this.standProductRepository.existsActive(
         explicitStandId,
         productId,
       );
-      if (!exists) {
+      if (!isActive) {
         throw new BadRequestException(
-          `Stand ${explicitStandId} does not have product ${productId} in its catalog`,
+          `Stand ${explicitStandId} does not have product ${productId} active in its catalog`,
         );
       }
       return explicitStandId;

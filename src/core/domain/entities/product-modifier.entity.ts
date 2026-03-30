@@ -56,7 +56,7 @@ export class ProductModifierEntity {
   }
 
   static fromPrisma(prisma: PrismaModifierWithTags): ProductModifierEntity {
-    const entity = new ProductModifierEntity({
+    return new ProductModifierEntity({
       id: prisma.id,
       groupId: prisma.groupId,
       nameEs: prisma.nameEs,
@@ -65,11 +65,8 @@ export class ProductModifierEntity {
       isDefault: prisma.isDefault,
       isActive: prisma.isActive,
       sortOrder: prisma.sortOrder,
+      tags: prisma.tags?.map((mt) => TagEntity.fromPrisma(mt.tag)),
     });
-    if (prisma.tags) {
-      entity.props.tags = prisma.tags.map((mt) => TagEntity.fromPrisma(mt.tag));
-    }
-    return entity;
   }
 
   static fromCreateDto(

@@ -85,6 +85,8 @@ model StandProduct {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@id([standId, productId])
+  @@index([productId])
+  @@index([standId])
   @@map("stand_products")
 }
 
@@ -305,6 +307,7 @@ model OrderItem {
   deliveries  OrderItemDelivery[]
 
   @@index([orderId])
+  @@index([standId])
   @@map("order_items")
 }
 

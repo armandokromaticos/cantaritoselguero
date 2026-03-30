@@ -20,7 +20,7 @@ export class StandCatalogItemDto {
   name: string;
 
   @ApiPropertyOptional({ nullable: true, type: String })
-  nameEs: string;
+  nameEs: string | null;
 
   @ApiPropertyOptional({ nullable: true, type: String })
   nameEn: string | null;

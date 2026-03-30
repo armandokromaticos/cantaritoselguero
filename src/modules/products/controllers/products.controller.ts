@@ -363,10 +363,17 @@ export class ProductsController {
   @Post(":productId/modifier-groups/:groupId/modifiers/:modifierId/tags")
   @ApiOperation({ summary: "Asignar tags a modificador" })
   async assignModifierTags(
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("groupId", ParseUUIDPipe) groupId: string,
     @Param("modifierId", ParseUUIDPipe) modifierId: string,
     @Body() dto: AssignTagsDto,
   ): Promise<void> {
-    await this.assignTagsToModifierUseCase.execute(modifierId, dto.tagIds);
+    await this.assignTagsToModifierUseCase.execute(
+      productId,
+      groupId,
+      modifierId,
+      dto.tagIds,
+    );
   }
 
   @Delete(
@@ -375,10 +382,17 @@ export class ProductsController {
   @HttpCode(204)
   @ApiOperation({ summary: "Quitar tag de modificador" })
   async removeModifierTag(
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("groupId", ParseUUIDPipe) groupId: string,
     @Param("modifierId", ParseUUIDPipe) modifierId: string,
     @Param("tagId", ParseUUIDPipe) tagId: string,
   ): Promise<void> {
-    await this.removeTagFromModifierUseCase.execute(modifierId, tagId);
+    await this.removeTagFromModifierUseCase.execute(
+      productId,
+      groupId,
+      modifierId,
+      tagId,
+    );
   }
 
   // ── Product Tags ──

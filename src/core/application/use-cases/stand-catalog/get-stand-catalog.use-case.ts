@@ -2,12 +2,14 @@ import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { IStandRepository } from "../../../domain/repositories/stand.repository.interface";
 import { STAND_REPOSITORY } from "../../../domain/repositories/stand.repository.interface";
 import type { IStandProductRepository } from "../../../domain/repositories/stand-product.repository.interface";
-import { STAND_PRODUCT_REPOSITORY } from "../../../domain/repositories/stand-product.repository.interface";
+import {
+  STAND_PRODUCT_REPOSITORY,
+  StandProductEntry,
+} from "../../../domain/repositories/stand-product.repository.interface";
 import {
   StandCatalogResponseDto,
   StandCatalogItemDto,
 } from "../../dto/stands/stand-catalog.dto";
-import { ProductEntity } from "../../../domain/entities/product.entity";
 
 @Injectable()
 export class GetStandCatalogUseCase {
@@ -28,7 +30,7 @@ export class GetStandCatalogUseCase {
       throw new NotFoundException(`Stand with id ${standId} not found`);
     }
 
-    const products = await this.standProductRepository.findByStand(
+    const entries = await this.standProductRepository.findByStand(
       standId,
       activeOnly,
     );
@@ -36,28 +38,32 @@ export class GetStandCatalogUseCase {
     const dto = new StandCatalogResponseDto();
     dto.standId = stand.id;
     dto.standName = stand.name;
-    dto.items = products.map((product) => this.toItemDto(product, lang));
+    dto.items = entries.map((entry) => this.toItemDto(entry, lang));
 
     return dto;
   }
 
   private toItemDto(
-    product: ProductEntity,
+    entry: StandProductEntry,
     lang: "es" | "en",
   ): StandCatalogItemDto {
+    const { product } = entry;
     const item = new StandCatalogItemDto();
     item.productId = product.id;
     item.nameEs = product.nameEs;
     item.nameEn = product.nameEn;
     item.name =
-      lang === "en" ? product.nameEn?.trim() || product.nameEs : product.nameEs;
+      lang === "en"
+        ? product.nameEn?.trim() || product.nameEs
+        : product.nameEs?.trim() || product.nameEn || product.nameEs;
     item.description =
       lang === "en"
         ? product.descriptionEn?.trim() || product.descriptionEs
-        : product.descriptionEs;
+        : product.descriptionEs?.trim() || product.descriptionEn;
     item.basePrice = product.basePrice;
     item.image = product.image;
-    item.isActive = product.isActive;
+    item.isActive = entry.isActive;
+    item.sortOrder = entry.sortOrder;
     return item;
   }
 }

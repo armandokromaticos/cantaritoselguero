@@ -5,8 +5,31 @@ export const ORDER_REPOSITORY = Symbol("ORDER_REPOSITORY");
 
 export interface OrderFilters {
   standId?: string;
+  standIds?: string[];
   userId?: string;
   status?: OrderStatus[];
+}
+
+export interface PendingItemModifier {
+  nameEs: string;
+  nameEn: string | null;
+}
+
+export interface PendingItem {
+  itemId: string;
+  productNameEs: string;
+  productNameEn: string | null;
+  sizeName: string | null;
+  quantity: number;
+  modifiers: PendingItemModifier[];
+}
+
+export interface PendingOrderGroup {
+  orderId: string;
+  shortCode: string;
+  qrCode: string;
+  createdAt: Date;
+  items: PendingItem[];
 }
 
 export interface IOrderRepository {
@@ -23,4 +46,5 @@ export interface IOrderRepository {
     deliveredByUserId: string,
   ): Promise<void>;
   findPendingByStand(standId: string): Promise<OrderEntity[]>;
+  findPendingItemsByStand(standId: string): Promise<PendingOrderGroup[]>;
 }

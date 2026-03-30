@@ -1,6 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../database/prisma/prisma.service";
-import { IStandProductRepository } from "../../domain/repositories/stand-product.repository.interface";
+import {
+  IStandProductRepository,
+  StandProductEntry,
+} from "../../domain/repositories/stand-product.repository.interface";
 import { ProductEntity } from "../../domain/entities/product.entity";
 import { StandEntity } from "../../domain/entities/stand.entity";
 
@@ -11,7 +14,11 @@ export class StandProductRepository implements IStandProductRepository {
   private static readonly PRODUCT_INCLUDE = {
     sizes: true,
     modifierGroups: {
-      include: { modifiers: true },
+      include: {
+        modifiers: {
+          include: { tags: { include: { tag: true } } },
+        },
+      },
     },
     tags: {
       include: { tag: true },
@@ -24,29 +31,26 @@ export class StandProductRepository implements IStandProductRepository {
     },
   };
 
-  async add(
-    standId: string,
-    productId: string,
-    sortOrder = 0,
-  ): Promise<void> {
+  async add(standId: string, productId: string, sortOrder = 0): Promise<void> {
     await this.prisma.standProduct.create({
       data: { standId, productId, sortOrder },
     });
   }
 
   async remove(standId: string, productId: string): Promise<void> {
-    await this.prisma.standProduct.delete({
-      where: { standId_productId: { standId, productId } },
+    await this.prisma.standProduct.deleteMany({
+      where: { standId, productId },
     });
   }
 
   async findByStand(
     standId: string,
     activeOnly = true,
-  ): Promise<ProductEntity[]> {
+  ): Promise<StandProductEntry[]> {
     const where: Record<string, unknown> = { standId };
     if (activeOnly) {
       where.isActive = true;
+      where.product = { isActive: true };
     }
 
     const entries = await this.prisma.standProduct.findMany({
@@ -59,12 +63,25 @@ export class StandProductRepository implements IStandProductRepository {
       },
     });
 
-    return entries.map((entry) => ProductEntity.fromPrisma(entry.product));
+    return entries.map((entry) => ({
+      product: ProductEntity.fromPrisma(entry.product),
+      sortOrder: entry.sortOrder,
+      isActive: entry.isActive,
+    }));
   }
 
-  async findByProduct(productId: string): Promise<StandEntity[]> {
+  async findByProduct(
+    productId: string,
+    activeOnly = true,
+  ): Promise<StandEntity[]> {
+    const where: Record<string, unknown> = { productId };
+    if (activeOnly) {
+      where.isActive = true;
+      where.stand = { isActive: true };
+    }
+
     const entries = await this.prisma.standProduct.findMany({
-      where: { productId, isActive: true },
+      where,
       include: {
         stand: {
           include: StandProductRepository.STAND_INCLUDE,
@@ -80,6 +97,13 @@ export class StandProductRepository implements IStandProductRepository {
       where: { standId_productId: { standId, productId } },
     });
     return entry !== null;
+  }
+
+  async existsActive(standId: string, productId: string): Promise<boolean> {
+    const entry = await this.prisma.standProduct.findUnique({
+      where: { standId_productId: { standId, productId } },
+    });
+    return entry !== null && entry.isActive;
   }
 
   async updateSortOrder(

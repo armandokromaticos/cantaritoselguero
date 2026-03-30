@@ -130,6 +130,7 @@ export class StandsController {
   }
 
   @Delete(":id/catalog/:productId")
+  @Roles(Role.ADMIN, Role.CATALOG_MANAGER)
   @ApiOperation({ summary: "Quitar producto del catálogo del stand" })
   async removeProductFromCatalog(
     @Param("id", ParseUUIDPipe) id: string,

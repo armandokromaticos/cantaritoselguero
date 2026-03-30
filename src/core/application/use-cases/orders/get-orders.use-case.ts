@@ -1,4 +1,9 @@
-import { Inject, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+} from "@nestjs/common";
 import type { IOrderRepository } from "../../../domain/repositories/order.repository.interface";
 import { ORDER_REPOSITORY } from "../../../domain/repositories/order.repository.interface";
 import type { IStandRepository } from "../../../domain/repositories/stand.repository.interface";
@@ -25,20 +30,28 @@ export class GetOrdersUseCase {
     }
 
     if (userRole === Role.STAND_OPERATOR) {
-      // If standId provided, use it; otherwise auto-detect from operator's stands
-      const filterStandId =
-        standId ?? (await this.resolveOperatorStandId(userId));
-      if (filterStandId) {
-        return this.orderRepository.findAll({ standId: filterStandId });
+      const operatorStandIds =
+        await this.standRepository.findStandIdsByOperator(userId);
+
+      if (operatorStandIds.length === 0) {
+        throw new BadRequestException(
+          "You are not assigned as an operator of any stand",
+        );
       }
-      return [];
+
+      if (standId) {
+        if (!operatorStandIds.includes(standId)) {
+          throw new ForbiddenException(
+            "You are not an operator of the requested stand",
+          );
+        }
+        return this.orderRepository.findAll({ standId });
+      }
+
+      // No specific stand requested: return orders across all operator stands
+      return this.orderRepository.findAll({ standIds: operatorStandIds });
     }
 
     return this.orderRepository.findByUserId(userId);
-  }
-
-  private async resolveOperatorStandId(userId: string): Promise<string | null> {
-    const standIds = await this.standRepository.findStandIdsByOperator(userId);
-    return standIds.length > 0 ? standIds[0] : null;
   }
 }

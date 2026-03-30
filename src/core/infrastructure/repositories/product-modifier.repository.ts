@@ -16,9 +16,14 @@ export class ProductModifierRepository implements IProductModifierRepository {
     return ProductModifierEntity.fromPrisma(modifier);
   }
 
+  private static readonly MODIFIER_INCLUDE = {
+    tags: { include: { tag: true } },
+  };
+
   async findById(id: string): Promise<ProductModifierEntity | null> {
     const modifier = await this.prisma.productModifier.findUnique({
       where: { id },
+      include: ProductModifierRepository.MODIFIER_INCLUDE,
     });
     return modifier ? ProductModifierEntity.fromPrisma(modifier) : null;
   }
@@ -26,6 +31,7 @@ export class ProductModifierRepository implements IProductModifierRepository {
   async findByGroupId(groupId: string): Promise<ProductModifierEntity[]> {
     const modifiers = await this.prisma.productModifier.findMany({
       where: { groupId },
+      include: ProductModifierRepository.MODIFIER_INCLUDE,
     });
     return modifiers.map((modifier) =>
       ProductModifierEntity.fromPrisma(modifier),

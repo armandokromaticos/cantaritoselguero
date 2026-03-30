@@ -2,21 +2,38 @@ import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import type { IProductModifierRepository } from "../../../domain/repositories/product-modifier.repository.interface";
 import { PRODUCT_MODIFIER_REPOSITORY } from "../../../domain/repositories/product-modifier.repository.interface";
+import type { IProductModifierGroupRepository } from "../../../domain/repositories/product-modifier-group.repository.interface";
+import { PRODUCT_MODIFIER_GROUP_REPOSITORY } from "../../../domain/repositories/product-modifier-group.repository.interface";
 
 @Injectable()
 export class RemoveTagFromModifierUseCase {
   constructor(
     @Inject(PRODUCT_MODIFIER_REPOSITORY)
     private readonly modifierRepository: IProductModifierRepository,
+    @Inject(PRODUCT_MODIFIER_GROUP_REPOSITORY)
+    private readonly groupRepository: IProductModifierGroupRepository,
   ) {}
 
-  async execute(modifierId: string, tagId: string): Promise<void> {
-    const existing = await this.modifierRepository.findById(modifierId);
-    if (!existing) {
+  async execute(
+    productId: string,
+    groupId: string,
+    modifierId: string,
+    tagId: string,
+  ): Promise<void> {
+    const group = await this.groupRepository.findById(groupId);
+    if (!group || group.productId !== productId) {
       throw new NotFoundException(
-        `Modifier with id ${modifierId} not found`,
+        `Modifier group with id ${groupId} not found for product ${productId}`,
       );
     }
+
+    const modifier = await this.modifierRepository.findById(modifierId);
+    if (!modifier || modifier.groupId !== groupId) {
+      throw new NotFoundException(
+        `Modifier with id ${modifierId} not found in group ${groupId}`,
+      );
+    }
+
     try {
       await this.modifierRepository.removeTag(modifierId, tagId);
     } catch (error) {
