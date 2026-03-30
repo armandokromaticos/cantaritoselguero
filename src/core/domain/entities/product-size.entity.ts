@@ -118,7 +118,7 @@ export class ProductSizeEntity {
     dto.description =
       lang === "en"
         ? this.props.descriptionEn?.trim() || this.props.descriptionEs
-        : this.props.descriptionEs?.trim() || this.props.descriptionEn;
+        : this.props.descriptionEs;
     dto.price = this.props.price;
     dto.stock = this.props.stock;
     dto.sortOrder = this.props.sortOrder;

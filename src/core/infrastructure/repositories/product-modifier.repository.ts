@@ -100,9 +100,9 @@ export class ProductModifierRepository implements IProductModifierRepository {
     const records = await this.prisma.modifierSizePrice.findMany({
       where: { modifierId },
     });
-    return records.map((r) => ({
-      productSizeId: r.productSizeId,
-      priceAdjustment: Number(r.priceAdjustment),
+    return records.map((record) => ({
+      productSizeId: record.productSizeId,
+      priceAdjustment: Number(record.priceAdjustment),
     }));
   }
 
@@ -114,5 +114,20 @@ export class ProductModifierRepository implements IProductModifierRepository {
       where: { modifierId_productSizeId: { modifierId, productSizeId } },
     });
     return record ? Number(record.priceAdjustment) : null;
+  }
+
+  async findSizePricesBatch(
+    modifierIds: string[],
+    productSizeId: string,
+  ): Promise<Map<string, number>> {
+    const records = await this.prisma.modifierSizePrice.findMany({
+      where: { modifierId: { in: modifierIds }, productSizeId },
+    });
+    return new Map(
+      records.map((record) => [
+        record.modifierId,
+        Number(record.priceAdjustment),
+      ]),
+    );
   }
 }

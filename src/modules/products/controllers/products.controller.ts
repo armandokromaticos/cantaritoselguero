@@ -403,6 +403,7 @@ export class ProductsController {
   @Patch(
     ":productId/modifier-groups/:groupId/modifiers/:modifierId/size-prices",
   )
+  @HttpCode(204)
   @ApiOperation({ summary: "Asignar precios por tamaño a modificador" })
   async setModifierSizePrices(
     @Param("productId", ParseUUIDPipe) productId: string,

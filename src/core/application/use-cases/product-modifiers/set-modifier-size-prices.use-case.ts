@@ -43,6 +43,23 @@ export class SetModifierSizePricesUseCase {
       );
     }
 
+    // Validate no duplicate productSizeIds
+    const sizeIdCounts = new Map<string, number>();
+    for (const entry of dto.sizePrices) {
+      sizeIdCounts.set(
+        entry.productSizeId,
+        (sizeIdCounts.get(entry.productSizeId) ?? 0) + 1,
+      );
+    }
+    const duplicates = [...sizeIdCounts.entries()]
+      .filter(([, count]) => count > 1)
+      .map(([id]) => id);
+    if (duplicates.length > 0) {
+      throw new BadRequestException(
+        `Duplicate productSizeId(s): ${duplicates.join(", ")}`,
+      );
+    }
+
     // Validate all size IDs belong to the same product
     const productSizes = await this.sizeRepository.findByProductId(productId);
     const validSizeIds = new Set(productSizes.map((s) => s.id));

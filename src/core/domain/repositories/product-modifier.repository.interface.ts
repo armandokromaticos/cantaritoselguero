@@ -28,4 +28,8 @@ export interface IProductModifierRepository {
     modifierId: string,
     productSizeId: string,
   ): Promise<number | null>;
+  findSizePricesBatch(
+    modifierIds: string[],
+    productSizeId: string,
+  ): Promise<Map<string, number>>;
 }
