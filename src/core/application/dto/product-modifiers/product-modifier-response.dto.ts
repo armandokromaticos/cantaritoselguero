@@ -29,11 +29,14 @@ export class ProductModifierResponseDto {
   isActive: boolean;
 
   @ApiProperty()
+  sizeRestricted: boolean;
+
+  @ApiProperty()
   sortOrder: number;
 
   @ApiPropertyOptional({ type: () => [TagResponseDto] })
   tags?: TagResponseDto[];
 
-  @ApiPropertyOptional({ type: () => [ModifierSizePriceResponseDto] })
-  sizePrices?: ModifierSizePriceResponseDto[];
+  @ApiProperty({ type: () => [ModifierSizePriceResponseDto] })
+  sizePrices: ModifierSizePriceResponseDto[];
 }

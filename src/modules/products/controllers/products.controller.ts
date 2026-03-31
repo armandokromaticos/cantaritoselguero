@@ -87,6 +87,7 @@ import { UpdateProductModifierGroupUseCase } from "../../../core/application/use
 import { CreateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/create-product-modifier.use-case";
 import { GetProductModifiersUseCase } from "../../../core/application/use-cases/product-modifiers/get-product-modifiers.use-case";
 import { UpdateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/update-product-modifier.use-case";
+import { DeleteProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/delete-product-modifier.use-case";
 import { AssignTagsToModifierUseCase } from "../../../core/application/use-cases/product-modifiers/assign-tags-to-modifier.use-case";
 import { RemoveTagFromModifierUseCase } from "../../../core/application/use-cases/product-modifiers/remove-tag-from-modifier.use-case";
 import { SetModifierSizePricesUseCase } from "../../../core/application/use-cases/product-modifiers/set-modifier-size-prices.use-case";
@@ -115,6 +116,7 @@ export class ProductsController {
     private readonly createProductModifierUseCase: CreateProductModifierUseCase,
     private readonly getProductModifiersUseCase: GetProductModifiersUseCase,
     private readonly updateProductModifierUseCase: UpdateProductModifierUseCase,
+    private readonly deleteProductModifierUseCase: DeleteProductModifierUseCase,
     private readonly assignTagsToProductUseCase: AssignTagsToProductUseCase,
     private readonly removeTagFromProductUseCase: RemoveTagFromProductUseCase,
     private readonly assignTagsToModifierUseCase: AssignTagsToModifierUseCase,
@@ -359,6 +361,21 @@ export class ProductsController {
   ): Promise<ProductModifierResponseDto> {
     const entity = await this.updateProductModifierUseCase.execute(id, dto);
     return entity.toResponseDto(lang);
+  }
+
+  @Delete(":productId/modifier-groups/:groupId/modifiers/:modifierId")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Eliminar modificador" })
+  async deleteModifier(
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("groupId", ParseUUIDPipe) groupId: string,
+    @Param("modifierId", ParseUUIDPipe) modifierId: string,
+  ): Promise<void> {
+    await this.deleteProductModifierUseCase.execute(
+      productId,
+      groupId,
+      modifierId,
+    );
   }
 
   // ── Modifier Tags ──

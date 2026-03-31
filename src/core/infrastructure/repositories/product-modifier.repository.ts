@@ -56,6 +56,10 @@ export class ProductModifierRepository implements IProductModifierRepository {
     });
   }
 
+  async delete(id: string): Promise<void> {
+    await this.prisma.productModifier.delete({ where: { id } });
+  }
+
   async update(
     id: string,
     entity: Partial<ProductModifierEntity>,
@@ -68,6 +72,8 @@ export class ProductModifierRepository implements IProductModifierRepository {
     }
     if (entity.isDefault !== undefined) data.isDefault = entity.isDefault;
     if (entity.isActive !== undefined) data.isActive = entity.isActive;
+    if (entity.sizeRestricted !== undefined)
+      data.sizeRestricted = entity.sizeRestricted;
     if (entity.sortOrder !== undefined) data.sortOrder = entity.sortOrder;
     if (entity.groupId !== undefined) {
       data.group = { connect: { id: entity.groupId } };

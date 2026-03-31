@@ -19,7 +19,10 @@ export class ProductRepository implements IProductRepository {
     modifierGroups: {
       include: {
         modifiers: {
-          include: { tags: { include: { tag: true } } },
+          include: {
+            tags: { include: { tag: true } },
+            sizePrices: true,
+          },
         },
       },
     },

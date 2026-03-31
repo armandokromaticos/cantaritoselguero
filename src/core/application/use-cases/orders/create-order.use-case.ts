@@ -130,6 +130,14 @@ export class CreateOrderUseCase {
               `ProductModifier ${modDto.modifierId} does not belong to product ${itemDto.productId}`,
             );
           }
+          // Validate size restriction
+          if (modifier.sizeRestricted && itemDto.productSizeId) {
+            if (!sizePricesMap.has(modDto.modifierId)) {
+              throw new BadRequestException(
+                `Modifier ${modDto.modifierId} is not available for the selected size`,
+              );
+            }
+          }
           // Resolve price: size-specific override or default
           const adj =
             sizePricesMap.get(modDto.modifierId) ?? modifier.priceAdjustment;

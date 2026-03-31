@@ -40,6 +40,7 @@ import { UpdateProductModifierGroupUseCase } from "../../core/application/use-ca
 import { CreateProductModifierUseCase } from "../../core/application/use-cases/product-modifiers/create-product-modifier.use-case";
 import { GetProductModifiersUseCase } from "../../core/application/use-cases/product-modifiers/get-product-modifiers.use-case";
 import { UpdateProductModifierUseCase } from "../../core/application/use-cases/product-modifiers/update-product-modifier.use-case";
+import { DeleteProductModifierUseCase } from "../../core/application/use-cases/product-modifiers/delete-product-modifier.use-case";
 import { AssignTagsToModifierUseCase } from "../../core/application/use-cases/product-modifiers/assign-tags-to-modifier.use-case";
 import { RemoveTagFromModifierUseCase } from "../../core/application/use-cases/product-modifiers/remove-tag-from-modifier.use-case";
 import { SetModifierSizePricesUseCase } from "../../core/application/use-cases/product-modifiers/set-modifier-size-prices.use-case";
@@ -75,6 +76,7 @@ import { GetProductStandsUseCase } from "../../core/application/use-cases/stand-
     CreateProductModifierUseCase,
     GetProductModifiersUseCase,
     UpdateProductModifierUseCase,
+    DeleteProductModifierUseCase,
     AssignTagsToModifierUseCase,
     RemoveTagFromModifierUseCase,
     SetModifierSizePricesUseCase,

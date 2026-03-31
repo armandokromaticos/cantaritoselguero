@@ -162,6 +162,7 @@ model ProductModifier {
   priceAdjustment Decimal @default(0) @map("price_adj") @db.Decimal(10, 2)
   isDefault       Boolean @default(false) @map("is_default")
   isActive        Boolean @default(true) @map("is_active")
+  sizeRestricted  Boolean @default(false) @map("size_restricted")
   sortOrder       Int     @default(0) @map("sort_order")
 
   group              ProductModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)

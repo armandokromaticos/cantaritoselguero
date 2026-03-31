@@ -3,6 +3,7 @@ import {
   ProductSize as PrismaProductSize,
   ProductModifierGroup as PrismaProductModifierGroup,
   ProductModifier as PrismaProductModifier,
+  ModifierSizePrice as PrismaModifierSizePrice,
   Tag as PrismaTag,
   Prisma,
 } from "@prisma/client";
@@ -15,6 +16,7 @@ import { TagEntity } from "./tag.entity";
 
 type PrismaModifierWithTags = PrismaProductModifier & {
   tags?: { tag: PrismaTag }[];
+  sizePrices?: PrismaModifierSizePrice[];
 };
 
 type PrismaProductWithRelations = PrismaProduct & {
