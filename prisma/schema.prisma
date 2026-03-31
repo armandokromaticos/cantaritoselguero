@@ -236,7 +236,8 @@ enum CouponType {
 model Coupon {
   id              String     @id @default(uuid())
   type            CouponType
-  name            String     @unique
+  nameEs          String     @unique @map("name_es")
+  nameEn          String?    @map("name_en")
   discountPercent Decimal    @map("discount_percent") @db.Decimal(5, 2)
   maxDiscount     Decimal    @map("max_discount") @db.Decimal(10, 2)
   totalQuantity   Int        @map("total_quantity")

@@ -27,16 +27,17 @@ export class UpdateCouponUseCase {
 
     const data: UpdateCouponParams = {};
 
-    if (dto.name !== undefined) {
-      const nameUpper = dto.name.toUpperCase();
+    if (dto.nameEs !== undefined) {
+      const nameUpper = dto.nameEs.toUpperCase();
       const existing = await this.couponRepository.findByName(nameUpper);
       if (existing && existing.id !== id) {
         throw new BadRequestException(
           `Coupon with name "${nameUpper}" already exists`,
         );
       }
-      data.name = nameUpper;
+      data.nameEs = nameUpper;
     }
+    if (dto.nameEn !== undefined) data.nameEn = dto.nameEn.toUpperCase();
     if (dto.discountPercent !== undefined)
       data.discountPercent = dto.discountPercent;
     if (dto.maxDiscount !== undefined) data.maxDiscount = dto.maxDiscount;

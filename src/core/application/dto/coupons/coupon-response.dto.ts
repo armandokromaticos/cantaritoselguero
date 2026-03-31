@@ -26,6 +26,12 @@ export class CouponResponseDto {
   name: string;
 
   @ApiProperty()
+  nameEs: string;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  nameEn: string | null;
+
+  @ApiProperty()
   discountPercent: number;
 
   @ApiProperty()

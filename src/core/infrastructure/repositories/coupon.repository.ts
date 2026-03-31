@@ -34,7 +34,7 @@ export class CouponRepository implements ICouponRepository {
 
   async findByName(name: string): Promise<CouponEntity | null> {
     const coupon = await this.prisma.coupon.findUnique({
-      where: { name },
+      where: { nameEs: name },
       include: CouponRepository.COUPON_INCLUDE,
     });
     return coupon ? CouponEntity.fromPrisma(coupon) : null;

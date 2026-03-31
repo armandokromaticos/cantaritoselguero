@@ -21,7 +21,12 @@ export class CreateCouponDto {
   @ApiProperty({ example: "VERANO2026" })
   @IsString()
   @MinLength(3)
-  name: string;
+  nameEs: string;
+
+  @ApiPropertyOptional({ example: "SUMMER2026" })
+  @IsOptional()
+  @IsString()
+  nameEn?: string;
 
   @ApiProperty({ example: 15.0, description: "Porcentaje de descuento" })
   @IsNumber()
