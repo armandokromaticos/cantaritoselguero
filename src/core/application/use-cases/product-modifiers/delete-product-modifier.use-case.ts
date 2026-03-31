@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import type { IProductModifierRepository } from "../../../domain/repositories/product-modifier.repository.interface";
 import { PRODUCT_MODIFIER_REPOSITORY } from "../../../domain/repositories/product-modifier.repository.interface";
 import type { IProductModifierGroupRepository } from "../../../domain/repositories/product-modifier-group.repository.interface";
@@ -32,6 +37,19 @@ export class DeleteProductModifierUseCase {
       );
     }
 
-    await this.modifierRepository.delete(modifierId);
+    try {
+      await this.modifierRepository.delete(modifierId);
+    } catch (error: unknown) {
+      if (
+        error instanceof Object &&
+        "code" in error &&
+        error.code === "P2003"
+      ) {
+        throw new ConflictException(
+          `Modifier with id ${modifierId} cannot be deleted because it is being used in orders`,
+        );
+      }
+      throw error;
+    }
   }
 }
