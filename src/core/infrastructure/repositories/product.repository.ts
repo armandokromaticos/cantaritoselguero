@@ -19,7 +19,10 @@ export class ProductRepository implements IProductRepository {
     modifierGroups: {
       include: {
         modifiers: {
-          include: { tags: { include: { tag: true } } },
+          include: {
+            tags: { include: { tag: true } },
+            sizePrices: true,
+          },
         },
       },
     },
@@ -62,11 +65,6 @@ export class ProductRepository implements IProductRepository {
     if (entity.image !== undefined) data.image = entity.image;
     if (entity.stock !== undefined) data.stock = entity.stock;
     if (entity.isActive !== undefined) data.isActive = entity.isActive;
-    if (entity.standId !== undefined) {
-      data.stand = entity.standId
-        ? { connect: { id: entity.standId } }
-        : { disconnect: true };
-    }
     const product = await this.prisma.product.update({
       where: { id },
       data: data as never,

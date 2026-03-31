@@ -3,6 +3,7 @@ import {
   ProductSize as PrismaProductSize,
   ProductModifierGroup as PrismaProductModifierGroup,
   ProductModifier as PrismaProductModifier,
+  ModifierSizePrice as PrismaModifierSizePrice,
   Tag as PrismaTag,
   Prisma,
 } from "@prisma/client";
@@ -15,6 +16,7 @@ import { TagEntity } from "./tag.entity";
 
 type PrismaModifierWithTags = PrismaProductModifier & {
   tags?: { tag: PrismaTag }[];
+  sizePrices?: PrismaModifierSizePrice[];
 };
 
 type PrismaProductWithRelations = PrismaProduct & {
@@ -35,7 +37,6 @@ interface ProductProps {
   image: string | null;
   stock: number | null;
   isActive: boolean;
-  standId: string | null;
   createdAt: Date;
   updatedAt: Date;
   sizes?: ProductSizeEntity[];
@@ -91,9 +92,6 @@ export class ProductEntity {
   get isActive(): boolean {
     return this.props.isActive;
   }
-  get standId(): string | null {
-    return this.props.standId;
-  }
   get createdAt(): Date {
     return this.props.createdAt;
   }
@@ -112,7 +110,6 @@ export class ProductEntity {
       image: prisma.image,
       stock: prisma.stock,
       isActive: prisma.isActive,
-      standId: prisma.standId,
       createdAt: prisma.createdAt,
       updatedAt: prisma.updatedAt,
     };
@@ -150,7 +147,6 @@ export class ProductEntity {
       image: dto.image ?? null,
       stock: dto.stock ?? null,
       isActive: dto.isActive ?? true,
-      standId: dto.standId ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -166,9 +162,6 @@ export class ProductEntity {
     data.image = this.props.image;
     data.stock = this.props.stock;
     data.isActive = this.props.isActive;
-    if (this.props.standId) {
-      data.stand = { connect: { id: this.props.standId } };
-    }
     return data;
   }
 
@@ -191,7 +184,6 @@ export class ProductEntity {
     dto.image = this.props.image;
     dto.stock = this.computedStock;
     dto.isActive = this.props.isActive;
-    dto.standId = this.props.standId;
     dto.createdAt = this.props.createdAt;
     dto.updatedAt = this.props.updatedAt;
 

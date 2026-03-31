@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ProductSizeResponseDto {
   @ApiProperty()
@@ -9,6 +9,9 @@ export class ProductSizeResponseDto {
 
   @ApiProperty()
   name: string;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  description: string | null;
 
   @ApiProperty()
   price: number;

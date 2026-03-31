@@ -1,6 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { TagResponseDto } from "../tags/tag-response.dto";
 
+export class ModifierSizePriceResponseDto {
+  @ApiProperty()
+  productSizeId: string;
+
+  @ApiProperty()
+  priceAdjustment: number;
+}
+
 export class ProductModifierResponseDto {
   @ApiProperty()
   id: string;
@@ -21,8 +29,14 @@ export class ProductModifierResponseDto {
   isActive: boolean;
 
   @ApiProperty()
+  sizeRestricted: boolean;
+
+  @ApiProperty()
   sortOrder: number;
 
   @ApiPropertyOptional({ type: () => [TagResponseDto] })
   tags?: TagResponseDto[];
+
+  @ApiProperty({ type: () => [ModifierSizePriceResponseDto] })
+  sizePrices: ModifierSizePriceResponseDto[];
 }

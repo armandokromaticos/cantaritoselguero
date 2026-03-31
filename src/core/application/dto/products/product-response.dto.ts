@@ -37,9 +37,6 @@ export class ProductResponseDto {
   @ApiProperty()
   isActive: boolean;
 
-  @ApiPropertyOptional({ nullable: true, type: String })
-  standId: string | null;
-
   @ApiProperty()
   createdAt: Date;
 

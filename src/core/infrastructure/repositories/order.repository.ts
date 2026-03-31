@@ -74,7 +74,7 @@ export class OrderRepository implements IOrderRepository {
 
     const standFilter = filters?.standId
       ? filters.standId
-      : filters?.standIds && filters.standIds.length > 0
+      : filters?.standIds
         ? { in: filters.standIds }
         : undefined;
 

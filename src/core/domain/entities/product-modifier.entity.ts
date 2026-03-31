@@ -1,15 +1,25 @@
 import {
   ProductModifier as PrismaProductModifier,
+  ModifierSizePrice as PrismaModifierSizePrice,
   Tag as PrismaTag,
   Prisma,
 } from "@prisma/client";
 import { CreateProductModifierDto } from "../../application/dto/product-modifiers/create-product-modifier.dto";
-import { ProductModifierResponseDto } from "../../application/dto/product-modifiers/product-modifier-response.dto";
+import {
+  ProductModifierResponseDto,
+  ModifierSizePriceResponseDto,
+} from "../../application/dto/product-modifiers/product-modifier-response.dto";
 import { TagEntity } from "./tag.entity";
 
-type PrismaModifierWithTags = PrismaProductModifier & {
+type PrismaModifierWithRelations = PrismaProductModifier & {
   tags?: { tag: PrismaTag }[];
+  sizePrices?: PrismaModifierSizePrice[];
 };
+
+interface SizePriceInfo {
+  productSizeId: string;
+  priceAdjustment: number;
+}
 
 interface ProductModifierProps {
   id: string;
@@ -19,8 +29,10 @@ interface ProductModifierProps {
   priceAdjustment: number;
   isDefault: boolean;
   isActive: boolean;
+  sizeRestricted: boolean;
   sortOrder: number;
   tags?: TagEntity[];
+  sizePrices?: SizePriceInfo[];
 }
 
 export class ProductModifierEntity {
@@ -51,11 +63,16 @@ export class ProductModifierEntity {
   get isActive(): boolean {
     return this.props.isActive;
   }
+  get sizeRestricted(): boolean {
+    return this.props.sizeRestricted;
+  }
   get sortOrder(): number {
     return this.props.sortOrder;
   }
 
-  static fromPrisma(prisma: PrismaModifierWithTags): ProductModifierEntity {
+  static fromPrisma(
+    prisma: PrismaModifierWithRelations,
+  ): ProductModifierEntity {
     return new ProductModifierEntity({
       id: prisma.id,
       groupId: prisma.groupId,
@@ -64,8 +81,15 @@ export class ProductModifierEntity {
       priceAdjustment: Number(prisma.priceAdjustment),
       isDefault: prisma.isDefault,
       isActive: prisma.isActive,
+      sizeRestricted: prisma.sizeRestricted,
       sortOrder: prisma.sortOrder,
-      tags: prisma.tags?.map((modifierTag) => TagEntity.fromPrisma(modifierTag.tag)),
+      tags: prisma.tags?.map((modifierTag) =>
+        TagEntity.fromPrisma(modifierTag.tag),
+      ),
+      sizePrices: prisma.sizePrices?.map((sizePrice) => ({
+        productSizeId: sizePrice.productSizeId,
+        priceAdjustment: Number(sizePrice.priceAdjustment),
+      })),
     });
   }
 
@@ -81,6 +105,7 @@ export class ProductModifierEntity {
       priceAdjustment: dto.priceAdjustment ?? 0,
       isDefault: dto.isDefault ?? false,
       isActive: dto.isActive ?? true,
+      sizeRestricted: dto.sizeRestricted ?? false,
       sortOrder: dto.sortOrder ?? 0,
     });
   }
@@ -92,6 +117,7 @@ export class ProductModifierEntity {
     data.priceAdjustment = new Prisma.Decimal(this.props.priceAdjustment);
     data.isDefault = this.props.isDefault;
     data.isActive = this.props.isActive;
+    data.sizeRestricted = this.props.sizeRestricted;
     data.sortOrder = this.props.sortOrder;
     data.group = { connect: { id: this.props.groupId } };
     return data;
@@ -108,10 +134,17 @@ export class ProductModifierEntity {
     dto.priceAdjustment = this.props.priceAdjustment;
     dto.isDefault = this.props.isDefault;
     dto.isActive = this.props.isActive;
+    dto.sizeRestricted = this.props.sizeRestricted;
     dto.sortOrder = this.props.sortOrder;
     if (this.props.tags) {
       dto.tags = this.props.tags.map((tag) => tag.toResponseDto(lang));
     }
+    dto.sizePrices = (this.props.sizePrices ?? []).map((sizePrice) => {
+      const sizePriceDto = new ModifierSizePriceResponseDto();
+      sizePriceDto.productSizeId = sizePrice.productSizeId;
+      sizePriceDto.priceAdjustment = sizePrice.priceAdjustment;
+      return sizePriceDto;
+    });
     return dto;
   }
 }

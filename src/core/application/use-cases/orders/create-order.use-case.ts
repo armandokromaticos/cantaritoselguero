@@ -104,6 +104,15 @@ export class CreateOrderUseCase {
       let modifierTotal = 0;
 
       if (itemDto.modifiers && itemDto.modifiers.length > 0) {
+        // Batch-load size-specific prices to avoid N+1 queries
+        const modifierIds = itemDto.modifiers.map((m) => m.modifierId);
+        const sizePricesMap = itemDto.productSizeId
+          ? await this.productModifierRepository.findSizePricesBatch(
+              modifierIds,
+              itemDto.productSizeId,
+            )
+          : new Map<string, number>();
+
         for (const modDto of itemDto.modifiers) {
           const modifier = await this.productModifierRepository.findById(
             modDto.modifierId,
@@ -121,7 +130,17 @@ export class CreateOrderUseCase {
               `ProductModifier ${modDto.modifierId} does not belong to product ${itemDto.productId}`,
             );
           }
-          const adj = modifier.priceAdjustment;
+          // Validate size restriction
+          if (modifier.sizeRestricted && itemDto.productSizeId) {
+            if (!sizePricesMap.has(modDto.modifierId)) {
+              throw new BadRequestException(
+                `Modifier ${modDto.modifierId} is not available for the selected size`,
+              );
+            }
+          }
+          // Resolve price: size-specific override or default
+          const adj =
+            sizePricesMap.get(modDto.modifierId) ?? modifier.priceAdjustment;
           modifierTotal += adj;
           modifiers.push({
             modifierId: modDto.modifierId,

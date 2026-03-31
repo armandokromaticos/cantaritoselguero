@@ -16,7 +16,10 @@ export class StandProductRepository implements IStandProductRepository {
     modifierGroups: {
       include: {
         modifiers: {
-          include: { tags: { include: { tag: true } } },
+          include: {
+            tags: { include: { tag: true } },
+            sizePrices: true,
+          },
         },
       },
     },

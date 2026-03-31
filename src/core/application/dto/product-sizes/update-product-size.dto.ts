@@ -22,6 +22,16 @@ export class UpdateProductSizeDto {
   @IsString()
   nameEn?: string;
 
+  @ApiPropertyOptional({ example: "Descripción del tamaño" })
+  @IsOptional()
+  @IsString()
+  descriptionEs?: string;
+
+  @ApiPropertyOptional({ example: "Size description" })
+  @IsOptional()
+  @IsString()
+  descriptionEn?: string;
+
   @ApiPropertyOptional({ example: 55.0 })
   @IsOptional()
   @IsNumber()

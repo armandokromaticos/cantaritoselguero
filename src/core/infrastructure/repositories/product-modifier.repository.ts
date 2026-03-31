@@ -1,24 +1,29 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../database/prisma/prisma.service";
-import { IProductModifierRepository } from "../../domain/repositories/product-modifier.repository.interface";
+import {
+  IProductModifierRepository,
+  ModifierSizePriceEntry,
+} from "../../domain/repositories/product-modifier.repository.interface";
 import { ProductModifierEntity } from "../../domain/entities/product-modifier.entity";
 
 @Injectable()
 export class ProductModifierRepository implements IProductModifierRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private static readonly MODIFIER_INCLUDE = {
+    tags: { include: { tag: true } },
+    sizePrices: true,
+  };
+
   async create(entity: ProductModifierEntity): Promise<ProductModifierEntity> {
     const data = entity.toPrismaCreate();
     const modifier = await this.prisma.productModifier.create({
       data: data as never,
+      include: ProductModifierRepository.MODIFIER_INCLUDE,
     });
     return ProductModifierEntity.fromPrisma(modifier);
   }
-
-  private static readonly MODIFIER_INCLUDE = {
-    tags: { include: { tag: true } },
-  };
 
   async findById(id: string): Promise<ProductModifierEntity | null> {
     const modifier = await this.prisma.productModifier.findUnique({
@@ -51,6 +56,10 @@ export class ProductModifierRepository implements IProductModifierRepository {
     });
   }
 
+  async delete(id: string): Promise<void> {
+    await this.prisma.productModifier.delete({ where: { id } });
+  }
+
   async update(
     id: string,
     entity: Partial<ProductModifierEntity>,
@@ -63,6 +72,8 @@ export class ProductModifierRepository implements IProductModifierRepository {
     }
     if (entity.isDefault !== undefined) data.isDefault = entity.isDefault;
     if (entity.isActive !== undefined) data.isActive = entity.isActive;
+    if (entity.sizeRestricted !== undefined)
+      data.sizeRestricted = entity.sizeRestricted;
     if (entity.sortOrder !== undefined) data.sortOrder = entity.sortOrder;
     if (entity.groupId !== undefined) {
       data.group = { connect: { id: entity.groupId } };
@@ -70,7 +81,59 @@ export class ProductModifierRepository implements IProductModifierRepository {
     const modifier = await this.prisma.productModifier.update({
       where: { id },
       data: data as never,
+      include: ProductModifierRepository.MODIFIER_INCLUDE,
     });
     return ProductModifierEntity.fromPrisma(modifier);
+  }
+
+  async setSizePrices(
+    modifierId: string,
+    entries: ModifierSizePriceEntry[],
+  ): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.modifierSizePrice.deleteMany({ where: { modifierId } }),
+      this.prisma.modifierSizePrice.createMany({
+        data: entries.map((entry) => ({
+          modifierId,
+          productSizeId: entry.productSizeId,
+          priceAdjustment: new Prisma.Decimal(entry.priceAdjustment),
+        })),
+      }),
+    ]);
+  }
+
+  async findSizePrices(modifierId: string): Promise<ModifierSizePriceEntry[]> {
+    const records = await this.prisma.modifierSizePrice.findMany({
+      where: { modifierId },
+    });
+    return records.map((record) => ({
+      productSizeId: record.productSizeId,
+      priceAdjustment: Number(record.priceAdjustment),
+    }));
+  }
+
+  async findSizePrice(
+    modifierId: string,
+    productSizeId: string,
+  ): Promise<number | null> {
+    const record = await this.prisma.modifierSizePrice.findUnique({
+      where: { modifierId_productSizeId: { modifierId, productSizeId } },
+    });
+    return record ? Number(record.priceAdjustment) : null;
+  }
+
+  async findSizePricesBatch(
+    modifierIds: string[],
+    productSizeId: string,
+  ): Promise<Map<string, number>> {
+    const records = await this.prisma.modifierSizePrice.findMany({
+      where: { modifierId: { in: modifierIds }, productSizeId },
+    });
+    return new Map(
+      records.map((record) => [
+        record.modifierId,
+        Number(record.priceAdjustment),
+      ]),
+    );
   }
 }

@@ -87,8 +87,11 @@ import { UpdateProductModifierGroupUseCase } from "../../../core/application/use
 import { CreateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/create-product-modifier.use-case";
 import { GetProductModifiersUseCase } from "../../../core/application/use-cases/product-modifiers/get-product-modifiers.use-case";
 import { UpdateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/update-product-modifier.use-case";
+import { DeleteProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/delete-product-modifier.use-case";
 import { AssignTagsToModifierUseCase } from "../../../core/application/use-cases/product-modifiers/assign-tags-to-modifier.use-case";
 import { RemoveTagFromModifierUseCase } from "../../../core/application/use-cases/product-modifiers/remove-tag-from-modifier.use-case";
+import { SetModifierSizePricesUseCase } from "../../../core/application/use-cases/product-modifiers/set-modifier-size-prices.use-case";
+import { SetModifierSizePricesDto } from "../../../core/application/dto/product-modifiers/set-modifier-size-prices.dto";
 
 @ApiTags("Products")
 @ApiBearerAuth()
@@ -113,10 +116,12 @@ export class ProductsController {
     private readonly createProductModifierUseCase: CreateProductModifierUseCase,
     private readonly getProductModifiersUseCase: GetProductModifiersUseCase,
     private readonly updateProductModifierUseCase: UpdateProductModifierUseCase,
+    private readonly deleteProductModifierUseCase: DeleteProductModifierUseCase,
     private readonly assignTagsToProductUseCase: AssignTagsToProductUseCase,
     private readonly removeTagFromProductUseCase: RemoveTagFromProductUseCase,
     private readonly assignTagsToModifierUseCase: AssignTagsToModifierUseCase,
     private readonly removeTagFromModifierUseCase: RemoveTagFromModifierUseCase,
+    private readonly setModifierSizePricesUseCase: SetModifierSizePricesUseCase,
     private readonly getProductStandsUseCase: GetProductStandsUseCase,
   ) {}
 
@@ -358,6 +363,21 @@ export class ProductsController {
     return entity.toResponseDto(lang);
   }
 
+  @Delete(":productId/modifier-groups/:groupId/modifiers/:modifierId")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Eliminar modificador" })
+  async deleteModifier(
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("groupId", ParseUUIDPipe) groupId: string,
+    @Param("modifierId", ParseUUIDPipe) modifierId: string,
+  ): Promise<void> {
+    await this.deleteProductModifierUseCase.execute(
+      productId,
+      groupId,
+      modifierId,
+    );
+  }
+
   // ── Modifier Tags ──
 
   @Post(":productId/modifier-groups/:groupId/modifiers/:modifierId/tags")
@@ -392,6 +412,27 @@ export class ProductsController {
       groupId,
       modifierId,
       tagId,
+    );
+  }
+
+  // ── Modifier Size Prices ──
+
+  @Patch(
+    ":productId/modifier-groups/:groupId/modifiers/:modifierId/size-prices",
+  )
+  @HttpCode(204)
+  @ApiOperation({ summary: "Asignar precios por tamaño a modificador" })
+  async setModifierSizePrices(
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("groupId", ParseUUIDPipe) groupId: string,
+    @Param("modifierId", ParseUUIDPipe) modifierId: string,
+    @Body() dto: SetModifierSizePricesDto,
+  ): Promise<void> {
+    await this.setModifierSizePricesUseCase.execute(
+      productId,
+      groupId,
+      modifierId,
+      dto,
     );
   }
 

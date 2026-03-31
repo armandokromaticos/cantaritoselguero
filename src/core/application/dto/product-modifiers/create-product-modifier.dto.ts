@@ -35,6 +35,11 @@ export class CreateProductModifierDto {
   @IsBoolean()
   isActive?: boolean;
 
+  @ApiPropertyOptional({ example: false })
+  @IsOptional()
+  @IsBoolean()
+  sizeRestricted?: boolean;
+
   @ApiPropertyOptional({ example: 0 })
   @IsOptional()
   @IsInt()

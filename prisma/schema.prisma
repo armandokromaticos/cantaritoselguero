@@ -53,7 +53,6 @@ model Stand {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   operators   StandOperator[]
-  products    Product[]
   catalog     StandProduct[]
   orders      Order[]
   orderItems  OrderItem[]
@@ -104,11 +103,9 @@ model Product {
   image         String?
   stock         Int?
   isActive      Boolean  @default(true) @map("is_active")
-  standId       String?  @map("stand_id")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  stand          Stand?                 @relation(fields: [standId], references: [id])
   standCatalog   StandProduct[]
   sizes          ProductSize[]
   modifierGroups ProductModifierGroup[]
@@ -121,18 +118,21 @@ model Product {
 }
 
 model ProductSize {
-  id        String  @id @default(uuid())
-  productId String  @map("product_id")
-  nameEs    String  @map("name_es")
-  nameEn    String? @map("name_en")
-  price     Decimal @db.Decimal(10, 2)
-  stock     Int?
-  sortOrder Int     @default(0) @map("sort_order")
-  isDefault Boolean @default(false) @map("is_default")
-  isActive  Boolean @default(true) @map("is_active")
+  id            String  @id @default(uuid())
+  productId     String  @map("product_id")
+  nameEs        String  @map("name_es")
+  nameEn        String? @map("name_en")
+  descriptionEs String? @map("description_es")
+  descriptionEn String? @map("description_en")
+  price         Decimal @db.Decimal(10, 2)
+  stock         Int?
+  sortOrder     Int     @default(0) @map("sort_order")
+  isDefault     Boolean @default(false) @map("is_default")
+  isActive      Boolean @default(true) @map("is_active")
 
-  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-  orderItems OrderItem[]
+  product            Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems         OrderItem[]
+  modifierSizePrices ModifierSizePrice[]
 
   @@map("product_sizes")
 }
@@ -162,13 +162,30 @@ model ProductModifier {
   priceAdjustment Decimal @default(0) @map("price_adj") @db.Decimal(10, 2)
   isDefault       Boolean @default(false) @map("is_default")
   isActive        Boolean @default(true) @map("is_active")
+  sizeRestricted  Boolean @default(false) @map("size_restricted")
   sortOrder       Int     @default(0) @map("sort_order")
 
   group              ProductModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   orderItemModifiers OrderItemModifier[]
   tags               ProductModifierTag[]
+  sizePrices         ModifierSizePrice[]
 
   @@map("product_modifiers")
+}
+
+model ModifierSizePrice {
+  id              String  @id @default(uuid())
+  modifierId      String  @map("modifier_id")
+  productSizeId   String  @map("product_size_id")
+  priceAdjustment Decimal @map("price_adj") @db.Decimal(10, 2)
+
+  modifier    ProductModifier @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+  productSize ProductSize     @relation(fields: [productSizeId], references: [id], onDelete: Cascade)
+
+  @@unique([modifierId, productSizeId])
+  @@index([modifierId])
+  @@index([productSizeId])
+  @@map("modifier_size_prices")
 }
 
 // ============================================
