@@ -329,8 +329,8 @@ export class ProductsController {
   @HttpCode(204)
   @ApiOperation({ summary: "Eliminar grupo de modificadores" })
   async deleteModifierGroup(
-    @Param("productId") productId: string,
-    @Param("id") id: string,
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("id", ParseUUIDPipe) id: string,
   ): Promise<void> {
     await this.deleteProductModifierGroupUseCase.execute(productId, id);
   }

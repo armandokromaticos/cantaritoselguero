@@ -48,6 +48,7 @@ export class CouponsController {
   @Post()
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Crear cupon (GLOBAL o UNIQUE)" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async createCoupon(
     @Body() dto: CreateCouponDto,
     @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
@@ -61,6 +62,7 @@ export class CouponsController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Listar cupones (filtrable por tipo)" })
   @ApiQuery({ name: "type", required: false, enum: CouponType })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async findAllCoupons(
     @Query("type") type?: CouponType,
     @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
@@ -73,6 +75,7 @@ export class CouponsController {
   @Get(":id")
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Obtener cupon por ID" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async findOneCoupon(
     @Param("id", ParseUUIDPipe) id: string,
     @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
@@ -85,6 +88,7 @@ export class CouponsController {
   @Patch(":id")
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Actualizar cupon" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async updateCoupon(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: UpdateCouponDto,
@@ -98,6 +102,7 @@ export class CouponsController {
   @Patch(":id/toggle")
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Activar/desactivar cupon" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async toggleCoupon(
     @Param("id", ParseUUIDPipe) id: string,
     @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
