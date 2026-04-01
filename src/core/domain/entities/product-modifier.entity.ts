@@ -131,6 +131,8 @@ export class ProductModifierEntity {
       lang === "en"
         ? this.props.nameEn?.trim() || this.props.nameEs
         : this.props.nameEs;
+    dto.nameEs = this.props.nameEs;
+    dto.nameEn = this.props.nameEn;
     dto.priceAdjustment = this.props.priceAdjustment;
     dto.isDefault = this.props.isDefault;
     dto.isActive = this.props.isActive;

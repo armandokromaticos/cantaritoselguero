@@ -74,6 +74,8 @@ export class TagEntity {
       lang === "en"
         ? this.props.nameEn?.trim() || this.props.nameEs
         : this.props.nameEs;
+    dto.nameEs = this.props.nameEs;
+    dto.nameEn = this.props.nameEn;
     dto.isActive = this.props.isActive;
     dto.createdAt = this.props.createdAt;
     dto.updatedAt = this.props.updatedAt;

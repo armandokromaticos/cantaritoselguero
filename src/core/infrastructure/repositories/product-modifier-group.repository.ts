@@ -56,4 +56,8 @@ export class ProductModifierGroupRepository implements IProductModifierGroupRepo
     });
     return ProductModifierGroupEntity.fromPrisma(group);
   }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.productModifierGroup.delete({ where: { id } });
+  }
 }

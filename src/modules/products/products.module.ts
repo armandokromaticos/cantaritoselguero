@@ -35,6 +35,7 @@ import { DeleteProductSizeUseCase } from "../../core/application/use-cases/produ
 import { CreateProductModifierGroupUseCase } from "../../core/application/use-cases/product-modifier-groups/create-product-modifier-group.use-case";
 import { GetProductModifierGroupsUseCase } from "../../core/application/use-cases/product-modifier-groups/get-product-modifier-groups.use-case";
 import { UpdateProductModifierGroupUseCase } from "../../core/application/use-cases/product-modifier-groups/update-product-modifier-group.use-case";
+import { DeleteProductModifierGroupUseCase } from "../../core/application/use-cases/product-modifier-groups/delete-product-modifier-group.use-case";
 
 // Use Cases - Modifiers
 import { CreateProductModifierUseCase } from "../../core/application/use-cases/product-modifiers/create-product-modifier.use-case";
@@ -73,6 +74,7 @@ import { GetProductStandsUseCase } from "../../core/application/use-cases/stand-
     CreateProductModifierGroupUseCase,
     GetProductModifierGroupsUseCase,
     UpdateProductModifierGroupUseCase,
+    DeleteProductModifierGroupUseCase,
     CreateProductModifierUseCase,
     GetProductModifiersUseCase,
     UpdateProductModifierUseCase,
