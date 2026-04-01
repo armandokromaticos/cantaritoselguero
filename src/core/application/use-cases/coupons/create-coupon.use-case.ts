@@ -12,7 +12,7 @@ export class CreateCouponUseCase {
   ) {}
 
   async execute(dto: CreateCouponDto): Promise<CouponEntity> {
-    const nameUpper = dto.name.toUpperCase();
+    const nameUpper = dto.nameEs.trim().toUpperCase();
     const existing = await this.couponRepository.findByName(nameUpper);
     if (existing) {
       throw new BadRequestException(
@@ -22,7 +22,8 @@ export class CreateCouponUseCase {
 
     const entity = CouponEntity.fromCreateDto({
       type: dto.type,
-      name: dto.name,
+      nameEs: dto.nameEs,
+      nameEn: dto.nameEn,
       discountPercent: dto.discountPercent,
       maxDiscount: dto.maxDiscount,
       totalQuantity: dto.totalQuantity,

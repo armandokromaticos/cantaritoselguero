@@ -14,4 +14,5 @@ export interface IProductModifierGroupRepository {
     id: string,
     entity: Partial<ProductModifierGroupEntity>,
   ): Promise<ProductModifierGroupEntity>;
+  delete(id: string): Promise<void>;
 }

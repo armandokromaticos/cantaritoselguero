@@ -28,6 +28,7 @@ import { CreateTagDto } from "../../../core/application/dto/tags/create-tag.dto"
 import { UpdateTagDto } from "../../../core/application/dto/tags/update-tag.dto";
 import { TagResponseDto } from "../../../core/application/dto/tags/tag-response.dto";
 import { CreateTagUseCase } from "../../../core/application/use-cases/tags/create-tag.use-case";
+import { GetTagUseCase } from "../../../core/application/use-cases/tags/get-tag.use-case";
 import { GetTagsUseCase } from "../../../core/application/use-cases/tags/get-tags.use-case";
 import { UpdateTagUseCase } from "../../../core/application/use-cases/tags/update-tag.use-case";
 import { DeleteTagUseCase } from "../../../core/application/use-cases/tags/delete-tag.use-case";
@@ -40,6 +41,7 @@ import { DeleteTagUseCase } from "../../../core/application/use-cases/tags/delet
 export class TagsController {
   constructor(
     private readonly createTagUseCase: CreateTagUseCase,
+    private readonly getTagUseCase: GetTagUseCase,
     private readonly getTagsUseCase: GetTagsUseCase,
     private readonly updateTagUseCase: UpdateTagUseCase,
     private readonly deleteTagUseCase: DeleteTagUseCase,
@@ -66,6 +68,18 @@ export class TagsController {
   ): Promise<TagResponseDto[]> {
     const entities = await this.getTagsUseCase.execute();
     return entities.map((tag) => tag.toResponseDto(lang));
+  }
+
+  @Get(":id")
+  @ApiOperation({ summary: "Obtener tag por ID" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
+  async findOneTag(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
+  ): Promise<TagResponseDto> {
+    const entity = await this.getTagUseCase.execute(id);
+    return entity.toResponseDto(lang);
   }
 
   @Patch(":id")

@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class TagResponseDto {
   @ApiProperty()
@@ -6,6 +6,12 @@ export class TagResponseDto {
 
   @ApiProperty()
   name: string;
+
+  @ApiProperty()
+  nameEs: string;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  nameEn: string | null;
 
   @ApiProperty()
   isActive: boolean;

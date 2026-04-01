@@ -22,7 +22,8 @@ interface CouponUsageInfo {
 interface CouponProps {
   id: string | undefined;
   type: CouponType;
-  name: string;
+  nameEs: string;
+  nameEn: string | null;
   discountPercent: number;
   maxDiscount: number;
   totalQuantity: number;
@@ -36,7 +37,8 @@ interface CouponProps {
 
 export interface CreateCouponParams {
   type: CouponType;
-  name: string;
+  nameEs: string;
+  nameEn?: string | null;
   discountPercent: number;
   maxDiscount: number;
   totalQuantity: number;
@@ -45,7 +47,8 @@ export interface CreateCouponParams {
 }
 
 export interface UpdateCouponParams {
-  name?: string;
+  nameEs?: string;
+  nameEn?: string | null;
   discountPercent?: number;
   maxDiscount?: number;
   totalQuantity?: number;
@@ -66,8 +69,11 @@ export class CouponEntity {
   get type(): CouponType {
     return this.props.type;
   }
-  get name(): string {
-    return this.props.name;
+  get nameEs(): string {
+    return this.props.nameEs;
+  }
+  get nameEn(): string | null {
+    return this.props.nameEn;
   }
   get discountPercent(): number {
     return this.props.discountPercent;
@@ -120,7 +126,8 @@ export class CouponEntity {
     return new CouponEntity({
       id: undefined,
       type: params.type,
-      name: params.name.toUpperCase(),
+      nameEs: params.nameEs.toUpperCase(),
+      nameEn: params.nameEn?.toUpperCase() || null,
       discountPercent: params.discountPercent,
       maxDiscount: params.maxDiscount,
       totalQuantity: params.totalQuantity,
@@ -136,7 +143,8 @@ export class CouponEntity {
     const props: CouponProps = {
       id: prisma.id,
       type: prisma.type as CouponType,
-      name: prisma.name,
+      nameEs: prisma.nameEs,
+      nameEn: prisma.nameEn ?? null,
       discountPercent: Number(prisma.discountPercent),
       maxDiscount: Number(prisma.maxDiscount),
       totalQuantity: prisma.totalQuantity,
@@ -162,7 +170,8 @@ export class CouponEntity {
   toPrismaCreate() {
     return {
       type: this.props.type,
-      name: this.props.name,
+      nameEs: this.props.nameEs,
+      nameEn: this.props.nameEn,
       discountPercent: this.props.discountPercent,
       maxDiscount: this.props.maxDiscount,
       totalQuantity: this.props.totalQuantity,
@@ -172,14 +181,19 @@ export class CouponEntity {
     };
   }
 
-  toResponseDto(): CouponResponseDto {
+  toResponseDto(lang: "es" | "en" = "es"): CouponResponseDto {
     if (!this.props.id) {
       throw new Error("Cannot convert unpersisted entity to response DTO");
     }
     const dto = new CouponResponseDto();
     dto.id = this.props.id;
     dto.type = this.props.type;
-    dto.name = this.props.name;
+    dto.name =
+      lang === "en"
+        ? this.props.nameEn?.trim() || this.props.nameEs
+        : this.props.nameEs;
+    dto.nameEs = this.props.nameEs;
+    dto.nameEn = this.props.nameEn;
     dto.discountPercent = this.props.discountPercent;
     dto.maxDiscount = this.props.maxDiscount;
     dto.totalQuantity = this.props.totalQuantity;

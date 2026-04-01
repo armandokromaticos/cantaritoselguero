@@ -16,7 +16,12 @@ export class UpdateCouponDto {
   @IsOptional()
   @IsString()
   @MinLength(3)
-  name?: string;
+  nameEs?: string;
+
+  @ApiPropertyOptional({ example: "SUMMER2026", nullable: true })
+  @IsOptional()
+  @IsString()
+  nameEn?: string | null;
 
   @ApiPropertyOptional({ example: 15.0 })
   @IsOptional()

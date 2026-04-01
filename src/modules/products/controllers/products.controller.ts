@@ -82,6 +82,7 @@ import { DeleteProductSizeUseCase } from "../../../core/application/use-cases/pr
 import { CreateProductModifierGroupUseCase } from "../../../core/application/use-cases/product-modifier-groups/create-product-modifier-group.use-case";
 import { GetProductModifierGroupsUseCase } from "../../../core/application/use-cases/product-modifier-groups/get-product-modifier-groups.use-case";
 import { UpdateProductModifierGroupUseCase } from "../../../core/application/use-cases/product-modifier-groups/update-product-modifier-group.use-case";
+import { DeleteProductModifierGroupUseCase } from "../../../core/application/use-cases/product-modifier-groups/delete-product-modifier-group.use-case";
 
 // Use Cases - Modifiers
 import { CreateProductModifierUseCase } from "../../../core/application/use-cases/product-modifiers/create-product-modifier.use-case";
@@ -113,6 +114,7 @@ export class ProductsController {
     private readonly createProductModifierGroupUseCase: CreateProductModifierGroupUseCase,
     private readonly getProductModifierGroupsUseCase: GetProductModifierGroupsUseCase,
     private readonly updateProductModifierGroupUseCase: UpdateProductModifierGroupUseCase,
+    private readonly deleteProductModifierGroupUseCase: DeleteProductModifierGroupUseCase,
     private readonly createProductModifierUseCase: CreateProductModifierUseCase,
     private readonly getProductModifiersUseCase: GetProductModifiersUseCase,
     private readonly updateProductModifierUseCase: UpdateProductModifierUseCase,
@@ -321,6 +323,16 @@ export class ProductsController {
       dto,
     );
     return entity.toResponseDto(lang);
+  }
+
+  @Delete(":productId/modifier-groups/:id")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Eliminar grupo de modificadores" })
+  async deleteModifierGroup(
+    @Param("productId", ParseUUIDPipe) productId: string,
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<void> {
+    await this.deleteProductModifierGroupUseCase.execute(productId, id);
   }
 
   // ── Product Modifiers ──

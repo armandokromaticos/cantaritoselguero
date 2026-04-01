@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Get,
   Param,
+  ParseEnumPipe,
   ParseUUIDPipe,
   Patch,
   Post,
@@ -15,6 +17,7 @@ import {
   ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
+import { Lang } from "../../../core/domain/enums/lang.enum";
 import { Role } from "../../../core/domain/enums/role.enum";
 import { CouponType } from "../../../core/domain/enums/coupon-type.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
@@ -45,50 +48,67 @@ export class CouponsController {
   @Post()
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Crear cupon (GLOBAL o UNIQUE)" })
-  async createCoupon(@Body() dto: CreateCouponDto): Promise<CouponResponseDto> {
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
+  async createCoupon(
+    @Body() dto: CreateCouponDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
+  ): Promise<CouponResponseDto> {
     const entity = await this.createCouponUseCase.execute(dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Get()
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Listar cupones (filtrable por tipo)" })
   @ApiQuery({ name: "type", required: false, enum: CouponType })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async findAllCoupons(
     @Query("type") type?: CouponType,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang?: Lang,
   ): Promise<CouponResponseDto[]> {
     const entities = await this.getCouponsUseCase.execute(type);
-    return entities.map((coupon) => coupon.toResponseDto());
+    return entities.map((coupon) => coupon.toResponseDto(lang));
   }
 
   @Get(":id")
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Obtener cupon por ID" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async findOneCoupon(
     @Param("id", ParseUUIDPipe) id: string,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<CouponResponseDto> {
     const entity = await this.getCouponUseCase.execute(id);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Patch(":id")
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Actualizar cupon" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async updateCoupon(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: UpdateCouponDto,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<CouponResponseDto> {
     const entity = await this.updateCouponUseCase.execute(id, dto);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 
   @Patch(":id/toggle")
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Activar/desactivar cupon" })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
   async toggleCoupon(
     @Param("id", ParseUUIDPipe) id: string,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
   ): Promise<CouponResponseDto> {
     const entity = await this.toggleCouponUseCase.execute(id);
-    return entity.toResponseDto();
+    return entity.toResponseDto(lang);
   }
 }

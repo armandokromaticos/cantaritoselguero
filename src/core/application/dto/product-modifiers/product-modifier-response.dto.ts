@@ -20,6 +20,12 @@ export class ProductModifierResponseDto {
   name: string;
 
   @ApiProperty()
+  nameEs: string;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  nameEn: string | null;
+
+  @ApiProperty()
   priceAdjustment: number;
 
   @ApiProperty()
