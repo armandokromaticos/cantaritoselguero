@@ -13,6 +13,7 @@ import { CreateStandUseCase } from "../../core/application/use-cases/stands/crea
 import { GetStandUseCase } from "../../core/application/use-cases/stands/get-stand.use-case";
 import { GetStandsUseCase } from "../../core/application/use-cases/stands/get-stands.use-case";
 import { UpdateStandUseCase } from "../../core/application/use-cases/stands/update-stand.use-case";
+import { DeleteStandUseCase } from "../../core/application/use-cases/stands/delete-stand.use-case";
 import { AddOperatorUseCase } from "../../core/application/use-cases/stands/add-operator.use-case";
 import { RemoveOperatorUseCase } from "../../core/application/use-cases/stands/remove-operator.use-case";
 import { AddProductToStandUseCase } from "../../core/application/use-cases/stand-catalog/add-product-to-stand.use-case";
@@ -33,6 +34,7 @@ import { GetStandPendingItemsUseCase } from "../../core/application/use-cases/st
     GetStandUseCase,
     GetStandsUseCase,
     UpdateStandUseCase,
+    DeleteStandUseCase,
     AddOperatorUseCase,
     RemoveOperatorUseCase,
     AddProductToStandUseCase,

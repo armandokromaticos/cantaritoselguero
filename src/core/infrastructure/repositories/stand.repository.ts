@@ -50,6 +50,17 @@ export class StandRepository implements IStandRepository {
     return StandEntity.fromPrisma(stand);
   }
 
+  async delete(id: string): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.standOperator.deleteMany({ where: { standId: id } }),
+      this.prisma.stand.delete({ where: { id } }),
+    ]);
+  }
+
+  async countOrders(standId: string): Promise<number> {
+    return this.prisma.order.count({ where: { standId } });
+  }
+
   async addOperator(standId: string, userId: string): Promise<StandEntity> {
     await this.prisma.standOperator.create({
       data: { standId, userId },

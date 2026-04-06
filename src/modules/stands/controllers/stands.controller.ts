@@ -35,6 +35,7 @@ import { CreateStandUseCase } from "../../../core/application/use-cases/stands/c
 import { GetStandUseCase } from "../../../core/application/use-cases/stands/get-stand.use-case";
 import { GetStandsUseCase } from "../../../core/application/use-cases/stands/get-stands.use-case";
 import { UpdateStandUseCase } from "../../../core/application/use-cases/stands/update-stand.use-case";
+import { DeleteStandUseCase } from "../../../core/application/use-cases/stands/delete-stand.use-case";
 import { AddOperatorUseCase } from "../../../core/application/use-cases/stands/add-operator.use-case";
 import { RemoveOperatorUseCase } from "../../../core/application/use-cases/stands/remove-operator.use-case";
 import { AddProductToStandUseCase } from "../../../core/application/use-cases/stand-catalog/add-product-to-stand.use-case";
@@ -55,6 +56,7 @@ export class StandsController {
     private readonly getStandUseCase: GetStandUseCase,
     private readonly getStandsUseCase: GetStandsUseCase,
     private readonly updateStandUseCase: UpdateStandUseCase,
+    private readonly deleteStandUseCase: DeleteStandUseCase,
     private readonly addOperatorUseCase: AddOperatorUseCase,
     private readonly removeOperatorUseCase: RemoveOperatorUseCase,
     private readonly addProductToStandUseCase: AddProductToStandUseCase,
@@ -94,6 +96,15 @@ export class StandsController {
   ): Promise<StandResponseDto> {
     const entity = await this.updateStandUseCase.execute(id, dto);
     return entity.toResponseDto();
+  }
+
+  @Delete(":id")
+  @ApiOperation({ summary: "Eliminar stand" })
+  async deleteStand(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<{ success: boolean }> {
+    await this.deleteStandUseCase.execute(id);
+    return { success: true };
   }
 
   @Post(":id/operators/:userId")
