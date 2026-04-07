@@ -31,18 +31,10 @@ export class AddProductToStandUseCase {
     if (!stand) {
       throw new NotFoundException(`Stand with id ${standId} not found`);
     }
-    if (!stand.isActive) {
-      throw new BadRequestException(`Stand with id ${standId} is not active`);
-    }
 
     const product = await this.productRepository.findById(productId);
     if (!product) {
       throw new NotFoundException(`Product with id ${productId} not found`);
-    }
-    if (!product.isActive) {
-      throw new BadRequestException(
-        `Product with id ${productId} is not active`,
-      );
     }
 
     const exists = await this.standProductRepository.exists(standId, productId);
