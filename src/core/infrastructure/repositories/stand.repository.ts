@@ -57,8 +57,13 @@ export class StandRepository implements IStandRepository {
     ]);
   }
 
-  async countOrders(standId: string): Promise<number> {
-    return this.prisma.order.count({ where: { standId } });
+  async countRelatedReferences(standId: string): Promise<number> {
+    const [orders, orderItems, deliveries] = await this.prisma.$transaction([
+      this.prisma.order.count({ where: { standId } }),
+      this.prisma.orderItem.count({ where: { standId } }),
+      this.prisma.orderItemDelivery.count({ where: { standId } }),
+    ]);
+    return orders + orderItems + deliveries;
   }
 
   async addOperator(standId: string, userId: string): Promise<StandEntity> {

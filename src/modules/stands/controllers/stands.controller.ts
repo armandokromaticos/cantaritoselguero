@@ -17,6 +17,7 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiQuery,
+  ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
 import { Role } from "../../../core/domain/enums/role.enum";
@@ -100,6 +101,12 @@ export class StandsController {
 
   @Delete(":id")
   @ApiOperation({ summary: "Eliminar stand" })
+  @ApiResponse({ status: 200, description: "Stand eliminado" })
+  @ApiResponse({ status: 404, description: "Stand no encontrado" })
+  @ApiResponse({
+    status: 409,
+    description: "El stand tiene órdenes, items o entregas asociadas",
+  })
   async deleteStand(
     @Param("id", ParseUUIDPipe) id: string,
   ): Promise<{ success: boolean }> {
