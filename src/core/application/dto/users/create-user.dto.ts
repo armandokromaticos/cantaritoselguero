@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsEmail,
+  IsISO8601,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -37,5 +38,9 @@ export class CreateUserDto {
   @Matches(/^\d{4}-\d{2}-\d{2}$/, {
     message: "birthDate debe tener el formato YYYY-MM-DD",
   })
+  @IsISO8601(
+    { strict: true },
+    { message: "birthDate debe ser una fecha calendario válida (YYYY-MM-DD)" },
+  )
   birthDate?: string;
 }
