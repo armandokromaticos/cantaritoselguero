@@ -51,6 +51,7 @@ export class CreateUserUseCase {
         email: dto.email,
         name: dto.name,
         phone: dto.phone ?? null,
+        birthDate: dto.birthDate ? new Date(dto.birthDate) : null,
       });
 
       this.logger.log(
