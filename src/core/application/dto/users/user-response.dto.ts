@@ -17,8 +17,13 @@ export class UserResponseDto {
   @ApiPropertyOptional({ nullable: true, type: String })
   phone: string | null;
 
-  @ApiPropertyOptional({ nullable: true, type: Date })
-  birthDate: Date | null;
+  @ApiPropertyOptional({
+    nullable: true,
+    type: String,
+    format: "date",
+    example: "2000-03-15",
+  })
+  birthDate: string | null;
 
   @ApiProperty({ enum: Role })
   role: Role;

@@ -39,7 +39,9 @@ export class UserEntity {
     dto.email = this.email;
     dto.name = this.name;
     dto.phone = this.phone;
-    dto.birthDate = this.birthDate;
+    dto.birthDate = this.birthDate
+      ? `${this.birthDate.getUTCFullYear()}-${String(this.birthDate.getUTCMonth() + 1).padStart(2, "0")}-${String(this.birthDate.getUTCDate()).padStart(2, "0")}`
+      : null;
     dto.role = this.role;
     dto.isActive = this.isActive;
     dto.createdAt = this.createdAt;
