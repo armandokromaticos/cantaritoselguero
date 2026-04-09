@@ -8,6 +8,7 @@ export class UserEntity {
   email: string;
   name: string;
   phone: string | null;
+  birthDate: Date | null;
   role: Role;
   isActive: boolean;
   createdAt: Date;
@@ -20,6 +21,7 @@ export class UserEntity {
     entity.email = prismaUser.email;
     entity.name = prismaUser.name;
     entity.phone = prismaUser.phone;
+    entity.birthDate = prismaUser.birthDate;
     if (!Object.values(Role).includes(prismaUser.role as Role)) {
       throw new Error(`Invalid role value: ${prismaUser.role}`);
     }
@@ -37,6 +39,9 @@ export class UserEntity {
     dto.email = this.email;
     dto.name = this.name;
     dto.phone = this.phone;
+    dto.birthDate = this.birthDate
+      ? `${this.birthDate.getUTCFullYear()}-${String(this.birthDate.getUTCMonth() + 1).padStart(2, "0")}-${String(this.birthDate.getUTCDate()).padStart(2, "0")}`
+      : null;
     dto.role = this.role;
     dto.isActive = this.isActive;
     dto.createdAt = this.createdAt;

@@ -1,9 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsEmail,
+  IsISO8601,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
   MinLength,
 } from "class-validator";
 
@@ -26,4 +28,19 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @ApiPropertyOptional({
+    example: "2000-03-15",
+    format: "date",
+    description: "Fecha de nacimiento en formato ISO 8601 (YYYY-MM-DD)",
+  })
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: "birthDate debe tener el formato YYYY-MM-DD",
+  })
+  @IsISO8601(
+    { strict: true },
+    { message: "birthDate debe ser una fecha calendario válida (YYYY-MM-DD)" },
+  )
+  birthDate?: string;
 }
