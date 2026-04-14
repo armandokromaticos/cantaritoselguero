@@ -11,19 +11,10 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from "@nestjs/common";
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiTags,
-} from "@nestjs/swagger";
-import { Role } from "../../../core/domain/enums/role.enum";
+import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Lang } from "../../../core/domain/enums/lang.enum";
-import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
-import { RolesGuard } from "../../auth/guards/roles.guard";
-import { Roles } from "../../auth/decorators/roles.decorator";
+import { AdminOnly } from "../../auth/decorators/admin-only.decorator";
 import { CreateTagDto } from "../../../core/application/dto/tags/create-tag.dto";
 import { UpdateTagDto } from "../../../core/application/dto/tags/update-tag.dto";
 import { TagResponseDto } from "../../../core/application/dto/tags/tag-response.dto";
@@ -34,9 +25,6 @@ import { UpdateTagUseCase } from "../../../core/application/use-cases/tags/updat
 import { DeleteTagUseCase } from "../../../core/application/use-cases/tags/delete-tag.use-case";
 
 @ApiTags("Tags")
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN)
 @Controller("tags")
 export class TagsController {
   constructor(
@@ -48,6 +36,7 @@ export class TagsController {
   ) {}
 
   @Post()
+  @AdminOnly()
   @ApiOperation({ summary: "Crear tag" })
   @ApiQuery({ name: "lang", required: false, enum: Lang })
   async createTag(
@@ -83,6 +72,7 @@ export class TagsController {
   }
 
   @Patch(":id")
+  @AdminOnly()
   @ApiOperation({ summary: "Actualizar tag" })
   @ApiQuery({ name: "lang", required: false, enum: Lang })
   async updateTag(
@@ -96,6 +86,7 @@ export class TagsController {
   }
 
   @Delete(":id")
+  @AdminOnly()
   @HttpCode(204)
   @ApiOperation({ summary: "Eliminar tag" })
   async deleteTag(@Param("id", ParseUUIDPipe) id: string): Promise<void> {

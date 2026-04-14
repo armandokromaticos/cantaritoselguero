@@ -7,6 +7,7 @@ import { LogoutUseCase } from "../../core/application/use-cases/auth/logout.use-
 import { AuthController } from "./controllers/auth.controller";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { RolesGuard } from "./guards/roles.guard";
+import { OptionalJwtAuthGuard } from "./guards/optional-jwt-auth.guard";
 
 @Module({
   controllers: [AuthController],
@@ -20,7 +21,8 @@ import { RolesGuard } from "./guards/roles.guard";
     LogoutUseCase,
     JwtAuthGuard,
     RolesGuard,
+    OptionalJwtAuthGuard,
   ],
-  exports: [JwtAuthGuard, RolesGuard, USER_REPOSITORY],
+  exports: [JwtAuthGuard, RolesGuard, OptionalJwtAuthGuard, USER_REPOSITORY],
 })
 export class AuthModule {}

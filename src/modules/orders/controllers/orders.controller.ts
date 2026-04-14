@@ -18,8 +18,13 @@ import {
 import { Role } from "../../../core/domain/enums/role.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
+import { OptionalJwtAuthGuard } from "../../auth/guards/optional-jwt-auth.guard";
 import { Roles } from "../../auth/decorators/roles.decorator";
 import { CurrentUser } from "../../auth/decorators/current-user.decorator";
+import {
+  OptionalUser,
+  OptionalUserCtx,
+} from "../../auth/decorators/optional-user.decorator";
 import { CreateOrderDto } from "../../../core/application/dto/orders/create-order.dto";
 import { UpdateOrderStatusDto } from "../../../core/application/dto/orders/update-order-status.dto";
 import { OrderResponseDto } from "../../../core/application/dto/orders/order-response.dto";
@@ -33,8 +38,6 @@ import { UpdateOrderStatusUseCase } from "../../../core/application/use-cases/or
 import { DeliverOrderItemUseCase } from "../../../core/application/use-cases/orders/deliver-order-item.use-case";
 
 @ApiTags("Orders")
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller("orders")
 export class OrdersController {
   constructor(
@@ -49,17 +52,22 @@ export class OrdersController {
   ) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.USER)
-  @ApiOperation({ summary: "Crear orden con items" })
+  @UseGuards(OptionalJwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Crear orden con items (permite invitados sin sesión)",
+  })
   async createOrder(
     @Body() dto: CreateOrderDto,
-    @CurrentUser() user: { id: string; role: Role },
+    @OptionalUser() user: OptionalUserCtx | null,
   ): Promise<OrderResponseDto> {
-    const entity = await this.createOrderUseCase.execute(user.id, dto);
+    const entity = await this.createOrderUseCase.execute(user?.id ?? null, dto);
     return entity.toResponseDto();
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.USER, Role.STAND_OPERATOR)
   @ApiOperation({
     summary: "Listar ordenes (propias, por stand, o todas para ADMIN)",
@@ -83,6 +91,8 @@ export class OrdersController {
   }
 
   @Get("qr/:qrCode")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.STAND_OPERATOR)
   @ApiOperation({ summary: "Buscar orden por QR code" })
   async findByQrCode(
@@ -93,6 +103,8 @@ export class OrdersController {
   }
 
   @Get("code/:shortCode")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.STAND_OPERATOR)
   @ApiOperation({ summary: "Buscar orden por codigo corto" })
   async findByShortCode(
@@ -103,6 +115,8 @@ export class OrdersController {
   }
 
   @Get(":id")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: "Obtener orden por ID" })
   async findOneOrder(
@@ -114,6 +128,8 @@ export class OrdersController {
   }
 
   @Patch(":id/status")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Cambiar estado de orden (ADMIN)" })
   async updateStatus(
@@ -125,6 +141,8 @@ export class OrdersController {
   }
 
   @Post(":id/cancel")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: "Cancelar orden PENDING" })
   async cancelOrder(
@@ -140,6 +158,8 @@ export class OrdersController {
   }
 
   @Post(":id/items/:itemId/deliver/:standId")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.STAND_OPERATOR)
   @ApiOperation({ summary: "Marcar item como entregado en un stand" })
   async deliverItem(
