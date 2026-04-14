@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
+  Logger,
 } from "@nestjs/common";
 import { Request } from "express";
 import { SupabaseService } from "../../../core/infrastructure/supabase/supabase.service";
@@ -11,6 +12,8 @@ import { USER_REPOSITORY } from "../../../core/domain/repositories/user.reposito
 
 @Injectable()
 export class OptionalJwtAuthGuard implements CanActivate {
+  private readonly logger = new Logger(OptionalJwtAuthGuard.name);
+
   constructor(
     private readonly supabaseService: SupabaseService,
     @Inject(USER_REPOSITORY)
@@ -29,11 +32,23 @@ export class OptionalJwtAuthGuard implements CanActivate {
     const { data, error } = await supabase.auth.getUser(token);
 
     if (error || !data.user) {
+      this.logger.debug(
+        `Optional auth: token present but invalid; continuing as guest (reason=${error?.message ?? "no user in response"})`,
+      );
       return true;
     }
 
     const dbUser = await this.userRepository.findByAuthId(data.user.id);
-    if (!dbUser || !dbUser.isActive) {
+    if (!dbUser) {
+      this.logger.debug(
+        `Optional auth: valid Supabase user but no DB record; continuing as guest (authId=${data.user.id})`,
+      );
+      return true;
+    }
+    if (!dbUser.isActive) {
+      this.logger.debug(
+        `Optional auth: DB user is inactive; continuing as guest (authId=${data.user.id}, userId=${dbUser.id})`,
+      );
       return true;
     }
 
