@@ -13,7 +13,6 @@ import {
   Post,
   Query,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
   ParseFilePipe,
   MaxFileSizeValidator,
@@ -21,7 +20,6 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
-  ApiBearerAuth,
   ApiConsumes,
   ApiBody,
   ApiOperation,
@@ -30,9 +28,7 @@ import {
 } from "@nestjs/swagger";
 import { Role } from "../../../core/domain/enums/role.enum";
 import { Lang } from "../../../core/domain/enums/lang.enum";
-import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
-import { RolesGuard } from "../../auth/guards/roles.guard";
-import { Roles } from "../../auth/decorators/roles.decorator";
+import { AdminOnly } from "../../auth/decorators/admin-only.decorator";
 
 // Product DTOs
 import { CreateProductDto } from "../../../core/application/dto/products/create-product.dto";
@@ -95,9 +91,6 @@ import { SetModifierSizePricesUseCase } from "../../../core/application/use-case
 import { SetModifierSizePricesDto } from "../../../core/application/dto/product-modifiers/set-modifier-size-prices.dto";
 
 @ApiTags("Products")
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN)
 @Controller("products")
 export class ProductsController {
   constructor(
@@ -130,6 +123,7 @@ export class ProductsController {
   // ── Products ──
 
   @Post()
+  @AdminOnly()
   @ApiOperation({ summary: "Crear producto" })
   async createProduct(
     @Body() dto: CreateProductDto,
@@ -178,6 +172,7 @@ export class ProductsController {
   }
 
   @Patch(":id")
+  @AdminOnly()
   @ApiOperation({ summary: "Actualizar producto" })
   async updateProduct(
     @Param("id") id: string,
@@ -190,6 +185,7 @@ export class ProductsController {
   }
 
   @Delete(":id")
+  @AdminOnly()
   @HttpCode(204)
   @ApiOperation({ summary: "Eliminar producto" })
   async deleteProduct(@Param("id") id: string): Promise<void> {
@@ -197,6 +193,7 @@ export class ProductsController {
   }
 
   @Post(":id/image")
+  @AdminOnly()
   @ApiOperation({ summary: "Subir imagen de producto" })
   @ApiConsumes("multipart/form-data")
   @ApiBody({
@@ -240,6 +237,7 @@ export class ProductsController {
   // ── Product Sizes ──
 
   @Post(":productId/sizes")
+  @AdminOnly()
   @ApiOperation({ summary: "Crear tamaño de producto" })
   async createSize(
     @Param("productId") productId: string,
@@ -263,6 +261,7 @@ export class ProductsController {
   }
 
   @Patch(":productId/sizes/:id")
+  @AdminOnly()
   @ApiOperation({ summary: "Actualizar tamaño de producto" })
   async updateSize(
     @Param("id") id: string,
@@ -275,6 +274,7 @@ export class ProductsController {
   }
 
   @Delete(":productId/sizes/:id")
+  @AdminOnly()
   @HttpCode(204)
   @ApiOperation({ summary: "Eliminar tamaño de producto" })
   async deleteSize(@Param("id") id: string): Promise<void> {
@@ -284,6 +284,7 @@ export class ProductsController {
   // ── Product Modifier Groups ──
 
   @Post(":productId/modifier-groups")
+  @AdminOnly()
   @ApiOperation({ summary: "Crear grupo de modificadores" })
   async createModifierGroup(
     @Param("productId") productId: string,
@@ -311,6 +312,7 @@ export class ProductsController {
   }
 
   @Patch(":productId/modifier-groups/:id")
+  @AdminOnly()
   @ApiOperation({ summary: "Actualizar grupo de modificadores" })
   async updateModifierGroup(
     @Param("id") id: string,
@@ -326,6 +328,7 @@ export class ProductsController {
   }
 
   @Delete(":productId/modifier-groups/:id")
+  @AdminOnly()
   @HttpCode(204)
   @ApiOperation({ summary: "Eliminar grupo de modificadores" })
   async deleteModifierGroup(
@@ -338,6 +341,7 @@ export class ProductsController {
   // ── Product Modifiers ──
 
   @Post(":productId/modifier-groups/:groupId/modifiers")
+  @AdminOnly()
   @ApiOperation({ summary: "Crear modificador" })
   async createModifier(
     @Param("groupId") groupId: string,
@@ -364,6 +368,7 @@ export class ProductsController {
   }
 
   @Patch(":productId/modifier-groups/:groupId/modifiers/:id")
+  @AdminOnly()
   @ApiOperation({ summary: "Actualizar modificador" })
   async updateModifier(
     @Param("id") id: string,
@@ -376,6 +381,7 @@ export class ProductsController {
   }
 
   @Delete(":productId/modifier-groups/:groupId/modifiers/:modifierId")
+  @AdminOnly()
   @HttpCode(204)
   @ApiOperation({ summary: "Eliminar modificador" })
   async deleteModifier(
@@ -393,6 +399,7 @@ export class ProductsController {
   // ── Modifier Tags ──
 
   @Post(":productId/modifier-groups/:groupId/modifiers/:modifierId/tags")
+  @AdminOnly()
   @ApiOperation({ summary: "Asignar tags a modificador" })
   async assignModifierTags(
     @Param("productId", ParseUUIDPipe) productId: string,
@@ -411,6 +418,7 @@ export class ProductsController {
   @Delete(
     ":productId/modifier-groups/:groupId/modifiers/:modifierId/tags/:tagId",
   )
+  @AdminOnly()
   @HttpCode(204)
   @ApiOperation({ summary: "Quitar tag de modificador" })
   async removeModifierTag(
@@ -432,6 +440,7 @@ export class ProductsController {
   @Patch(
     ":productId/modifier-groups/:groupId/modifiers/:modifierId/size-prices",
   )
+  @AdminOnly()
   @HttpCode(204)
   @ApiOperation({ summary: "Asignar precios por tamaño a modificador" })
   async setModifierSizePrices(
@@ -451,6 +460,7 @@ export class ProductsController {
   // ── Product Tags ──
 
   @Post(":id/tags")
+  @AdminOnly()
   @ApiOperation({ summary: "Asignar tags a producto" })
   @ApiQuery({ name: "lang", required: false, enum: Lang })
   async assignTags(
@@ -467,6 +477,7 @@ export class ProductsController {
   }
 
   @Delete(":id/tags/:tagId")
+  @AdminOnly()
   @HttpCode(204)
   @ApiOperation({ summary: "Quitar tag de producto" })
   async removeTag(
@@ -479,7 +490,7 @@ export class ProductsController {
   // ── Product Stands ──
 
   @Get(":id/stands")
-  @Roles(Role.ADMIN, Role.CATALOG_MANAGER)
+  @AdminOnly(Role.ADMIN, Role.CATALOG_MANAGER)
   @ApiOperation({ summary: "Ver en qué stands está disponible un producto" })
   async getProductStands(
     @Param("id", ParseUUIDPipe) id: string,

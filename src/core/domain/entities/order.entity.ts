@@ -17,6 +17,9 @@ import { Money } from "../value-objects/money.vo";
 
 type PrismaOrderWithRelations = PrismaOrder & {
   couponId?: string | null;
+  guestEmail?: string | null;
+  guestName?: string | null;
+  guestPhone?: string | null;
   subtotal?: Decimal;
   discount?: Decimal;
   items?: (PrismaOrderItem & {
@@ -53,9 +56,12 @@ interface OrderItemInfo {
 
 interface OrderProps {
   id: string | undefined;
-  userId: string;
+  userId: string | null;
   standId: string | null;
   couponId: string | null;
+  guestEmail: string | null;
+  guestName: string | null;
+  guestPhone: string | null;
   status: OrderStatus;
   qrCode: string;
   shortCode: string;
@@ -84,9 +90,12 @@ export interface CreateOrderItemParams {
 }
 
 export interface CreateOrderParams {
-  userId: string;
+  userId: string | null;
   standId?: string;
   couponId?: string;
+  guestEmail?: string | null;
+  guestName?: string | null;
+  guestPhone?: string | null;
   qrCode: string;
   shortCode: string;
   subtotal: number;
@@ -106,8 +115,17 @@ export class OrderEntity {
   get id(): string | undefined {
     return this.props.id;
   }
-  get userId(): string {
+  get userId(): string | null {
     return this.props.userId;
+  }
+  get guestEmail(): string | null {
+    return this.props.guestEmail;
+  }
+  get guestName(): string | null {
+    return this.props.guestName;
+  }
+  get guestPhone(): string | null {
+    return this.props.guestPhone;
   }
   get standId(): string | null {
     return this.props.standId;
@@ -187,6 +205,9 @@ export class OrderEntity {
       userId: params.userId,
       standId: params.standId ?? null,
       couponId: params.couponId ?? null,
+      guestEmail: params.guestEmail ?? null,
+      guestName: params.guestName ?? null,
+      guestPhone: params.guestPhone ?? null,
       status: OrderStatus.PENDING,
       qrCode: params.qrCode,
       shortCode: params.shortCode,
@@ -219,6 +240,9 @@ export class OrderEntity {
       userId: this.props.userId,
       standId: this.props.standId,
       couponId: this.props.couponId,
+      guestEmail: this.props.guestEmail,
+      guestName: this.props.guestName,
+      guestPhone: this.props.guestPhone,
       qrCode: this.props.qrCode,
       shortCode: this.props.shortCode,
       subtotal: this.props.subtotal,
@@ -247,9 +271,12 @@ export class OrderEntity {
   static fromPrisma(prisma: PrismaOrderWithRelations): OrderEntity {
     const props: OrderProps = {
       id: prisma.id,
-      userId: prisma.userId,
+      userId: prisma.userId ?? null,
       standId: prisma.standId,
       couponId: prisma.couponId ?? null,
+      guestEmail: prisma.guestEmail ?? null,
+      guestName: prisma.guestName ?? null,
+      guestPhone: prisma.guestPhone ?? null,
       status: prisma.status as OrderStatus,
       qrCode: prisma.qrCode,
       shortCode: prisma.shortCode,
@@ -294,6 +321,9 @@ export class OrderEntity {
     const dto = new OrderResponseDto();
     dto.id = this.props.id;
     dto.userId = this.props.userId;
+    dto.guestEmail = this.props.guestEmail;
+    dto.guestName = this.props.guestName;
+    dto.guestPhone = this.props.guestPhone;
     dto.standId = this.props.standId;
     dto.couponId = this.props.couponId;
     dto.status = this.props.status;

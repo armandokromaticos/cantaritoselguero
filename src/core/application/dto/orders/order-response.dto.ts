@@ -61,8 +61,17 @@ export class OrderResponseDto {
   @ApiProperty()
   id: string;
 
-  @ApiProperty()
-  userId: string;
+  @ApiPropertyOptional({ nullable: true, type: String })
+  userId: string | null;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  guestEmail: string | null;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  guestName: string | null;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  guestPhone: string | null;
 
   @ApiPropertyOptional({ nullable: true, type: String })
   standId: string | null;

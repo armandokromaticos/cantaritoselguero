@@ -60,7 +60,16 @@ export class CreateOrderUseCase {
     private readonly standProductRepository: IStandProductRepository,
   ) {}
 
-  async execute(userId: string, dto: CreateOrderDto): Promise<OrderEntity> {
+  async execute(
+    userId: string | null,
+    dto: CreateOrderDto,
+  ): Promise<OrderEntity> {
+    if (!userId && !dto.guestEmail) {
+      throw new BadRequestException(
+        "guestEmail is required for guest checkout",
+      );
+    }
+
     const items: CreateOrderItemParams[] = [];
 
     for (const itemDto of dto.items) {
@@ -180,6 +189,11 @@ export class CreateOrderUseCase {
     let discount = 0;
 
     if (dto.couponCode) {
+      if (!userId) {
+        throw new BadRequestException(
+          "Coupons require an authenticated user",
+        );
+      }
       coupon = await this.couponRepository.findByName(
         dto.couponCode.toUpperCase(),
       );
@@ -209,6 +223,9 @@ export class CreateOrderUseCase {
           userId,
           standId: dto.standId,
           couponId: coupon?.id,
+          guestEmail: userId ? null : dto.guestEmail ?? null,
+          guestName: userId ? null : dto.guestName ?? null,
+          guestPhone: userId ? null : dto.guestPhone ?? null,
           qrCode,
           shortCode,
           subtotal,
@@ -218,7 +235,7 @@ export class CreateOrderUseCase {
         });
         const createdOrder = await this.orderRepository.create(entity);
 
-        if (coupon && coupon.id && createdOrder.id) {
+        if (coupon && coupon.id && createdOrder.id && userId) {
           await this.couponRepository.consumeCoupon(
             coupon.id,
             userId,
