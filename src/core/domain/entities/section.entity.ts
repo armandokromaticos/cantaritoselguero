@@ -146,6 +146,13 @@ export class SectionEntity {
     };
   }
 
+  toAdminResponseDto(lang: "es" | "en" = "es"): SectionResponseDto {
+    const dto = this.toResponseDto(lang);
+    dto.nameEs = this.props.nameEs;
+    dto.nameEn = this.props.nameEn;
+    return dto;
+  }
+
   toResponseDto(lang: "es" | "en" = "es"): SectionResponseDto {
     const dto = new SectionResponseDto();
     dto.id = this.props.id;

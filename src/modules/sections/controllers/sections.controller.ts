@@ -32,6 +32,7 @@ import { SectionResponseDto } from "../../../core/application/dto/sections/secti
 import { CreateSectionUseCase } from "../../../core/application/use-cases/sections/create-section.use-case";
 import { GetSectionsUseCase } from "../../../core/application/use-cases/sections/get-sections.use-case";
 import { GetSectionBySlugUseCase } from "../../../core/application/use-cases/sections/get-section-by-slug.use-case";
+import { GetSectionByIdUseCase } from "../../../core/application/use-cases/sections/get-section-by-id.use-case";
 import { UpdateSectionUseCase } from "../../../core/application/use-cases/sections/update-section.use-case";
 import { DeleteSectionUseCase } from "../../../core/application/use-cases/sections/delete-section.use-case";
 import { AddItemToSectionUseCase } from "../../../core/application/use-cases/sections/add-item-to-section.use-case";
@@ -45,6 +46,7 @@ export class SectionsController {
     private readonly createSectionUseCase: CreateSectionUseCase,
     private readonly getSectionsUseCase: GetSectionsUseCase,
     private readonly getSectionBySlugUseCase: GetSectionBySlugUseCase,
+    private readonly getSectionByIdUseCase: GetSectionByIdUseCase,
     private readonly updateSectionUseCase: UpdateSectionUseCase,
     private readonly deleteSectionUseCase: DeleteSectionUseCase,
     private readonly addItemToSectionUseCase: AddItemToSectionUseCase,
@@ -63,6 +65,23 @@ export class SectionsController {
   ): Promise<SectionResponseDto[]> {
     const entities = await this.getSectionsUseCase.execute(true);
     return entities.map((section) => section.toResponseDto(lang));
+  }
+
+  @Get("id/:id")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: "Obtener sección por id con traducciones (admin)",
+  })
+  @ApiQuery({ name: "lang", required: false, enum: Lang })
+  async findSectionById(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Query("lang", new DefaultValuePipe(Lang.ES), new ParseEnumPipe(Lang))
+    lang: Lang,
+  ): Promise<SectionResponseDto> {
+    const entity = await this.getSectionByIdUseCase.execute(id);
+    return entity.toAdminResponseDto(lang);
   }
 
   @Get(":slug")

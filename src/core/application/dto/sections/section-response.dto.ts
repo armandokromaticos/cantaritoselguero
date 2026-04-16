@@ -26,6 +26,12 @@ export class SectionResponseDto {
   @ApiProperty()
   name: string;
 
+  @ApiPropertyOptional()
+  nameEs?: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  nameEn?: string | null;
+
   @ApiProperty()
   slug: string;
 
