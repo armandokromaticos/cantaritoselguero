@@ -6,6 +6,7 @@ import { SectionRepository } from "../../core/infrastructure/repositories/sectio
 import { CreateSectionUseCase } from "../../core/application/use-cases/sections/create-section.use-case";
 import { GetSectionsUseCase } from "../../core/application/use-cases/sections/get-sections.use-case";
 import { GetSectionBySlugUseCase } from "../../core/application/use-cases/sections/get-section-by-slug.use-case";
+import { GetSectionByIdUseCase } from "../../core/application/use-cases/sections/get-section-by-id.use-case";
 import { UpdateSectionUseCase } from "../../core/application/use-cases/sections/update-section.use-case";
 import { DeleteSectionUseCase } from "../../core/application/use-cases/sections/delete-section.use-case";
 import { AddItemToSectionUseCase } from "../../core/application/use-cases/sections/add-item-to-section.use-case";
@@ -24,6 +25,7 @@ import { SectionsController } from "./controllers/sections.controller";
     CreateSectionUseCase,
     GetSectionsUseCase,
     GetSectionBySlugUseCase,
+    GetSectionByIdUseCase,
     UpdateSectionUseCase,
     DeleteSectionUseCase,
     AddItemToSectionUseCase,
