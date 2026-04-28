@@ -15,6 +15,7 @@ import { BannersModule } from "./modules/banners/banners.module";
 import { MoodGalleryModule } from "./modules/mood-gallery/mood-gallery.module";
 import { TagsModule } from "./modules/tags/tags.module";
 import { SectionsModule } from "./modules/sections/sections.module";
+import { AgencyCardsModule } from "./modules/agency-cards/agency-cards.module";
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SectionsModule } from "./modules/sections/sections.module";
     MoodGalleryModule,
     TagsModule,
     SectionsModule,
+    AgencyCardsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

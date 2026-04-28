@@ -445,6 +445,32 @@ model ProductModifierTag {
 }
 
 // ============================================
+// AGENCY CARDS
+// ============================================
+
+model AgencyCard {
+  id           String   @id @default(uuid())
+  title        String
+  imageUrl     String?  @map("image_url")
+  location     String   @map("location")
+  lodgingType  String   @map("lodging_type")
+  distance     String?  @map("distance")
+  email        String?
+  phone        String?
+  socialHandle String?  @map("social_handle")
+  facebookUrl  String?  @map("facebook_url")
+  instagramUrl String?  @map("instagram_url")
+  tiktokUrl    String?  @map("tiktok_url")
+  order        Int      @default(0)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@map("agency_cards")
+}
+
+// ============================================
 // SECTIONS
 // ============================================
 
