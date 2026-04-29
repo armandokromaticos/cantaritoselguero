@@ -62,6 +62,17 @@ export class UploadAgencyCardImageUseCase {
     const ext = nameAllowed && mimeAligned ? extFromName : extFromMime;
     const filePath = `${cardId}/${randomUUID()}.${ext}`;
 
+    const publicUrl = await this.supabaseService.uploadFile(
+      BUCKET,
+      filePath,
+      file.buffer,
+      file.mimetype,
+    );
+
+    const updated = await this.repository.update(cardId, {
+      imageUrl: publicUrl,
+    });
+
     if (existing.imageUrl) {
       try {
         const pathFromUrl = existing.imageUrl.split("/").slice(-2).join("/");
@@ -73,13 +84,6 @@ export class UploadAgencyCardImageUseCase {
       }
     }
 
-    const publicUrl = await this.supabaseService.uploadFile(
-      BUCKET,
-      filePath,
-      file.buffer,
-      file.mimetype,
-    );
-
-    return this.repository.update(cardId, { imageUrl: publicUrl });
+    return updated;
   }
 }
