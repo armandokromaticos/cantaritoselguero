@@ -38,14 +38,7 @@ export class DeleteAgencyCardImageUseCase {
 
     const updated = await this.repository.update(cardId, { imageUrl: null });
 
-    try {
-      const pathFromUrl = currentUrl.split("/").slice(-2).join("/");
-      await this.supabaseService.deleteFile(BUCKET, pathFromUrl);
-    } catch (error) {
-      this.logger.warn(
-        `Failed to delete image from storage for agency card ${cardId}: ${error}`,
-      );
-    }
+    await this.deleteFromStorage(currentUrl, cardId);
 
     return updated;
   }

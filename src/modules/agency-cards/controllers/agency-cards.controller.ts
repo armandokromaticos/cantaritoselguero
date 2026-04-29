@@ -76,8 +76,9 @@ export class AgencyCardsController {
   async findAll(
     @Query("active") active?: string,
   ): Promise<AgencyCardResponseDto[]> {
-    const activeOnly = active === "true";
-    const entities = await this.getAgencyCardsUseCase.execute(activeOnly);
+    const activeFilter =
+      active === "true" ? true : active === "false" ? false : undefined;
+    const entities = await this.getAgencyCardsUseCase.execute(activeFilter);
     return entities.map((card) => card.toResponseDto());
   }
 

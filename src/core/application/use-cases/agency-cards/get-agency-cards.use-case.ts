@@ -10,9 +10,12 @@ export class GetAgencyCardsUseCase {
     private readonly repository: IAgencyCardRepository,
   ) {}
 
-  async execute(activeOnly?: boolean): Promise<AgencyCardEntity[]> {
-    if (activeOnly) {
+  async execute(activeFilter?: boolean): Promise<AgencyCardEntity[]> {
+    if (activeFilter === true) {
       return await this.repository.findAllActive();
+    }
+    if (activeFilter === false) {
+      return await this.repository.findAllInactive();
     }
     return await this.repository.findAll();
   }

@@ -80,12 +80,6 @@ export class UploadAgencyCardImageUseCase {
       file.mimetype,
     );
 
-    if (!publicUrl) {
-      throw new BadRequestException(
-        `Upload succeeded but no public URL was returned for agency card ${cardId}`,
-      );
-    }
-
     return this.repository.update(cardId, { imageUrl: publicUrl });
   }
 }

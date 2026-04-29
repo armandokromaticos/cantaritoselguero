@@ -10,6 +10,7 @@ export interface IAgencyCardRepository {
   findById(id: string): Promise<AgencyCardEntity | null>;
   findAll(): Promise<AgencyCardEntity[]>;
   findAllActive(): Promise<AgencyCardEntity[]>;
+  findAllInactive(): Promise<AgencyCardEntity[]>;
   update(id: string, data: UpdateAgencyCardParams): Promise<AgencyCardEntity>;
   delete(id: string): Promise<void>;
 }

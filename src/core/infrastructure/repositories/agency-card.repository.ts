@@ -36,6 +36,14 @@ export class AgencyCardRepository implements IAgencyCardRepository {
     return cards.map((card) => AgencyCardEntity.fromPrisma(card));
   }
 
+  async findAllInactive(): Promise<AgencyCardEntity[]> {
+    const cards = await this.prisma.agencyCard.findMany({
+      where: { isActive: false },
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    });
+    return cards.map((card) => AgencyCardEntity.fromPrisma(card));
+  }
+
   async update(
     id: string,
     data: UpdateAgencyCardParams,

@@ -17,13 +17,12 @@ export class DeleteAgencyCardUseCase {
       throw new NotFoundException(`Agency card with id ${id} not found`);
     }
 
-    if (card.imageUrl) {
-      await this.deleteAgencyCardImageUseCase.deleteFromStorage(
-        card.imageUrl,
-        id,
-      );
-    }
+    const imageUrl = card.imageUrl;
 
     await this.repository.delete(id);
+
+    if (imageUrl) {
+      await this.deleteAgencyCardImageUseCase.deleteFromStorage(imageUrl, id);
+    }
   }
 }
